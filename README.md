@@ -5,7 +5,7 @@ Group Members
 Agile Team 1
 1. Divya Hamshini Viknesh (dvik0001@student.monash.edu)
 2. Mohamed Aqeel (mmoh0238@student.monash.edu)
-3. 
+3. Tejash (teja0005@student.monash.edu)
 4. 
 
 Agile Team 2
