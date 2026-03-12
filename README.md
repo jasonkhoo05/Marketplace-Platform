@@ -6,7 +6,7 @@ Agile Team 1
 1. Divya Hamshini Viknesh (dvik0001@student.monash.edu)
 2. Mohamed Aqeel (mmoh0238@student.monash.edu)
 3. Stella Wong Kai Ning (swon0163@student.monash.edu)
-4.
+4. Sim Teck Hong (tsim0011@student.monash.edu)
 
 Agile Team 2
 1. Lim Sweet Ann (slim0196@student.monash.edu)
