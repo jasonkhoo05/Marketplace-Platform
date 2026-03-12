@@ -16,5 +16,5 @@ Agile Team 2
 
 Agile Team 3
 1. 
-2. 
+2. Wu Yunhe (ywuu0349@student.monash.edu)
 3. 
