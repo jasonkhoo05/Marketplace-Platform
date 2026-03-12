@@ -3,7 +3,7 @@
 Group Members
 
 Agile Team 1
-1. 
+1. Divya Hamshini Viknesh (dvik0001@student.monash.edu)
 2. 
 3. 
 4. 
