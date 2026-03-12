@@ -15,6 +15,6 @@ Agile Team 2
 4. 
 
 Agile Team 3
-1. 
+1. (Jason) Khoo Shuai Qi (skho0064@student.monash.edu)
 2. Wu Yunhe (ywuu0349@student.monash.edu)
 3. 
