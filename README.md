@@ -10,7 +10,7 @@ Agile Team 1
 
 Agile Team 2
 1. Lim Sweet Ann (slim0196@student.monash.edu)
-2. 
+2. Pearlsia Ng Zhao Han (pngg0022@student.monash.edu)
 3. 
 4. 
 
