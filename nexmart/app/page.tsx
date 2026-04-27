@@ -37,7 +37,7 @@ export default function Home() {
         <h1 className="text-xl font-bold leading-none">NexMart</h1>
         <div className="flex gap-4 items-center">
           <Link
-            href="/login/buyer"
+            href="/login"
             className="px-4 py-2 flex items-center justify-center"
           >
             Login
@@ -71,7 +71,7 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/login/buyer"
+            href="/login"
             className="border px-6 py-3 rounded-lg"
           >
             Login
