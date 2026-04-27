@@ -3,6 +3,33 @@ import { Separator } from "@/components/ui/separator"
 
 export default function Home() {
 
+  const products = [
+    {
+      id: 1,
+      name: "Hoodie",
+      price: 39.99,
+      image: "/products/hoodie.jpg"
+    },
+    {
+      id: 2,
+      name: "T-Shirt",
+      price: 19.99,
+      image: "/products/T-shirt.jpg",
+    },
+    {
+      id: 3,
+      name: "Cargo Pants",
+      price: 59.99,
+      image: "/products/CargoPants.jpg",
+    },
+    {
+      id: 4,
+      name: "Denim Jacket",
+      price: 99.99,
+      image: "/products/DenimJacket.jpg",
+    },
+  ];
+
   return (
     <main className="min-h-screen flex flex-col justify-between w-full">
 
@@ -81,6 +108,118 @@ export default function Home() {
           </div>
 
         </div>
+      </section>
+
+      <section className="px-10 py-12">
+      <div className="flex items-center justify-center gap-6 md:gap-10 text-center">
+
+        <div className="flex flex-col gap-1">
+          <p className="text-3xl font-bold">10K+</p>
+          <p className="text-sm text-muted-foreground">Active Users</p>
+        </div>
+
+        <Separator orientation="vertical" className="hidden md:block h-12" />
+
+        <div className="flex flex-col gap-1">
+          <p className="text-3xl font-bold">5K+</p>
+          <p className="text-sm text-muted-foreground">Products Listed</p>
+        </div>
+
+        <Separator orientation="vertical" className="hidden md:block h-12" />
+
+        <div className="flex flex-col gap-1">
+          <p className="text-3xl font-bold">99%</p>
+          <p className="text-sm text-muted-foreground">User Satisfaction</p>
+        </div>
+      </div>
+    </section>
+
+      <section className="px-10 py-16">
+        <h3 className="text-2xl font-bold mb-6 text-center">
+          Trending Preview
+        </h3>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {products.map((item) => (
+            <div
+              key={item.id}
+              className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition"
+            >
+
+              <img
+                src={item.image}
+                alt={item.name}
+                className="h-80 w-full object-cover rounded mb-3"
+              />
+
+              <p className="font-medium">{item.name}</p>
+
+              <p className="text-sm text-gray-500">${item.price}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="px-3 py-15 text-center">
+        <h3 className="text-2xl font-bold mb-10">How NexMart Works</h3>
+
+        <div className="grid md:grid-cols-3 gap-8 text-left max-w-5xl mx-auto">
+          
+          <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
+            <p className="text-sm text-gray-400 mb-2">Step 1</p>
+            <p className="font-semibold mb-2">Discover</p>
+            <p className="text-gray-600">
+              Browse products uploaded by real users
+            </p>
+          </div>
+
+          <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
+            <p className="text-sm text-gray-400 mb-2">Step 2</p>
+            <p className="font-semibold mb-2">Connect</p>
+            <p className="text-gray-600">
+              Chat directly with sellers instantly for product enquiries
+            </p>
+          </div>
+
+          <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
+            <p className="text-sm text-gray-400 mb-2">Step 3</p>
+            <p className="font-semibold mb-2">Trade</p>
+            <p className="text-gray-600">
+              Complete deals easily between buyers and sellers
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-3 py-16 text-center mb-10">
+        <h3 className="text-2xl font-bold mb-10">Users feedback</h3>
+
+        <div className="grid md:grid-cols-3 gap-8 text-left max-w-5xl mx-auto">
+          
+          <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
+            <p className="text-gray-600 mb-3"> "Super easy to sell my items. I can actually found a buyer within minutes!" </p> 
+            <p className="font-semibold">- Aiden</p>
+          </div>
+
+          <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
+            <p className="text-gray-600 mb-3"> "This is way faster than other marketplaces. I love the features in this marketplace!" </p> 
+            <p className="font-semibold">- Lucas</p>
+          </div>
+
+          <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition">
+            <p className="text-gray-600 mb-3"> "Highly recommend to use this marketplace! It's really convenient to track my orders' details." </p> 
+            <p className="font-semibold">- Michelle</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="text-center py-20 bg-muted">
+        <h3 className="text-3xl font-bold">
+          Ready to get started?
+        </h3>
+        <p className="text-gray-600 mb-6">
+          Join NexMart today and experience a better way to trade.
+        </p>
       </section>
 
       <footer className="text-center py-6 border-t text-sm text-gray-500">
