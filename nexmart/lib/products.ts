@@ -30,3 +30,4 @@ export const products = [
       image: "/products/T-shirt.jpg",
     },
   ];
+  export const categories = ["All", "Jackets", "Pants", "Hoodies", "T-Shirts"];
