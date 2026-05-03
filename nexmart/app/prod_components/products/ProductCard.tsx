@@ -2,6 +2,7 @@
 import type { Product } from "@/lib/products";
 import Image from "next/image";
 import { Star } from "lucide-react";
+import Link from "next/link";
 
 type Props = {
   product: Product;
@@ -11,6 +12,7 @@ export default function ProductCard({ product }: Props) {
   const isOutOfStock = product.stockQuantity === 0;
 
   return (
+    <Link href={`/products/${product.id}`}>
     <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="relative aspect-square w-full bg-slate-100">
         {isOutOfStock && (
@@ -38,5 +40,6 @@ export default function ProductCard({ product }: Props) {
         </p>
       </div>
     </div>
+    </Link>
   );
 }
