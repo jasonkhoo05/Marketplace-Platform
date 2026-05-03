@@ -28,6 +28,27 @@ function getNumberParam(
   return numberValue;
 }
 
+function getBooleanParam(
+  searchParams: URLSearchParams,
+  key: string,
+): boolean | null {
+  const value = searchParams.get(key);
+
+  if (value === null || value.trim() === "") {
+    return null;
+  }
+
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  throw new Error(`${key} must be true or false`);
+}
+
 function getSortParam(searchParams: URLSearchParams): SortOption {
   const sort = searchParams.get("sort") ?? "popular";
 
@@ -58,13 +79,13 @@ function filterProducts(
   const minPrice = getNumberParam(searchParams, "minPrice");
   const maxPrice = getNumberParam(searchParams, "maxPrice");
   const minRating = getNumberParam(searchParams, "minRating");
+  const inStock = getBooleanParam(searchParams, "inStock");
 
   let filteredProducts = [...productList];
 
   if (category && category !== "All") {
     filteredProducts = filteredProducts.filter(
-      (product) =>
-        product.category.toLowerCase() === category.toLowerCase(),
+      (product) => product.category.toLowerCase() === category.toLowerCase(),
     );
   }
 
@@ -92,13 +113,16 @@ function filterProducts(
     );
   }
 
+  if (inStock === true) {
+    filteredProducts = filteredProducts.filter(
+      (product) => product.stockQuantity > 0,
+    );
+  }
+
   return filteredProducts;
 }
 
-function sortProducts(
-  productList: Product[],
-  sort: SortOption,
-): Product[] {
+function sortProducts(productList: Product[], sort: SortOption): Product[] {
   const sortedProducts = [...productList];
 
   switch (sort) {
@@ -114,15 +138,12 @@ function sortProducts(
     case "newest":
       return sortedProducts.sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() -
-          new Date(a.createdAt).getTime(),
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
     case "popular":
     default:
-      return sortedProducts.sort(
-        (a, b) => b.quantitySold - a.quantitySold,
-      );
+      return sortedProducts.sort((a, b) => b.quantitySold - a.quantitySold);
   }
 }
 
@@ -174,9 +195,6 @@ export async function GET(request: NextRequest) {
     const message =
       error instanceof Error ? error.message : "Unexpected server error";
 
-    return NextResponse.json(
-      { error: message },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
