@@ -1,6 +1,8 @@
 // app/prod_components/products/ProductCard.tsx
 import type { Product } from "@/lib/products";
 import Image from "next/image";
+import { Star } from "lucide-react";
+import Link from "next/link";
 
 type Props = {
   product: Product;
@@ -10,6 +12,7 @@ export default function ProductCard({ product }: Props) {
   const isOutOfStock = product.stockQuantity === 0;
 
   return (
+    <Link href={`/products/${product.id}`}>
     <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="relative aspect-square w-full bg-slate-100">
         {isOutOfStock && (
@@ -30,10 +33,13 @@ export default function ProductCard({ product }: Props) {
         <h3 className="font-bold">{product.name}</h3>
         <p className="mt-1 text-sm text-slate-500">Seller: {product.seller}</p>
         <p className="mt-2 font-bold text-teal-700">${product.price}</p>
-        <p className="mt-1 text-sm text-slate-600">
-          ⭐ {product.rating} · {product.quantitySold} sold
+
+        <p className="mt-1 flex items-center gap-1 text-sm text-slate-600">
+          <Star size={16} fill="currentColor" />
+          {product.rating} · {product.quantitySold} sold
         </p>
       </div>
     </div>
+    </Link>
   );
 }
