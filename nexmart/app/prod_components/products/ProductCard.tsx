@@ -1,4 +1,4 @@
-// components/products/ProductCard.tsx
+// app/prod_components/products/ProductCard.tsx
 import type { Product } from "@/lib/products";
 import Image from "next/image";
 
@@ -7,11 +7,17 @@ type Props = {
 };
 
 export default function ProductCard({ product }: Props) {
+  const isOutOfStock = product.stockQuantity === 0;
+
   return (
     <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-      
-      {/* image container */}
       <div className="relative aspect-square w-full bg-slate-100">
+        {isOutOfStock && (
+          <span className="absolute left-3 top-3 z-10 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
+            Out of stock
+          </span>
+        )}
+
         <Image
           src={product.image}
           alt={product.name}
@@ -20,12 +26,14 @@ export default function ProductCard({ product }: Props) {
         />
       </div>
 
-      {/* text */}
       <div className="p-4">
         <h3 className="font-bold">{product.name}</h3>
+        <p className="mt-1 text-sm text-slate-500">Seller: {product.seller}</p>
         <p className="mt-2 font-bold text-teal-700">${product.price}</p>
+        <p className="mt-1 text-sm text-slate-600">
+          ⭐ {product.rating} · {product.quantitySold} sold
+        </p>
       </div>
-
     </div>
   );
 }
