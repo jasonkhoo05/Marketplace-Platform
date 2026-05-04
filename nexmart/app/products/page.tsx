@@ -9,17 +9,19 @@ import ProductGrid from "@/app/prod_components/products/ProductGrid";
 import ProductToolbar, {
   type SortOption,
 } from "@/app/prod_components/products/ProductToolbar";
-import { categories, type Product } from "@/lib/products";
+import { type Product } from "@/lib/products";
 
 type ProductsApiResponse = {
   products: Product[];
   total: number;
+  categories?: string[];
   error?: string;
 };
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [categories, setCategories] = useState<string[]>(["All"]);
 
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
@@ -85,6 +87,9 @@ export default function ProductsPage() {
 
         setProducts(data.products);
         setTotalProducts(data.total);
+        if (data.categories?.length) {
+          setCategories(data.categories);
+        }
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;
