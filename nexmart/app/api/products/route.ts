@@ -1,6 +1,8 @@
 // app/api/products/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { products, type Product } from "@/lib/products";
+import { createClient } from "@/lib/supabase/server";
+import { productFromRow, type Product, type ProductRow } from "@/lib/products";
+import { hasEnvVars } from "@/lib/utils";
 
 type SortOption =
   | "popular"
@@ -69,91 +71,37 @@ function getSortParam(searchParams: URLSearchParams): SortOption {
   return sort as SortOption;
 }
 
-function filterProducts(
-  productList: Product[],
-  searchParams: URLSearchParams,
-): Product[] {
-  const category = searchParams.get("category");
-  const search = searchParams.get("search");
+async function fetchCategoryTabs(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+): Promise<string[]> {
+  const { data, error } = await supabase.from("products").select("category");
 
-  const minPrice = getNumberParam(searchParams, "minPrice");
-  const maxPrice = getNumberParam(searchParams, "maxPrice");
-  const minRating = getNumberParam(searchParams, "minRating");
-  const inStock = getBooleanParam(searchParams, "inStock");
-
-  let filteredProducts = [...productList];
-
-  if (category && category !== "All") {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.category.toLowerCase() === category.toLowerCase(),
-    );
+  if (error || !data?.length) {
+    return ["All"];
   }
 
-  if (search) {
-    filteredProducts = filteredProducts.filter((product) =>
-      product.name.toLowerCase().includes(search.toLowerCase()),
-    );
-  }
+  const unique = new Set(
+    data.map((row) => row.category).filter((c): c is string => Boolean(c)),
+  );
 
-  if (minPrice !== null) {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.price >= minPrice,
-    );
-  }
-
-  if (maxPrice !== null) {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.price <= maxPrice,
-    );
-  }
-
-  if (minRating !== null) {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.rating >= minRating,
-    );
-  }
-
-  if (inStock === true) {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.stockQuantity > 0,
-    );
-  }
-
-  return filteredProducts;
-}
-
-function sortProducts(productList: Product[], sort: SortOption): Product[] {
-  const sortedProducts = [...productList];
-
-  switch (sort) {
-    case "price_asc":
-      return sortedProducts.sort((a, b) => a.price - b.price);
-
-    case "price_desc":
-      return sortedProducts.sort((a, b) => b.price - a.price);
-
-    case "rating_desc":
-      return sortedProducts.sort((a, b) => b.rating - a.rating);
-
-    case "newest":
-      return sortedProducts.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
-
-    case "popular":
-    default:
-      return sortedProducts.sort((a, b) => b.quantitySold - a.quantitySold);
-  }
+  return ["All", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
 }
 
 export async function GET(request: NextRequest) {
+  if (!hasEnvVars) {
+    return NextResponse.json(
+      { error: "Supabase is not configured (missing environment variables)" },
+      { status: 503 },
+    );
+  }
+
   try {
     const searchParams = request.nextUrl.searchParams;
 
     const minPrice = getNumberParam(searchParams, "minPrice");
     const maxPrice = getNumberParam(searchParams, "maxPrice");
     const minRating = getNumberParam(searchParams, "minRating");
+    const inStock = getBooleanParam(searchParams, "inStock");
     const sort = getSortParam(searchParams);
 
     if (minPrice !== null && minPrice < 0) {
@@ -184,12 +132,73 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const filteredProducts = filterProducts(products, searchParams);
-    const sortedProducts = sortProducts(filteredProducts, sort);
+    const supabase = await createClient();
+
+    let query = supabase.from("products").select("*");
+
+    const category = searchParams.get("category");
+    const search = searchParams.get("search");
+
+    if (category && category !== "All") {
+      query = query.eq("category", category);
+    }
+
+    if (search && search.trim() !== "") {
+      query = query.ilike("name", `%${search.trim()}%`);
+    }
+
+    if (minPrice !== null) {
+      query = query.gte("price", minPrice);
+    }
+
+    if (maxPrice !== null) {
+      query = query.lte("price", maxPrice);
+    }
+
+    if (minRating !== null) {
+      query = query.gte("rating", minRating);
+    }
+
+    if (inStock === true) {
+      query = query.gt("stock_quantity", 0);
+    }
+
+    switch (sort) {
+      case "price_asc":
+        query = query.order("price", { ascending: true });
+        break;
+      case "price_desc":
+        query = query.order("price", { ascending: false });
+        break;
+      case "rating_desc":
+        query = query.order("rating", { ascending: false });
+        break;
+      case "newest":
+        query = query.order("id", { ascending: false });
+        break;
+      case "popular":
+      default:
+        query = query.order("quantity_sold", { ascending: false });
+        break;
+    }
+
+    const [{ data: rows, error }, categories] = await Promise.all([
+      query,
+      fetchCategoryTabs(supabase),
+    ]);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    const products: Product[] = ((rows ?? []) as ProductRow[]).map(
+      productFromRow,
+    );
 
     return NextResponse.json({
-      products: sortedProducts,
-      total: sortedProducts.length,
+      products,
+      total: products.length,
+      categories,
     });
   } catch (error) {
     const message =
