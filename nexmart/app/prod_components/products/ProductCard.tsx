@@ -1,7 +1,7 @@
 // app/prod_components/products/ProductCard.tsx
 import type { Product } from "@/lib/products";
+import { RatingStars } from "@/components/rating-star";
 import Image from "next/image";
-import { Star } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -34,9 +34,11 @@ export default function ProductCard({ product }: Props) {
         <p className="mt-1 text-sm text-slate-500">Seller: {product.seller}</p>
         <p className="mt-2 font-bold text-teal-700">${product.price}</p>
 
-        <p className="mt-1 flex items-center gap-1 text-sm text-slate-600">
-          <Star size={16} fill="currentColor" />
-          {product.rating} · {product.quantitySold} sold
+        <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-slate-600">
+          <RatingStars rating={product.rating} size={16} />
+          <span>{product.rating}</span>
+          <span className="text-slate-400">·</span>
+          <span>{product.quantitySold} sold</span>
         </p>
       </div>
     </div>
