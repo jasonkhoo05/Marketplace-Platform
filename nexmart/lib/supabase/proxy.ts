@@ -4,7 +4,7 @@ import { hasEnvVars } from "../utils";
 import {
   getSupabaseProjectUrl,
   getSupabasePublishableKey,
-} from "./project-url";
+} from "@/lib/supabase/project-url";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
