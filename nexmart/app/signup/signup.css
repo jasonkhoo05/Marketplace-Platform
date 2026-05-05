@@ -1,0 +1,27 @@
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+body{
+    background: #fbf5f5;
+}
+
+.signup-container{
+    display:flex;
+    height:100vh;
+}
+
+.leftPanel{
+    width:50%;
+    background: #276462;
+    color:white;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:60px;
+}
