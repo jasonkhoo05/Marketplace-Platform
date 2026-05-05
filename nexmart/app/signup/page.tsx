@@ -40,18 +40,24 @@ export default function SignupPage() {
                         placeholder="you@gmail.com"
                     />
 
-                    <label>Password</label>
+                    <div className="passwordTop">
+                        <label>Password</label>
+                        <a href="#">Forgot password?</a>
+                    </div>
+
                     <input
                         type="password"
                         placeholder="Enter your password"
                     />
 
-                    <div className="passwordTop">
-                        <label>Password</label>
-                        <a href="#">Forgot password?</a>
-                    </div>
-                    
+                    <button type="submit" className="signupButton">
+                        Sign up
+                    </button>
                 </form>
+                <p className="loginText">
+                    Already have an account?
+                    <a href="#">Sign in</a>
+                </p>
             </div>
         </div>
     )
