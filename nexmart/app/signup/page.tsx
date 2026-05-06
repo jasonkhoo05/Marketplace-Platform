@@ -1,7 +1,14 @@
-import "./signup.css";
+"use client"
+
 import { TbBrandAppgallery } from "react-icons/tb";
+import { useState } from "react";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+
+import "./signup.css";
 
 export default function SignupPage() {
+    const [showPassword, setShowPassword] = useState(false);
+
     return (
         <div className="signup-container">
 
@@ -22,8 +29,7 @@ export default function SignupPage() {
                     </h1>
 
                     <p className="description">
-                        Join thousands of happy shoppers who 
-                        trust NexMart for their everyday needs 
+                        Join thousands of happy shoppers who trust NexMart for their everyday needs 
                         - from daily essentials to weekend finds.
                     </p>
                  </div>
@@ -50,10 +56,25 @@ export default function SignupPage() {
                             <a href="#">Forgot password?</a>
                         </div>
 
-                        <input
-                            type="password"
-                            placeholder="Enter your password"
-                        />
+                        <div className="passwordInputBox">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Enter your password"
+                            />
+
+                            <span
+                                className="eyeIcon"
+                                onClick={() =>
+                                    setShowPassword(!showPassword)
+                                }
+                            >
+                                {showPassword ? (
+                                    <AiOutlineEyeInvisible />
+                                ) : (
+                                    <AiOutlineEye />
+                                )}
+                            </span>
+                        </div>
 
                         <button type="submit" className="signupButton">
                             Sign up
