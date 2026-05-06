@@ -41,7 +41,7 @@ export default function LoginPage() {
                 
 
                     <p className="subtitle">
-                        Good to have your back. Pick up right where you left off.
+                        It's good to have you back. Let's continue your journey
                     </p>
 
                     <form>
@@ -76,13 +76,13 @@ export default function LoginPage() {
                             </span>
                         </div>
 
-                        <button type="submit" className="signupButton">
-                            Sign up
+                        <button type="submit" className="signinButton">
+                            Sign in
                         </button>
                     </form>
-                    <p className="loginText">
-                        Already have an account?
-                        <a href="/login"> Login</a>
+                    <p className="signupText">
+                        Don't have an account?{" "}
+                        <a href="/signup">Create one - it's free</a>
                     </p>
                 </div>
             </div>

@@ -166,18 +166,18 @@ input:focus{
     color: #666;
 }
 
-.signupButton {
+.signinButton {
   padding: 8px;
   background: #0f766e;
   color: white;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 20px;
   font-weight: 700;
 }
 
-.signupButton:hover {
+.signinButton:hover {
   background: #115e59;
 }
 
