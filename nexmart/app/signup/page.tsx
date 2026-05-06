@@ -20,7 +20,7 @@ export default function SignupPage() {
                 </div>
 
                  <div className="content-left">
-                    <p className="welcome">WELCOME BACK</p>
+                    <p className="welcome">STEP INTO NEXMART</p>
 
                     <h1>
                         <span className="line1">Shop smarter.</span>
