@@ -57,10 +57,10 @@ async function ProductDetailContent({ params }: Props) {
         </p>
         <p className="mt-2 text-slate-600">Seller: {product.seller}</p>
         <p className="mt-2 text-slate-600">Category: {product.category}</p>
-        <p className="mt-2 flex flex-wrap items-center gap-2 text-slate-600">
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-slate-600">
           <RatingStars rating={product.rating} size={20} />
           <span>{product.rating} / 5</span>
-        </p>
+          </div>
         <p className="mt-2 text-slate-600">{product.quantitySold} sold</p>
         <p className="mt-2 text-slate-600">
           In stock: {outOfStock ? "No" : `${product.stockQuantity} available`}
