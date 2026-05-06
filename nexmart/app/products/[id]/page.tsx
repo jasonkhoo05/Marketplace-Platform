@@ -22,9 +22,19 @@ async function ProductDetailContent({ params }: Props) {
   const supabase = await createClient();
 
   const { data: row, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", numericId)
+    .from("product")
+    .select(`
+      prod_id,
+      prod_name,
+      prod_price,
+      prod_stock_qty,
+      prod_rating,
+      prod_sold_qty,
+      prod_image,
+      product_category_type!prod_prod_cat_fk(prod_cat_name),
+      user!fk_product_seller(username)
+    `)
+    .eq("prod_id", numericId)
     .maybeSingle();
 
   if (error || !row) {

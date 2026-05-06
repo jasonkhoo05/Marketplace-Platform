@@ -12,9 +12,19 @@ async function TrendingPreview() {
   if (hasEnvVars) {
     const supabase = await createClient();
     const { data: rows } = await supabase
-      .from("products")
-      .select("*")
-      .order("quantity_sold", { ascending: false })
+      .from("product")
+      .select(`
+        prod_id,
+        prod_name,
+        prod_price,
+        prod_stock_qty,
+        prod_rating,
+        prod_sold_qty,
+        prod_image,
+        product_category_type!prod_prod_cat_fk(prod_cat_name),
+        user!fk_product_seller(username)
+      `)
+      .order("prod_sold_qty", { ascending: false })
       .limit(4);
 
     trending =

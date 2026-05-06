@@ -74,14 +74,19 @@ function getSortParam(searchParams: URLSearchParams): SortOption {
 async function fetchCategoryTabs(
   supabase: Awaited<ReturnType<typeof createClient>>,
 ): Promise<string[]> {
-  const { data, error } = await supabase.from("products").select("category");
+  const { data, error } = await supabase
+    .from("product_category_type")
+    .select("prod_cat_name")
+    .order("prod_cat_name", { ascending: true });
 
   if (error || !data?.length) {
     return ["All"];
   }
 
   const unique = new Set(
-    data.map((row) => row.category).filter((c): c is string => Boolean(c)),
+    data
+      .map((row) => row.prod_cat_name)
+      .filter((c): c is string => Boolean(c)),
   );
 
   return ["All", ...Array.from(unique).sort((a, b) => a.localeCompare(b))];
@@ -134,51 +139,75 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    let query = supabase.from("products").select("*");
+    let query = supabase.from("product").select(`
+        prod_id,
+        prod_name,
+        prod_price,
+        prod_stock_qty,
+        prod_rating,
+        prod_sold_qty,
+        prod_image,
+        product_category_type!prod_prod_cat_fk(prod_cat_name),
+        user!fk_product_seller(username)
+      `);
 
     const category = searchParams.get("category");
     const search = searchParams.get("search");
 
     if (category && category !== "All") {
-      query = query.eq("category", category);
+      const { data: categoryRow } = await supabase
+        .from("product_category_type")
+        .select("prod_cat_id")
+        .eq("prod_cat_name", category)
+        .maybeSingle();
+
+      if (!categoryRow) {
+        return NextResponse.json({
+          products: [],
+          total: 0,
+          categories: await fetchCategoryTabs(supabase),
+        });
+      }
+
+      query = query.eq("prod_cat_id", categoryRow.prod_cat_id);
     }
 
     if (search && search.trim() !== "") {
-      query = query.ilike("name", `%${search.trim()}%`);
+      query = query.ilike("prod_name", `%${search.trim()}%`);
     }
 
     if (minPrice !== null) {
-      query = query.gte("price", minPrice);
+      query = query.gte("prod_price", minPrice);
     }
 
     if (maxPrice !== null) {
-      query = query.lte("price", maxPrice);
+      query = query.lte("prod_price", maxPrice);
     }
 
     if (minRating !== null) {
-      query = query.gte("rating", minRating);
+      query = query.gte("prod_rating", minRating);
     }
 
     if (inStock === true) {
-      query = query.gt("stock_quantity", 0);
+      query = query.gt("prod_stock_qty", 0);
     }
 
     switch (sort) {
       case "price_asc":
-        query = query.order("price", { ascending: true });
+        query = query.order("prod_price", { ascending: true });
         break;
       case "price_desc":
-        query = query.order("price", { ascending: false });
+        query = query.order("prod_price", { ascending: false });
         break;
       case "rating_desc":
-        query = query.order("rating", { ascending: false });
+        query = query.order("prod_rating", { ascending: false });
         break;
       case "newest":
-        query = query.order("id", { ascending: false });
+        query = query.order("prod_id", { ascending: false });
         break;
       case "popular":
       default:
-        query = query.order("quantity_sold", { ascending: false });
+        query = query.order("prod_sold_qty", { ascending: false });
         break;
     }
 

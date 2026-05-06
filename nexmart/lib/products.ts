@@ -10,35 +10,53 @@ export type Product = {
   stockQuantity: number;
 };
 
-/** Row shape returned from Supabase `products` table (snake_case columns) */
+type ProductCategoryRow = {
+  prod_cat_name: string | null;
+};
+
+type SellerRow = {
+  username: string | null;
+};
+
+/** Row shape returned from Supabase `product` table (snake_case columns) */
 export type ProductRow = {
-  id: number | string;
-  name: string;
-  price: number | string;
-  category: string;
-  image: string;
-  rating: number | string;
-  seller: string;
-  quantity_sold: number | string;
-  stock_quantity: number | string;
+  prod_id: number | string;
+  prod_name: string;
+  prod_price: number | string;
+  prod_stock_qty: number | string;
+  prod_rating: number | string;
+  prod_sold_qty: number | string | null;
+  prod_image: string;
+  product_category_type?: ProductCategoryRow | ProductCategoryRow[] | null;
+  user?: SellerRow | SellerRow[] | null;
 };
 
 export function productFromRow(row: ProductRow): Product {
+  const categoryValue = Array.isArray(row.product_category_type)
+    ? row.product_category_type[0]
+    : row.product_category_type;
+
+  const sellerValue = Array.isArray(row.user) ? row.user[0] : row.user;
+
   return {
-    id: typeof row.id === "string" ? Number(row.id) : row.id,
-    name: row.name,
-    price: typeof row.price === "string" ? Number(row.price) : row.price,
-    category: row.category,
-    image: row.image,
-    rating: typeof row.rating === "string" ? Number(row.rating) : row.rating,
-    seller: row.seller,
+    id: typeof row.prod_id === "string" ? Number(row.prod_id) : row.prod_id,
+    name: row.prod_name,
+    price:
+      typeof row.prod_price === "string" ? Number(row.prod_price) : row.prod_price,
+    category: categoryValue?.prod_cat_name ?? "Uncategorized",
+    image: row.prod_image,
+    rating:
+      typeof row.prod_rating === "string"
+        ? Number(row.prod_rating)
+        : row.prod_rating,
+    seller: sellerValue?.username ?? "Unknown seller",
     quantitySold:
-      typeof row.quantity_sold === "string"
-        ? Number(row.quantity_sold)
-        : row.quantity_sold,
+      typeof row.prod_sold_qty === "string"
+        ? Number(row.prod_sold_qty)
+        : (row.prod_sold_qty ?? 0),
     stockQuantity:
-      typeof row.stock_quantity === "string"
-        ? Number(row.stock_quantity)
-        : row.stock_quantity,
+      typeof row.prod_stock_qty === "string"
+        ? Number(row.prod_stock_qty)
+        : row.prod_stock_qty,
   };
 }
