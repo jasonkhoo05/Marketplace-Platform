@@ -1,30 +1,35 @@
 import "./signup.css";
+import { TbBrandAppgallery } from "react-icons/tb";
 
 export default function SignupPage() {
     return (
         <div className="signup-container">
 
             <div className="leftPanel">
-                <div className="logo">NexMart</div>
+                
+                <div className="logo">
+                    <TbBrandAppgallery className="logoIcon" />
+                    <span>NexMart</span>
+                </div>
 
                  <div className="content-left">
                     <p className="welcome">WELCOME BACK</p>
 
                     <h1>
-                        Shop smarter.
+                        <span className="line1">Shop smarter.</span>
                         <br />
-                        Live better.
+                        <span className="line2">Live better.</span>
                     </h1>
 
                     <p className="description">
-                        Join thousands of happy shoppers who trust NexMart for their everyday
-                        needs - from daily essentials to weekend finds
+                        Join thousands of happy shoppers who 
+                        trust NexMart for their everyday needs 
+                        - from daily essentials to weekend finds.
                     </p>
                  </div>
             </div>
 
             <div className="rightPanel">
-
                 <div className="formBox">
                     <h2> Sign up your account</h2>
                 </div>
@@ -56,7 +61,7 @@ export default function SignupPage() {
                 </form>
                 <p className="loginText">
                     Already have an account?
-                    <a href="#">Sign in</a>
+                    <a href="/login">Sign in</a>
                 </p>
             </div>
         </div>
