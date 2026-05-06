@@ -10,7 +10,7 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
-        <div className="signup-container">
+        <div className="login-container">
 
             <div className="leftPanel">
                 

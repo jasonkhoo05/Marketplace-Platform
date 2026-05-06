@@ -10,7 +10,7 @@ body{
     background: #fbf5f5;
 }
 
-.signup-container{
+.login-container{
     display:flex;
     height:100vh;
 }
@@ -166,8 +166,23 @@ input:focus{
     color: #666;
 }
 
-.signinButton {
+.loginButton {
   padding: 8px;
+  background: #0f766e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 20px;
+  font-weight: 700;
+}
+
+.loginButton:hover {
+  background: #115e59;
+}
+
+.signinButton {
+  padding: 10px;
   background: #0f766e;
   color: white;
   border: none;
@@ -181,13 +196,13 @@ input:focus{
   background: #115e59;
 }
 
-.loginText {
+.signupText {
   margin-top: 20px;
   font-size: 13px;
   text-align: center;
 }
 
-.loginText a {
+.signupText a {
   color: #0f766e;
   text-decoration: underline;
 }
