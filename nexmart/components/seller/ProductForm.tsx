@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import ProductImageUploader from "./ProductImageUploader";
 import { Product, ProductCategory, ProductFormData } from "@/types/product";
@@ -13,30 +13,42 @@ interface ProductFormProps {
 
 type ProductFormErrors = Partial<Record<keyof ProductFormData, string>>;
 
-const categories: ProductCategory[] = [
-    "Electronics",
-    "Fashion",
-    "Home",
-    "Beauty",
-    "Sports",
-    "Books",
-    "Others",
-];
-
 export default function ProductForm({
     onClose,
     onSubmit,
     editingProduct,
 }: ProductFormProps) {
+    const [categories, setCategories] = useState<ProductCategory[]>([]);
+    const [loading, setLoading] = useState(true);
     const [formData, setFormData] = useState<ProductFormData>({
         name: editingProduct?.name ?? "",
+        description: editingProduct?.description ?? "",
         price: editingProduct ? String(editingProduct.price) : "",
         quantity: editingProduct ? String(editingProduct.quantity) : "",
         category: editingProduct?.category ?? "",
+        categoryId: editingProduct?.categoryId ?? 0,
         imageUrls: editingProduct?.imageUrls ?? [],
     });
 
     const [errors, setErrors] = useState<ProductFormErrors>({});
+
+    useEffect(() => {
+        async function fetchCategories() {
+            try {
+                const response = await fetch('/api/categories');
+                const data = await response.json();
+                if (data.categories) {
+                    setCategories(data.categories);
+                }
+            } catch (error) {
+                console.error('Failed to fetch categories:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchCategories();
+    }, []);
 
     function updateField<K extends keyof ProductFormData>(
         field: K,
@@ -72,7 +84,7 @@ export default function ProductForm({
             newErrors.quantity = "Quantity cannot be negative.";
         }
 
-        if (!formData.category) {
+        if (!formData.categoryId) {
             newErrors.category = "Category is required.";
         }
 
@@ -93,9 +105,11 @@ export default function ProductForm({
         const product: Product = {
             id: editingProduct?.id ?? crypto.randomUUID(),
             name: formData.name.trim(),
+            description: formData.description.trim(),
             price: Number(formData.price),
             quantity: Number(formData.quantity),
-            category: formData.category as ProductCategory,
+            category: categories.find(cat => cat.prod_cat_id === formData.categoryId) || { prod_cat_id: formData.categoryId, prod_cat_name: '' },
+            categoryId: formData.categoryId,
             imageUrls: formData.imageUrls,
             sales: editingProduct?.sales ?? 0,
             createdAt: editingProduct?.createdAt ?? new Date().toISOString(),
@@ -143,6 +157,16 @@ export default function ProductForm({
                         {errors.name && <p className="mt-2 text-sm text-red-500">{errors.name}</p>}
                     </div>
 
+                    <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700">
+                            Description
+                        </label>
+                        <textarea 
+                        value={formData.description}
+                        onChange={(e)=> updateField("description", e.target.value)}
+                        className="w-full rounded-x1 border border-slate-300 px-4 py-3 text-sm"/>
+                    </div>
+
                     <div className="grid gap-5 md:grid-cols-2">
                         <div>
                             <label htmlFor="price" className="mb-2 block text-sm font-semibold text-slate-700">
@@ -186,16 +210,20 @@ export default function ProductForm({
                         </label>
                         <select
                             id="category"
-                            value={formData.category}
-                            onChange={(event) =>
-                                updateField("category", event.target.value as ProductCategory | "")
-                            }
+                            value={formData.categoryId}
+                            onChange={(event) => {
+                                const categoryId = Number(event.target.value);
+                                const selectedCategory = categories.find(cat => cat.prod_cat_id === categoryId);
+                                updateField("category", selectedCategory || "");
+                                updateField("categoryId", categoryId);
+                            }}
                             className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"
+                            disabled={loading}
                         >
-                            <option value="">Select product category</option>
+                            <option value="0">{loading ? "Loading categories..." : "Select product category"}</option>
                             {categories.map((category) => (
-                                <option key={category} value={category}>
-                                    {category}
+                                <option key={category.prod_cat_id} value={category.prod_cat_id}>
+                                    {category.prod_cat_name}
                                 </option>
                             ))}
                         </select>

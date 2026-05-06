@@ -58,7 +58,7 @@ export default function ProductTable({
                                     </td>
 
                                     <td className="px-3 py-4 text-sm text-slate-700">
-                                        {product.category}
+                                        {product.category.prod_cat_name}
                                     </td>
 
                                     <td className="px-3 py-4 text-sm font-bold text-slate-900">
