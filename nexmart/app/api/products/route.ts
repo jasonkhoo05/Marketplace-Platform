@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
         prod_sold_qty,
         prod_image,
         product_category_type!prod_prod_cat_fk(prod_cat_name),
-        user!fk_product_seller(username)
+        user!product_seller_uuid_fkey(username)
       `);
 
     const category = searchParams.get("category");
