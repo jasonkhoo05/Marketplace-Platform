@@ -34,12 +34,12 @@ export default function ProductCard({ product }: Props) {
         <p className="mt-1 text-sm text-slate-500">Seller: {product.seller}</p>
         <p className="mt-2 font-bold text-teal-700">${product.price}</p>
 
-        <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-slate-600">
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-slate-600">
           <RatingStars rating={product.rating} size={16} />
           <span>{product.rating}</span>
           <span className="text-slate-400">·</span>
           <span>{product.quantitySold} sold</span>
-        </p>
+          </div>
       </div>
     </div>
     </Link>
