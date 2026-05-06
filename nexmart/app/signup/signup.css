@@ -31,13 +31,15 @@ body{
   top:40px;
   left:50px;
   display: flex;
-  gap:10px;
+  align-items: center;
+  gap:5px;
   font-weight: bold;
   font-size: 18px;
 }
 
 .logoIcon {
     font-size: 22px;
+    display: flex;
 }
 
 .content-left{
