@@ -1,17 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
 import SellerSidebar from "@/components/seller/SellerSidebar";
 import ProductForm from "@/components/seller/ProductForm";
 import ProductTable from "@/components/seller/ProductTable";
-import { mockProducts } from "@/data/mockProducts";
 import { Product } from "@/types/product";
 
 export default function SellerDashboardPage() {
-    const [products, setProducts] = useState<Product[]>(mockProducts);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+    useEffect(() => {
+        async function fetchProducts() {
+            try {
+                const response = await fetch('/api/products');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+                const data = await response.json();
+                
+                
+                const transformedProducts = data.products.map((product: any) => ({
+                    id: product.prod_id.toString(),
+                    name: product.prod_name,
+                    description: product.prod_desc,
+                    price: product.prod_price,
+                    quantity: product.prod_stock_qty,
+                    category: product.product_category_type,
+                    categoryId: product.prod_cat_id,
+                    imageUrls: [product.prod_image],
+                    sales: product.prod_sold_qty || 0,
+                    createdAt: product.created_at,
+                }));
+                
+                setProducts(transformedProducts);
+            } catch (error) {
+                console.error('Failed to fetch products:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchProducts();
+    }, []);
 
     function openCreateForm() {
         setEditingProduct(null);
@@ -28,22 +62,54 @@ export default function SellerDashboardPage() {
         setIsFormOpen(false);
     }
 
-    function handleSaveProduct(product: Product) {
-        setProducts((currentProducts) => {
-            const productAlreadyExists = currentProducts.some(
-                (currentProduct) => currentProduct.id === product.id
-            );
+    async function handleSaveProduct(product: Product) {
+        try {
+            const res = await fetch("/api/product", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    prod_name: product.name,
+                    prod_desc: product.description,
+                    prod_price: product.price,
+                    prod_stock_qty: product.quantity,
+                    prod_cat_id: product.categoryId,
+                    prod_image: product.imageUrls[0] || "/products/placeholder.jpg"
+                })
+            });
 
-            if (productAlreadyExists) {
-                return currentProducts.map((currentProduct) =>
-                    currentProduct.id === product.id ? product : currentProduct
-                );
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'Failed to create product');
             }
 
-            return [product, ...currentProducts];
-        });
+            const data = await res.json();
+            
+            // Refresh products list after creation
+            const refreshResponse = await fetch('/api/products');
+            if (refreshResponse.ok) {
+                const refreshData = await refreshResponse.json();
+                const transformedProducts = refreshData.products.map((product: any) => ({
+                    id: product.prod_id.toString(),
+                    name: product.prod_name,
+                    description: product.prod_desc,
+                    price: product.prod_price,
+                    quantity: product.prod_stock_qty,
+                    category: product.product_category_type,
+                    categoryId: product.prod_cat_id,
+                    imageUrls: [product.prod_image],
+                    sales: product.prod_sold_qty || 0,
+                    createdAt: product.created_at,
+                }));
+                setProducts(transformedProducts);
+            }
 
-        closeForm();
+            closeForm();
+        } catch (error) {
+            console.error('Error creating product:', error);
+            alert('Failed to create product. Please try again.');
+        }
     }
 
     function handleDeleteProduct(productId: string) {
@@ -129,11 +195,20 @@ export default function SellerDashboardPage() {
                     </button>
                 </section>
 
-                <ProductTable
-                    products={products}
-                    onEdit={openEditForm}
-                    onDelete={handleDeleteProduct}
-                />
+                {loading ? (
+                    <div className="flex justify-center py-12">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-700 mx-auto"></div>
+                            <p className="mt-4 text-slate-500">Loading products...</p>
+                        </div>
+                    </div>
+                ) : (
+                    <ProductTable
+                        products={products}
+                        onEdit={openEditForm}
+                        onDelete={handleDeleteProduct}
+                    />
+                )}
             </div>
 
             {isFormOpen && (
