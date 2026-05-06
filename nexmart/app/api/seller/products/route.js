@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
 export async function GET() {
@@ -12,7 +12,7 @@ export async function GET() {
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Unauthorized access" },
         { status: 401 }
       )
     }
@@ -39,9 +39,7 @@ export async function GET() {
     }
 
     const { data: products, error: productError } =
-      await supabase
-        .from("products")
-        .select(`
+      await supabase.from("products").select(`
           prod_id,
           prod_name,
           prod_price,
@@ -59,11 +57,17 @@ export async function GET() {
     }
 
     const formattedProducts = products.map(product => ({
-      ...product,
-      stock_status:
-        product.prod_stock_qty === 0
+      prod_id: p.prod_id, // for delete action
+      product: p.prod_name,
+      category: p.prod_cat_type?.prod_cat_name || "Unknown",
+      price: p.prod_price,
+      stock: p.prod_stock_qty,
+      sales: p.prod_sold_qty,
+
+      buyer_status:
+        p.prod_stock_qty === 0
           ? "Out of Stock"
-          : "In Stock"
+          : "Available"
     }))
 
     return NextResponse.json(formattedProducts)
