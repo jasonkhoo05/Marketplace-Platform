@@ -19,18 +19,18 @@ export default function SignupPage() {
                     <span>NexMart</span>
                 </div>
 
-                 <div className="content-left">
+                <div className="content-left">
                     <p className="welcome">STEP INTO NEXMART</p>
 
                     <h1>
-                        <span className="line1">Shop smarter.</span>
+                        <span className="line1">Smart shopping.</span>
                         <br />
-                        <span className="line2">Live better.</span>
+                        <span className="line2">Made simple.</span>
                     </h1>
 
                     <p className="description">
-                        Join thousands of happy shoppers who trust NexMart for their everyday needs 
-                        - from daily essentials to weekend finds.
+                        Join NexMart and discover a smoother way to shop essentials, deals
+                        and everyday favorites.
                     </p>
                  </div>
             </div>
