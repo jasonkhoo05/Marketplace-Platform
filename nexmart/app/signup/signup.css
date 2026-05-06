@@ -21,13 +21,28 @@ body{
     color:white;
     position:relative;
     display:flex;
-    align-items:center;
+    flex-direction:column;
     justify-content:center;
-    padding:60px;
+    position:relative;
+}
+
+.logo{
+  position:absolute;
+  top:40px;
+  left:50px;
+  font-size:24px;
+  font-weight:700;
 }
 
 .content-left{
     max-width:420px;
+}
+
+.welcome{
+  font-size:13px;
+  margin-bottom:18px;
+  opacity:0.9;
+  letter-spacing:1px;
 }
 
 .content-left h1{
@@ -42,6 +57,12 @@ body{
   opacity:0.9;
 }
 
+.description{
+  font-size:18px;
+  line-height:1.8;
+  opacity:0.9;
+}
+
 .rightPanel{
   width:50%;
   background:#f8f9fb;
@@ -50,11 +71,11 @@ body{
   align-items:center;
 }
 
-.formTitle{
+.formBox{
   width:360px;
 }
 
-.formTitle h2{
+.formBox h2{
   font-size:42px;
   font-weight:700;
   color:#1f2937;
@@ -75,19 +96,19 @@ form{
 label{
   font-size:14px;
   font-weight:600;
-  margin-bottom:8px;
   color:#374151;
+  margin-bottom:8px;
 }
 
 input{
   width:100%;
-  padding:14px;
+  padding:16px;
   border:1px solid #e5e7eb;
-  border-radius:12px;
-  margin-bottom:18px;
+  border-radius:14px;
+  margin-bottom:20px;
+  font-size:14px;
   outline:none;
   background:white;
-  font-size:14px;
 }
 
 input:focus{
@@ -100,52 +121,14 @@ input:focus{
   align-items:center;
 }
 
-.passwordTop a{
-  font-size:13px;
-  text-decoration:none;
-  color:#006d66;
-}
-
-.remember{
+.passwordTop{
   display:flex;
+  justify-content:space-between;
   align-items:center;
-  gap:8px;
-  margin-bottom:22px;
-  font-size:14px;
-  color:#4b5563;
 }
 
-.remember input{
-  width:auto;
-  margin:0;
-}
-
-.signupBtn{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:#006d66;
-  color:white;
-  font-size:15px;
-  font-weight:600;
-  cursor:pointer;
-  transition:0.3s;
-}
-
-.signupBtn:hover{
-  background:#00554f;
-}
-
-.loginText{
-  text-align:center;
-  margin-top:22px;
-  font-size:14px;
-  color:#6b7280;
-}
-
-.loginText a{
-  color:#006d66;
-  text-decoration:none;
-  font-weight:600;
+.passwordTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }

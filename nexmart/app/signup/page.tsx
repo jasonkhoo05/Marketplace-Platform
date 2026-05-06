@@ -25,7 +25,7 @@ export default function SignupPage() {
 
             <div className="rightPanel">
 
-                <div className="formTitle">
+                <div className="formBox">
                     <h2> Sign up your account</h2>
                 </div>
 
