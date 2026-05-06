@@ -37,7 +37,7 @@ export default function LoginPage() {
 
             <div className="rightPanel">
                 <div className="formBox">
-                    <h2> Sign up your account</h2>
+                    <h2> Login your account</h2>
                 
 
                     <p className="subtitle">
