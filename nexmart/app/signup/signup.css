@@ -79,12 +79,15 @@ body{
 .rightPanel{
   width:50%;
   background:#f8f9fb;
-  display:flex;
+  display: flex;
+  align-items: center;
   justify-content:center;
+  padding: 20px;
 }
 
 .formBox{
-  width:360px;
+  flex-direction:column;
+  gap:10px;
 }
 
 .formBox h2 {
@@ -95,7 +98,7 @@ body{
 
 .subtitle{
   color:#6b7280;
-  font-size:14px;
+  font-size:16px;
   margin-bottom:30px;
 }
 
@@ -105,13 +108,13 @@ form{
 }
 
 label{
-  font-size:14px;
+  font-size:15px;
   color:#374151;
   margin-bottom:8px;
 }
 
 input{
-  padding: 14px;
+  padding: 10px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
   margin-bottom: 15px;
@@ -141,13 +144,14 @@ input:focus{
 }
 
 .signupButton {
-  padding: 14px;
+  padding: 8px;
   background: #0f766e;
   color: white;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
+  margin-top: 10px;
+  font-weight: 700;
 }
 
 .signupButton:hover {
@@ -162,5 +166,5 @@ input:focus{
 
 .loginText a {
   color: #0f766e;
-  text-decoration: none;
+  text-decoration: underline;
 }

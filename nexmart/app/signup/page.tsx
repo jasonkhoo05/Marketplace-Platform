@@ -32,37 +32,38 @@ export default function SignupPage() {
             <div className="rightPanel">
                 <div className="formBox">
                     <h2> Sign up your account</h2>
+                
+
+                    <p className="subtitle">
+                        Good to have your back. Pick up right where you left off.
+                    </p>
+
+                    <form>
+                        <label>Email address</label>
+                        <input
+                            type="email"
+                            placeholder="you@gmail.com"
+                        />
+
+                        <div className="passwordTop">
+                            <label>Password</label>
+                            <a href="#">Forgot password?</a>
+                        </div>
+
+                        <input
+                            type="password"
+                            placeholder="Enter your password"
+                        />
+
+                        <button type="submit" className="signupButton">
+                            Sign up
+                        </button>
+                    </form>
+                    <p className="loginText">
+                        Already have an account?
+                        <a href="/login"> Login</a>
+                    </p>
                 </div>
-
-                <p className="subtitle">
-                    Good to have your back. Pick up right where you left off.
-                </p>
-
-                <form>
-                    <label>Email address</label>
-                    <input
-                        type="email"
-                        placeholder="you@gmail.com"
-                    />
-
-                    <div className="passwordTop">
-                        <label>Password</label>
-                        <a href="#">Forgot password?</a>
-                    </div>
-
-                    <input
-                        type="password"
-                        placeholder="Enter your password"
-                    />
-
-                    <button type="submit" className="signupButton">
-                        Sign up
-                    </button>
-                </form>
-                <p className="loginText">
-                    Already have an account?
-                    <a href="/login">Sign in</a>
-                </p>
             </div>
         </div>
     )
