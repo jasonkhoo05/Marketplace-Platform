@@ -63,9 +63,11 @@ export default function SellerDashboardPage() {
     }
 
     async function handleSaveProduct(product: Product) {
-        try {
-            const res = await fetch("/api/product", {
-                method: "POST",
+        try { 
+            const isEditing = editingProduct;
+            const res = await fetch(
+                isEditing? `/api/product/${product.id}`: "/api/product", {
+                method: isEditing? "PUT": "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
