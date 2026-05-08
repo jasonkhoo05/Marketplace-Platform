@@ -67,24 +67,35 @@ export default function ProductForm({
 
     function validateForm(): boolean {
         const newErrors: ProductFormErrors = {};
-
         if (!formData.name.trim()) {
             newErrors.name = "Product name is required.";
+        } else if (formData.name.length > 30 ) {
+            newErrors.name = "Product Name exceeded the limit of 30 characters."
+        }
+
+        if (!formData.description.trim()) {
+            newErrors.description = "Product description is required.";
+        } else if (formData.description.length > 100) {
+            newErrors.description = "Product Description exceeded the limit of 100 characters.";
         }
 
         if (!formData.price.trim()) {
             newErrors.price = "Price is required.";
         } else if (Number(formData.price) <= 0 || Number.isNaN(Number(formData.price))) {
             newErrors.price = "Price must be greater than 0.";
+        } else if (Number(formData.price) > 10000) {
+            newErrors.price = "Price must be below $10,000.";
         }
 
         if (!formData.quantity.trim()) {
             newErrors.quantity = "Quantity is required.";
         } else if (Number(formData.quantity) < 0 || Number.isNaN(Number(formData.quantity))) {
             newErrors.quantity = "Quantity cannot be negative.";
+        } else if (Number(formData.quantity) > 10000) {
+            newErrors.quantity = "The quantity is limited to a maximum of 9999."
         }
 
-        if (!formData.categoryId) {
+        if (!formData.category) {
             newErrors.category = "Category is required.";
         }
 
@@ -96,6 +107,36 @@ export default function ProductForm({
 
         return Object.keys(newErrors).length === 0;
     }
+
+
+    //     if (!formData.name.trim()) {
+    //         newErrors.name = "Product name is required.";
+    //     }
+
+    //     if (!formData.price.trim()) {
+    //         newErrors.price = "Price is required.";
+    //     } else if (Number(formData.price) <= 0 || Number.isNaN(Number(formData.price))) {
+    //         newErrors.price = "Price must be greater than 0.";
+    //     }
+
+    //     if (!formData.quantity.trim()) {
+    //         newErrors.quantity = "Quantity is required.";
+    //     } else if (Number(formData.quantity) < 0 || Number.isNaN(Number(formData.quantity))) {
+    //         newErrors.quantity = "Quantity cannot be negative.";
+    //     }
+
+    //     if (!formData.categoryId) {
+    //         newErrors.category = "Category is required.";
+    //     }
+
+    //     if (formData.imageUrls.length === 0) {
+    //         newErrors.imageUrls = "At least one product image is required.";
+    //     }
+
+    //     setErrors(newErrors);
+
+    //     return Object.keys(newErrors).length === 0;
+    // }
 
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -158,13 +199,16 @@ export default function ProductForm({
                     </div>
 
                     <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        <label htmlFor="productDescription" className="mb-2 block text-sm font-semibold text-slate-700">
                             Description
                         </label>
-                        <textarea 
+                        <textarea
+                        id = "productDescription"
                         value={formData.description}
                         onChange={(e)=> updateField("description", e.target.value)}
-                        className="w-full rounded-x1 border border-slate-300 px-4 py-3 text-sm"/>
+                        className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm"
+                        />
+                        {errors.description && <p className="mt-2 text-sm text-red-500">{errors.description}</p>}
                     </div>
 
                     <div className="grid gap-5 md:grid-cols-2">
