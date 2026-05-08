@@ -5,6 +5,11 @@ export interface ProductCategory {
     prod_cat_name: string;
 }
 
+export interface ProductCategoryLink {
+    prod_id: number;
+    prod_cat_id: number;
+}
+
 export interface Product {
     id: string;
     name: string;
