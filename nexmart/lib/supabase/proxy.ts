@@ -2,34 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
-//placeholder, migth change later
-const publicRoutes = [
-  "/",
-  "/login",
-  "/signup",
-  "/auth",
-  "/seller/dashboard",
-];
-
-function isPublicRoute(pathname: string) {
-  return publicRoutes.some((route) => {
-    return pathname === route || pathname.startsWith(`${route}/`);
-  });
-}
-
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
-
-  const pathname = request.nextUrl.pathname;
-
-  //temporary path to prevent auto direct to auth login
-  //Remove "/seller/dashboard" from publicRoutes later when auth is ready.
-
-  if (isPublicRoute(pathname)) {
-    return supabaseResponse;
-  }
 
   // If the env vars are not set, skip proxy check. You can remove this
   // once you setup the project.
@@ -68,36 +44,20 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: If you remove getClaims() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
-
-
   const { data } = await supabase.auth.getClaims();
   const user = data?.claims;
 
-  //placeholder
-  const isProtected =
-    request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/admin") ||
-    request.nextUrl.pathname.startsWith("/profile");
-
-
-  if (!user && isProtected) {
+  if (
+    request.nextUrl.pathname !== "/" &&
+    !user &&
+    !request.nextUrl.pathname.startsWith("/login") &&
+    !request.nextUrl.pathname.startsWith("/auth")
+  ) {
+    // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);
   }
-
-
-  // if (
-  //   request.nextUrl.pathname !== "/" &&
-  //   !user &&
-  //   !request.nextUrl.pathname.startsWith("/login") &&
-  //   !request.nextUrl.pathname.startsWith("/auth")
-  // ) {
-  //   // no user, potentially respond by redirecting the user to the login page
-  //   const url = request.nextUrl.clone();
-  //   url.pathname = "/auth/login";
-  //   return NextResponse.redirect(url);
-  // }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
@@ -114,7 +74,3 @@ export async function updateSession(request: NextRequest) {
 
   return supabaseResponse;
 }
-
-
-
-
