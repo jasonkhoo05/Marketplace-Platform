@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request) {
   const { email, password } = await request.json();
+  console.log(email);
+  console.log(password);
 
   if (!email || !password) {
     return NextResponse.json(
@@ -11,10 +13,11 @@ export async function POST(request) {
     );
   }
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+  // const supabase = createClient(
+  //   process.env.NEXT_PUBLIC_SUPABASE_URL,
+  //   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  // );
+  const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
