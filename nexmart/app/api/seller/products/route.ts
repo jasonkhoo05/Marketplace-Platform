@@ -22,7 +22,7 @@ export async function GET() {
       .select(
         `
           *,
-          product_category_type!inner (
+          product_category_type!prod_prod_cat_fk (
             prod_cat_name
           )
         `,
