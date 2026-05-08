@@ -37,9 +37,10 @@ export default function LoginPage() {
                 return;
             }
 
-            // If buyer page is created then change to
-            //  router.push("/buyer/login")
-            router.push("/seller/dashboard");
+            // router.push("/buyer/dashboard");
+            // router.push("/admin/dashboard");
+
+            router.push("seller/dashboard");
         } catch {
             setError("Something went wrong. Please try again.");
         } finally {
