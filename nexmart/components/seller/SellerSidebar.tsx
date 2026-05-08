@@ -13,6 +13,7 @@ import {
     FiUser,
 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import { LogoutButton } from "../logout-button"
 
 const menuItems = [
     { label: "Dashboard", href: "/seller/dashboard", icon: FiGrid, active: true },
@@ -22,27 +23,27 @@ const menuItems = [
 ];
 
 export default function SellerSidebar() {
-    const supabase = createClient();
-    const router = useRouter();
+    // const supabase = createClient();
+    // const router = useRouter();
 
-    const [user, setUser] = useState<any>(null);
+    // const [user, setUser] = useState<any>(null);
 
-    useEffect(() => {
-        async function loadUser() {
-            const { data } = await supabase.auth.getUser();
-            setUser(data.user);
-        }
-        loadUser();
-    }, []);
+    // useEffect(() => {
+    //     async function loadUser() {
+    //         const { data } = await supabase.auth.getUser();
+    //         setUser(data.user);
+    //     }
+    //     loadUser();
+    // }, []);
 
-    const handleLogOut = async () => {
-        const { error } = await supabase.auth.signOut();
+    // const handleLogOut = async () => {
+    //     const { error } = await supabase.auth.signOut();
 
-        if (!error) {
-            router.push("/login");
-            router.refresh();
-        }
-    }
+    //     if (!error) {
+    //         router.push("/login");
+    //         router.refresh();
+    //     }
+    // }
 
     return (
         <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-slate-200 bg-white">
@@ -92,7 +93,8 @@ export default function SellerSidebar() {
                     Back to Store
                 </Link>
 
-                <button
+
+                {/* <button
                 type="button"
                 className="flex w-full items-center justify-center gap-2 text-sm text-red-500 hover:text-red-600"
                 onClick={handleLogOut}
@@ -100,7 +102,8 @@ export default function SellerSidebar() {
 
                     <FiLogOut size={15} />
                     Logout
-                </button>
+                </button> */}
+                <LogoutButton />
             </div>
         </aside>
     );
