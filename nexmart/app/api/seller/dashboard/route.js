@@ -20,7 +20,7 @@ export async function GET() {
     const { data: currentUser, error: userError } =
       await supabase
         .from("users")
-        .select("user_id, last_active_role")
+        .select("user_uuid, last_active_role")
         .eq("user_uuid", user.id)
         .single()
 
@@ -57,7 +57,7 @@ export async function GET() {
     }
 
     const formattedProducts = products.map(product => ({
-      prod_id: p.prod_id, // for delete action
+      prod_id: p.prod_id, 
       product: p.prod_name,
       category: p.prod_cat_type?.prod_cat_name || "Unknown",
       price: p.prod_price,
