@@ -73,14 +73,14 @@ export default function Home() {
         <h1 className="text-xl font-bold leading-none">NexMart</h1>
         <div className="flex gap-4 items-center">
           <Link
-            href="/auth/login"
+            href="/login"
             className="px-4 py-2 flex items-center justify-center"
           >
             Login
           </Link>
 
           <Link
-            href="/auth/sign-up"
+            href="/signup"
             className="px-4 py-2 flex items-center justify-center bg-primary text-white rounded-lg"
           >
             Sign Up
@@ -100,14 +100,14 @@ export default function Home() {
 
         <div className="flex gap-2">
           <Link
-            href="/auth/sign-up"
+            href="/signup"
             className="bg-primary text-white px-6 py-3 rounded-lg"
           >
             Get Started
           </Link>
 
           <Link
-            href="/auth/login"
+            href="/login"
             className="border px-6 py-3 rounded-lg"
           >
             Login
