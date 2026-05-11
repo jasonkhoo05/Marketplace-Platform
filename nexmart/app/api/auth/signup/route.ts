@@ -1,11 +1,14 @@
-import { NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabaseServer';
+import { NextResponse } from "next/server";
+import { createAdminClient } from "@/lib/supabaseServer";
 
-export async function POST(request) {
+export async function POST(request: Request) {
   const { username, email, phone, password } = await request.json();
 
   if (!username || !email || !password) {
-    return NextResponse.json({ error: 'Username, email, and password are required' }, { status: 400 });
+    return NextResponse.json(
+      { error: "Username, email, and password are required" },
+      { status: 400 }
+    );
   }
 
   const supabase = createAdminClient();
@@ -20,35 +23,31 @@ export async function POST(request) {
     return NextResponse.json({ error: authError.message }, { status: 400 });
   }
 
-  const { data: newUser, error: userError } = await supabase
-    .from('user')
+  const { error: userError } = await supabase
+    .from("user")
     .insert({
       user_uuid: authData.user.id,
       username,
       email,
       phone: phone || null,
       password,
-      last_active_role: 'buyer',
-    })
-    .select('user_id')
-    .single();
+      user_image: null,
+      last_active_role: "buyer",
+    });
 
   if (userError) {
     await supabase.auth.admin.deleteUser(authData.user.id);
     return NextResponse.json({ error: userError.message }, { status: 400 });
   }
 
-  const { data: buyerRole } = await supabase
-    .from('role')
-    .select('role_id')
-    .eq('role_name', 'buyer')
-    .single();
+  const { error: roleError } = await supabase.from("user_role").insert({
+    user_uuid: authData.user.id,
+    role_id: 1, // buyer
+  });
 
-  if (buyerRole) {
-    await supabase.from('user_role').insert({
-      user_id: newUser.user_id,
-      role_id: buyerRole.role_id,
-    });
+  if (roleError) {
+    console.error("Insert role error:", roleError.message);
+    // Don't fail signup over role insert — user record exists
   }
 
   return NextResponse.json({ success: true }, { status: 201 });

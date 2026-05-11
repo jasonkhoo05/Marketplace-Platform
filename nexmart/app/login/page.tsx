@@ -1,9 +1,10 @@
 "use client";
 
 import { TbBrandAppgallery } from "react-icons/tb";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 import "./login.css";
 import GoogleAuthButton from "@/components/ui/google-auth-button";
@@ -16,6 +17,11 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
 
     const router = useRouter();
+
+    useEffect(() => {
+        const supabase = createClient();
+        supabase.auth.signOut().catch(() => {});
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,6 +38,11 @@ export default function LoginPage() {
             });
 
             const data = await response.json();
+
+            if (response.status === 404) {
+                router.push("/signup");
+                return;
+            }
 
             if (!response.ok) {
                 setError(data.error || "Login failed");
