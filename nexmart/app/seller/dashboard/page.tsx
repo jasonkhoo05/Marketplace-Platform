@@ -6,6 +6,7 @@ import SellerSidebar from "@/components/seller/SellerSidebar";
 import ProductForm from "@/components/seller/ProductForm";
 import ProductTable from "@/components/seller/ProductTable";
 import { Product, ProductFormData } from "@/types/product";
+import { urlSearchParamsToParsedUrlQuery } from "next/dist/client/route-params";
 
 export default function SellerDashboardPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -14,7 +15,10 @@ export default function SellerDashboardPage() {
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
     useEffect(() => {
-        async function fetchProducts() {
+        fetchProducts();
+    }, [])
+
+    async function fetchProducts() {
             try {
                 const response = await fetch('/api/seller/products');
                 if (!response.ok) {
@@ -24,7 +28,7 @@ export default function SellerDashboardPage() {
 
 
                 const transformedProducts = data.products.map((product: any) => ({
-                    id: product.prod_id.toString(),
+                    id: product.prod_id,
                     name: product.prod_name,
                     description: product.prod_desc,
                     price: product.prod_price,
@@ -46,8 +50,7 @@ export default function SellerDashboardPage() {
             }
         }
 
-        fetchProducts();
-    }, []);
+;
 
     function openCreateForm() {
         setEditingProduct(null);
@@ -79,8 +82,7 @@ export default function SellerDashboardPage() {
                     prod_desc: product.description,
                     prod_price: product.price,
                     prod_stock_qty: product.quantity,
-
-                    // prod_cat_id: product.categoryId,
+                    prod_cat_id: product.categoryId, //need string cat?
                     prod_image: product.imageUrls[0] || "/products/placeholder.jpg"
                 })
             });
@@ -91,9 +93,10 @@ export default function SellerDashboardPage() {
                 throw new Error(errorData.error || 'Failed to create product');
             }
 
+            await fetchProducts();
+
             const data = await res.json();
 
-            console.log(data);
 
             // Refresh products list after creation
             const refreshResponse = await fetch('/api/seller/products');
@@ -113,8 +116,6 @@ export default function SellerDashboardPage() {
                 }));
                 setProducts(transformedProducts);
             }
-            // console.log(product.categoryId);
-
 
             // add to prod_cat_id
             if (!isEditing) {
@@ -141,17 +142,33 @@ export default function SellerDashboardPage() {
         }
     }
 
-    function handleDeleteProduct(productId: number) {
+    async function handleDeleteProduct(productId: number) {
         const confirmed = window.confirm(
             "Are you sure you want to delete this product listing?"
         );
 
         if (!confirmed) return;
-        const stringId = String(productId);
 
-        setProducts((currentProducts) =>
-            currentProducts.filter((product) => product.id !== productId)
-        );
+        try {
+            const res = await fetch(`/api/seller/products/${productId}`,
+                { method: "DELETE"});
+
+            if (!res.ok) {
+                const body = await res.json();
+                console.log("server error", body)
+                throw new Error("Failed to delete product");
+
+            }
+            setProducts(curr => curr.filter(prod => prod.id !== productId));
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            alert("Failed to delete product. Please try again.")
+        }
+
+
+        // setProducts((currentProducts) =>
+        //     currentProducts.filter((product) => product.id !== productId)
+        // );
     }
 
     return (

@@ -3,8 +3,9 @@ import { NextResponse } from "next/server";
 
 
 
-export async function DELETE(req: Request, { params } :{ params: { id: number }}) {
+export async function DELETE(req: Request, { params } :{ params: { id: string }}) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -16,10 +17,23 @@ export async function DELETE(req: Request, { params } :{ params: { id: number }}
         );
     }
 
+    const { error: categoryError } = await supabase
+      .from("prod_cat_link")
+      .delete()
+      .eq("prod_id", Number(id));
+
+    console.log(categoryError);
+    if (categoryError) {
+        return NextResponse.json({ error: categoryError.message }, { status : 500 });
+
+    }
+
     const { error } = await supabase
       .from("product")
       .delete()
-      .eq("prod_id", params.id);
+      .eq("prod_id", Number(id));
+
+    console.log("supabase eror", error);
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status : 500 });

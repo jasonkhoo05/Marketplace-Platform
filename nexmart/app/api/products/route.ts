@@ -1,4 +1,7 @@
-// app/api/products/route.ts
+
+/**
+ * Buyer's view of product
+ */
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { productFromRow, type ProductView, type ProductRow } from "@/lib/products";

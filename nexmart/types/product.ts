@@ -32,6 +32,6 @@ export interface ProductFormData {
     // category: ProductCategory | "";
     category: string[];
 
-    // categoryId: number;
+    categoryId: number;
     imageUrls: string[];
 }
