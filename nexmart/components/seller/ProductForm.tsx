@@ -25,7 +25,7 @@ export default function ProductForm({
         description: editingProduct?.description ?? "",
         price: editingProduct ? String(editingProduct.price) : "",
         quantity: editingProduct ? String(editingProduct.quantity) : "",
-        category: editingProduct?.category ?? "",
+        category: editingProduct?.category ?? "", //ProductCategory
         categoryId: editingProduct?.categoryId ?? 0,
         imageUrls: editingProduct?.imageUrls ?? [],
     });
@@ -108,35 +108,6 @@ export default function ProductForm({
         return Object.keys(newErrors).length === 0;
     }
 
-
-    //     if (!formData.name.trim()) {
-    //         newErrors.name = "Product name is required.";
-    //     }
-
-    //     if (!formData.price.trim()) {
-    //         newErrors.price = "Price is required.";
-    //     } else if (Number(formData.price) <= 0 || Number.isNaN(Number(formData.price))) {
-    //         newErrors.price = "Price must be greater than 0.";
-    //     }
-
-    //     if (!formData.quantity.trim()) {
-    //         newErrors.quantity = "Quantity is required.";
-    //     } else if (Number(formData.quantity) < 0 || Number.isNaN(Number(formData.quantity))) {
-    //         newErrors.quantity = "Quantity cannot be negative.";
-    //     }
-
-    //     if (!formData.categoryId) {
-    //         newErrors.category = "Category is required.";
-    //     }
-
-    //     if (formData.imageUrls.length === 0) {
-    //         newErrors.imageUrls = "At least one product image is required.";
-    //     }
-
-    //     setErrors(newErrors);
-
-    //     return Object.keys(newErrors).length === 0;
-    // }
 
     function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();

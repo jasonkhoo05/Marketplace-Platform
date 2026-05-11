@@ -21,21 +21,27 @@ export default function SellerDashboardPage() {
                     throw new Error('Failed to fetch products');
                 }
                 const data = await response.json();
-                
-                
+
+
                 const transformedProducts = data.products.map((product: any) => ({
                     id: product.prod_id.toString(),
                     name: product.prod_name,
                     description: product.prod_desc,
                     price: product.prod_price,
                     quantity: product.prod_stock_qty,
-                    category: product.product_category_type,
-                    categoryId: product.prod_cat_id,
+                    category: (product.prod_cat_link ?? []).map((link: any) => link.product_category_type
+                                ?.prod_cat_name).filter(Boolean),
+
+
+                //     (p.prod_cat_link ?? [])
+                // .map((link: any) => link.product_category_type?.prod_cat_name)
+                // .filter(Boolean),
+                    // categoryId: product.prod_cat_id,
                     imageUrls: [product.prod_image],
                     sales: product.prod_sold_qty || 0,
                     createdAt: product.created_at,
                 }));
-                
+
                 setProducts(transformedProducts);
             } catch (error) {
                 console.error('Failed to fetch products:', error);
@@ -63,7 +69,7 @@ export default function SellerDashboardPage() {
     }
 
     async function handleSaveProduct(product: Product) {
-        try { 
+        try {
             const isEditing = editingProduct;
             const res = await fetch(
                 isEditing? `/api/product/${product.id}`: "/api/product", {
@@ -76,10 +82,12 @@ export default function SellerDashboardPage() {
                     prod_desc: product.description,
                     prod_price: product.price,
                     prod_stock_qty: product.quantity,
-                    prod_cat_id: product.categoryId,
+
+                    // prod_cat_id: product.categoryId,
                     prod_image: product.imageUrls[0] || "/products/placeholder.jpg"
                 })
             });
+
 
             if (!res.ok) {
                 const errorData = await res.json();
@@ -87,7 +95,9 @@ export default function SellerDashboardPage() {
             }
 
             const data = await res.json();
-            
+
+            console.log(data);
+
             // Refresh products list after creation
             const refreshResponse = await fetch('/api/seller/products');
             if (refreshResponse.ok) {
@@ -99,12 +109,32 @@ export default function SellerDashboardPage() {
                     price: product.prod_price,
                     quantity: product.prod_stock_qty,
                     category: product.product_category_type,
-                    categoryId: product.prod_cat_id,
+                    // categoryId: product.prod_cat_id,
                     imageUrls: [product.prod_image],
                     sales: product.prod_sold_qty || 0,
                     createdAt: product.created_at,
                 }));
                 setProducts(transformedProducts);
+            }
+            // console.log(product.categoryId);
+
+
+            // add to prod_cat_id
+            if (!isEditing) {
+                const newProdId = data.product.prod_id;
+
+                console.log(data);
+                await fetch("/api/product/category", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        prod_id: newProdId,
+                        prod_cat_id: product.categoryId,
+                    })
+                });
+
             }
 
             closeForm();

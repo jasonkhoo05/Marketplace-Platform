@@ -20,12 +20,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         const {
             prod_name,
             prod_desc,
-            prod_price, 
-            prod_stock_qty, 
-            prod_cat_id,
+            prod_price,
+            prod_stock_qty,
+            // prod_cat_id,
             prod_image,
         } = body;
-        
+
         if (!prod_name || prod_price == null ||  prod_stock_qty == null){
             return NextResponse.json(
                 {error: "Missing required fields"},
@@ -53,9 +53,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             {
             prod_name,
             prod_desc,
-            prod_price, 
-            prod_stock_qty, 
-            prod_cat_id,
+            prod_price,
+            prod_stock_qty,
+            // prod_cat_id,
             prod_image,
             }
         )

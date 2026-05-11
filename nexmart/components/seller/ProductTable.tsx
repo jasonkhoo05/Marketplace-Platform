@@ -6,7 +6,7 @@ import { Product } from "@/types/product";
 interface ProductTableProps {
     products: Product[];
     onEdit: (product: Product) => void;
-    onDelete: (productId: string) => void;
+    onDelete: (productId: number) => void;
 }
 
 export default function ProductTable({
@@ -57,8 +57,12 @@ export default function ProductTable({
                                         </div>
                                     </td>
 
+
+
+
+{/* ////////////////////////////////////////CHECK IF NEED CHANGE ////////////////////////////////////////////////////////////// */}
                                     <td className="px-3 py-4 text-sm text-slate-700">
-                                        {product.category.prod_cat_name}
+                                        {product.category?? "uncategorised"}
                                     </td>
 
                                     <td className="px-3 py-4 text-sm font-bold text-slate-900">

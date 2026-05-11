@@ -245,7 +245,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       products,
       total: products.length,
-      categories,
+      // categories,
     });
   } catch (error) {
     const message =

@@ -57,9 +57,9 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/profile") ||
     pathname.startsWith("/seller") ||
-    pathname.startsWith("/api/seller") ||
-    pathname === "/api/product" ||
-    pathname.startsWith("/api/product/");
+    pathname.startsWith("/api/seller");
+    // pathname === "/api/product" ||
+    // pathname.startsWith("/api/product/");
 
   if (!user && isProtectedPath) {
     const url = request.nextUrl.clone();
