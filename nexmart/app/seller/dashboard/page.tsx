@@ -32,10 +32,6 @@ export default function SellerDashboardPage() {
                     category: (product.prod_cat_link ?? []).map((link: any) => link.product_category_type
                                 ?.prod_cat_name).filter(Boolean),
 
-
-                //     (p.prod_cat_link ?? [])
-                // .map((link: any) => link.product_category_type?.prod_cat_name)
-                // .filter(Boolean),
                     // categoryId: product.prod_cat_id,
                     imageUrls: [product.prod_image],
                     sales: product.prod_sold_qty || 0,
@@ -144,12 +140,13 @@ export default function SellerDashboardPage() {
         }
     }
 
-    function handleDeleteProduct(productId: string) {
+    function handleDeleteProduct(productId: number) {
         const confirmed = window.confirm(
             "Are you sure you want to delete this product listing?"
         );
 
         if (!confirmed) return;
+        const stringId = String(productId);
 
         setProducts((currentProducts) =>
             currentProducts.filter((product) => product.id !== productId)

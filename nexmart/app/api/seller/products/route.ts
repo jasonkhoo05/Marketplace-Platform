@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { PARAM_SEPARATOR } from "next/dist/lib/route-pattern-normalizer";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -35,6 +36,25 @@ export async function GET() {
     }
 
     return NextResponse.json({ products: data });
+  } catch {
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request, { params } :{ params: { id: number }}) {
+  try {
+    const supabase = await createClient();
+
+    const { error } = await supabase
+      .from("product")
+      .delete()
+      .eq("prod_id", params.id);
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status : 500 });
+      }
+      return NextResponse.json({ success: true })
+
   } catch {
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
