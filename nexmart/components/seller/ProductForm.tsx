@@ -25,7 +25,7 @@ export default function ProductForm({
         description: editingProduct?.description ?? "",
         price: editingProduct ? String(editingProduct.price) : "",
         quantity: editingProduct ? String(editingProduct.quantity) : "",
-        category: editingProduct?.category ?? "", //ProductCategory
+        category: editingProduct?.category ?? [], //ProductCategory
         categoryId: editingProduct?.categoryId ?? 0,
         imageUrls: editingProduct?.imageUrls ?? [],
     });
@@ -115,16 +115,18 @@ export default function ProductForm({
         if (!validateForm()) return;
 
         const product: Product = {
-            id: editingProduct?.id ?? crypto.randomUUID(),
+            // id: editingProduct?.id ?? crypto.randomUUID(),
+            id: editingProduct?.id ?? 0,
             name: formData.name.trim(),
             description: formData.description.trim(),
             price: Number(formData.price),
             quantity: Number(formData.quantity),
-            category: categories.find(cat => cat.prod_cat_id === formData.categoryId) || { prod_cat_id: formData.categoryId, prod_cat_name: '' },
+            category: editingProduct?.category ?? [],
+            // categories.find(cat => cat.prod_cat_id === formData.categoryId) || { prod_cat_id: formData.categoryId, prod_cat_name: '' },
             categoryId: formData.categoryId,
             imageUrls: formData.imageUrls,
             sales: editingProduct?.sales ?? 0,
-            createdAt: editingProduct?.createdAt ?? new Date().toISOString(),
+            // createdAt: editingProduct?.createdAt ?? new Date().toISOString(),
         };
 
         onSubmit(product);
@@ -229,7 +231,7 @@ export default function ProductForm({
                             onChange={(event) => {
                                 const categoryId = Number(event.target.value);
                                 const selectedCategory = categories.find(cat => cat.prod_cat_id === categoryId);
-                                updateField("category", selectedCategory || "");
+                                updateField("category", selectedCategory ? [selectedCategory.prod_cat_name]: []);
                                 updateField("categoryId", categoryId);
                             }}
                             className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-teal-700 focus:ring-2 focus:ring-teal-100"

@@ -26,9 +26,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             prod_desc,
             prod_price,
             prod_stock_qty,
-            // prod_cat_id,
+            prod_cat_id,
             prod_image,
         } = body;
+
+        await supabase.from("prod_cat_link").delete().eq("prod_id", Number(id));
+        await supabase.from("prod_cat_link").insert({ prod_id: Number(id), prod_cat_id: prod_cat_id});
 
         if (!prod_name || prod_price == null ||  prod_stock_qty == null){
             return NextResponse.json(
@@ -59,7 +62,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             prod_desc,
             prod_price,
             prod_stock_qty,
-            // prod_cat_id,
+            // prod_cat_id
             prod_image,
             }
         )

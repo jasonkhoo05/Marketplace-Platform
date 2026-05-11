@@ -9,17 +9,17 @@ import ProductGrid from "@/app/prod_components/products/ProductGrid";
 import ProductToolbar, {
   type SortOption,
 } from "@/app/prod_components/products/ProductToolbar";
-import { type Product } from "@/lib/products";
+import { type ProductView } from "@/lib/products";
 
 type ProductsApiResponse = {
-  products: Product[];
+  products: ProductView[];
   total: number;
   categories?: string[];
   error?: string;
 };
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductView[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [categories, setCategories] = useState<string[]>(["All"]);
 

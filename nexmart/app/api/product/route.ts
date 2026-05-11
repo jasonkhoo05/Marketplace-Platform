@@ -9,6 +9,7 @@ export async function POST(req: Request) {
     try{
         const supabase = await createClient();
         const body = await req.json();
+        console.log("POST body", body)
 
         // Get authenticated user
         const { data: { user }, error: authError } = await supabase.auth.getUser();

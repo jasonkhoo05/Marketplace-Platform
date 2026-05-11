@@ -24,6 +24,7 @@ export async function GET() {
         `
           *,
           prod_cat_link!prod_cat_link_prod_fk(
+          prod_cat_id,
           product_category_type!prod_cat_link_prod_cat_fk(
             prod_cat_name))
         `,

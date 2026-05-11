@@ -36,7 +36,7 @@ export default function SellerDashboardPage() {
                     category: (product.prod_cat_link ?? []).map((link: any) => link.product_category_type
                                 ?.prod_cat_name).filter(Boolean),
 
-                    // categoryId: product.prod_cat_id,
+                    categoryId: product.prod_cat_link?.[0]?.prod_cat_id ?? 0,
                     imageUrls: [product.prod_image],
                     sales: product.prod_sold_qty || 0,
                     createdAt: product.created_at,
@@ -67,12 +67,11 @@ export default function SellerDashboardPage() {
         setIsFormOpen(false);
     }
 
-    // async function handleSaveProduct(product: Product) {
-    async function handleSaveProduct(product: ProductFormData) {
+    async function handleSaveProduct(product: Product) {
         try {
             const isEditing = editingProduct;
             const res = await fetch(
-                isEditing? `/api/product/${editingProduct.id}`: "/api/products", {
+                isEditing? `/api/product/${editingProduct.id}`: "/api/product", {
                 method: isEditing? "PUT": "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -82,58 +81,61 @@ export default function SellerDashboardPage() {
                     prod_desc: product.description,
                     prod_price: product.price,
                     prod_stock_qty: product.quantity,
-                    prod_cat_id: product.categoryId, //need string cat?
+                    prod_cat_id: product.categoryId,
                     prod_image: product.imageUrls[0] || "/products/placeholder.jpg"
                 })
             });
 
 
             if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || 'Failed to create product');
+                const text = await res.text();
+                console.log("res status", res.status, "body", text);
+                // const errorData = await res.json();
+                // throw new Error(errorData.error || 'Failed to create product');
+                throw new Error(text || 'Failed to create product');
             }
 
-            await fetchProducts();
-
-            const data = await res.json();
+            // const data = await res.json();
 
 
             // Refresh products list after creation
-            const refreshResponse = await fetch('/api/seller/products');
-            if (refreshResponse.ok) {
-                const refreshData = await refreshResponse.json();
-                const transformedProducts = refreshData.products.map((product: any) => ({
-                    id: product.prod_id.toString(),
-                    name: product.prod_name,
-                    description: product.prod_desc,
-                    price: product.prod_price,
-                    quantity: product.prod_stock_qty,
-                    category: product.product_category_type,
-                    // categoryId: product.prod_cat_id,
-                    imageUrls: [product.prod_image],
-                    sales: product.prod_sold_qty || 0,
-                    createdAt: product.created_at,
-                }));
-                setProducts(transformedProducts);
-            }
+            // const refreshResponse = await fetch('/api/seller/products');
+            // if (refreshResponse.ok) {
+            //     const refreshData = await refreshResponse.json();
+            //     const transformedProducts = refreshData.products.map((product: any) => ({
+            //         id: product.prod_id.toString(),
+            //         name: product.prod_name,
+            //         description: product.prod_desc,
+            //         price: product.prod_price,
+            //         quantity: product.prod_stock_qty,
+            //         category: product.product_category_type,
+            //         // categoryId: product.prod_cat_id,
+            //         imageUrls: [product.prod_image],
+            //         sales: product.prod_sold_qty || 0,
+            //         createdAt: product.created_at,
+            //     }));
+            //     setProducts(transformedProducts);
+            // }
 
             // add to prod_cat_id
-            if (!isEditing) {
-                const newProdId = data.product.prod_id;
+            // if (!isEditing) {
+            //     const newProdId = data.product.prod_id;
 
-                console.log(data);
-                await fetch("/api/product/category", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        prod_id: newProdId,
-                        prod_cat_id: product.categoryId,
-                    })
-                });
+            //     console.log(data);
+            //     await fetch("/api/product/category", {
+            //         method: "POST",
+            //         headers: {
+            //             "Content-Type": "application/json",
+            //         },
+            //         body: JSON.stringify({
+            //             prod_id: newProdId,
+            //             prod_cat_id: product.categoryId,
+            //         })
+            //     });
 
-            }
+            // }
+
+            await fetchProducts();
 
             closeForm();
         } catch (error) {

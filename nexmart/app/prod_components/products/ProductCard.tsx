@@ -1,11 +1,11 @@
 // app/prod_components/products/ProductCard.tsx
-import type { Product } from "@/lib/products";
+import type { ProductView } from "@/lib/products";
 import { RatingStars } from "@/components/rating-star";
 import Image from "next/image";
 import Link from "next/link";
 
 type Props = {
-  product: Product;
+  product: ProductView;
 };
 
 export default function ProductCard({ product }: Props) {
