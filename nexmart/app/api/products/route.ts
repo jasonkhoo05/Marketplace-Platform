@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { productFromRow, type Product, type ProductRow } from "@/lib/products";
 import { hasEnvVars } from "@/lib/utils";
+import { AwaiterMulti } from "next/dist/server/after/awaiter";
 
 type SortOption =
   | "popular"
@@ -147,7 +148,9 @@ export async function GET(request: NextRequest) {
         prod_rating,
         prod_sold_qty,
         prod_image,
-        product_category_type!prod_prod_cat_fk(prod_cat_name),
+        prod_cat_link!prod_cat_link_prod_fk(
+          product_category_type!prod_cat_link_prod_cat_fk(
+            prod_cat_name)),
         user!product_seller_uuid_fkey(username)
       `);
 
@@ -169,7 +172,22 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      query = query.eq("prod_cat_id", categoryRow.prod_cat_id);
+      const { data: linkedProductCategories } = await supabase
+        .from("prod_cat_link")
+        .select("prod_id")
+        .eq("prod_cat_id", categoryRow.prod_cat_id);
+
+        const productIdList = (linkedProductCategories ?? []).map((res) => res.prod_id);
+
+        if (productIdList.length === 0) {
+          return NextResponse.json({
+            products: [],
+            total: 0,
+            categories: await fetchCategoryTabs(supabase),
+          });
+        }
+
+      query = query.eq("prod_id", productIdList);
     }
 
     if (search && search.trim() !== "") {

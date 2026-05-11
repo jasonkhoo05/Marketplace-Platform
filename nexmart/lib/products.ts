@@ -14,6 +14,10 @@ type ProductCategoryRow = {
   prod_cat_name: string | null;
 };
 
+type ProductCatLinkRow = {
+  product_category_type?: ProductCategoryRow | null;
+}
+
 type SellerRow = {
   username: string | null;
 };
@@ -27,14 +31,16 @@ export type ProductRow = {
   prod_rating: number | string;
   prod_sold_qty: number | string | null;
   prod_image: string;
-  product_category_type?: ProductCategoryRow | ProductCategoryRow[] | null;
+  prod_cat_link?: ProductCatLinkRow[] | null;
+  // product_category_type?: ProductCategoryRow | ProductCategoryRow[] | null;
   user?: SellerRow | SellerRow[] | null;
 };
 
 export function productFromRow(row: ProductRow): Product {
-  const categoryValue = Array.isArray(row.product_category_type)
-    ? row.product_category_type[0]
-    : row.product_category_type;
+  // const categoryValue = Array.isArray(row.product_category_type)
+  //   ? row.product_category_type[0]
+  //   : row.product_category_type;
+  const category = row.prod_cat_link?.[0]?.product_category_type?.prod_cat_name ?? "Uncategorised";
 
   const sellerValue = Array.isArray(row.user) ? row.user[0] : row.user;
 
@@ -43,7 +49,7 @@ export function productFromRow(row: ProductRow): Product {
     name: row.prod_name,
     price:
       typeof row.prod_price === "string" ? Number(row.prod_price) : row.prod_price,
-    category: categoryValue?.prod_cat_name ?? "Uncategorized",
+    category,
     image: row.prod_image,
     rating:
       typeof row.prod_rating === "string"
