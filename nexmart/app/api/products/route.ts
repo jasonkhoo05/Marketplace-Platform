@@ -1,7 +1,7 @@
 // app/api/products/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { productFromRow, type Product, type ProductRow } from "@/lib/products";
+import { productFromRow, type ProductView, type ProductRow } from "@/lib/products";
 import { hasEnvVars } from "@/lib/utils";
 import { AwaiterMulti } from "next/dist/server/after/awaiter";
 
@@ -238,14 +238,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const products: Product[] = ((rows ?? []) as ProductRow[]).map(
+    const products: ProductView[] = ((rows ?? []) as ProductRow[]).map(
       productFromRow,
     );
 
     return NextResponse.json({
       products,
       total: products.length,
-      // categories,
+      categories,
     });
   } catch (error) {
     const message =

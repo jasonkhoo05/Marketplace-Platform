@@ -30,6 +30,8 @@ export interface ProductFormData {
     price: string;
     quantity: string;
     // category: ProductCategory | "";
-    categoryId: number;
+    category: string[];
+
+    // categoryId: number;
     imageUrls: string[];
 }

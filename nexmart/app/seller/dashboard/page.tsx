@@ -5,7 +5,7 @@ import { FiPlus } from "react-icons/fi";
 import SellerSidebar from "@/components/seller/SellerSidebar";
 import ProductForm from "@/components/seller/ProductForm";
 import ProductTable from "@/components/seller/ProductTable";
-import { Product } from "@/types/product";
+import { Product, ProductFormData } from "@/types/product";
 
 export default function SellerDashboardPage() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -64,11 +64,12 @@ export default function SellerDashboardPage() {
         setIsFormOpen(false);
     }
 
-    async function handleSaveProduct(product: Product) {
+    // async function handleSaveProduct(product: Product) {
+    async function handleSaveProduct(product: ProductFormData) {
         try {
             const isEditing = editingProduct;
             const res = await fetch(
-                isEditing? `/api/product/${product.id}`: "/api/product", {
+                isEditing? `/api/product/${editingProduct.id}`: "/api/products", {
                 method: isEditing? "PUT": "POST",
                 headers: {
                     "Content-Type": "application/json",
