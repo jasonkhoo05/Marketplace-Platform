@@ -6,6 +6,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 
 import "./login.css";
+import GoogleAuthButton from "@/components/ui/google-auth-button";
 
 export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -126,6 +127,8 @@ export default function LoginPage() {
                             {isLoading ? "Signing in..." : "Sign in"}
                         </button>
                     </form>
+
+                    <GoogleAuthButton />
 
                     <p className="signupText">
                         Don't have an account?{" "}
