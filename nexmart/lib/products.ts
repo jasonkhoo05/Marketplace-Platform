@@ -12,6 +12,19 @@ export type ProductView = {
   stockQuantity: number;
 };
 
+// export type Product = {
+//   id: number;
+//   name: string;
+//   price: number;
+//   category: string;
+//   image: string;
+//   rating: number;
+//   seller: string;
+//   quantitySold: number;
+//   stockQuantity: number;
+// };
+
+
 type ProductCategoryRow = {
   prod_cat_name: string | null;
 };

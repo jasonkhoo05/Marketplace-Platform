@@ -1,9 +1,9 @@
 // app/prod_components/products/ProductGrid.tsx
 import ProductCard from "./ProductCard";
-import type { Product } from "@/lib/products";
+import type { ProductView } from "@/lib/products";
 
 type ProductGridProps = {
-  products: Product[];
+  products: ProductView[];
 };
 
 export default function ProductGrid({ products }: ProductGridProps) {
