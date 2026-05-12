@@ -1,35 +1,75 @@
 import Link from "next/link";
-import { Separator } from "@/components/ui/separator"
+import { Separator } from "@/components/ui/separator";
+import { createClient } from "@/lib/supabase/server";
+import { productFromRow, type ProductRow } from "@/lib/products";
+import { hasEnvVars } from "@/lib/utils";
+import { Suspense } from "react";
+
+async function TrendingPreview() {
+  let trending: { id: number; name: string; price: number; image: string }[] =
+    [];
+
+  if (hasEnvVars) {
+    const supabase = await createClient();
+    const { data: rows } = await supabase
+      .from("product")
+      .select(`
+        prod_id,
+        prod_name,
+        prod_desc,
+        prod_price,
+        prod_stock_qty,
+        prod_rating,
+        prod_sold_qty,
+        prod_image,
+        prod_cat_link!prod_cat_link_prod_fk(
+          prod_cat_id,
+          product_category_type!prod_cat_link_prod_cat_fk(
+            prod_cat_name)),
+        user!product_seller_uuid_fkey(username)
+      `)
+      .order("prod_sold_qty", { ascending: false })
+      .limit(4);
+
+    trending =
+      (rows as unknown as ProductRow[] | null)?.map((r) => {
+        const p = productFromRow(r);
+        return { id: p.id, name: p.name, price: p.price, image: p.image };
+      }) ?? [];
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {trending.length === 0 ? (
+        <p className="col-span-full text-center text-gray-500">
+          {hasEnvVars
+            ? "No products yet. Add rows in Supabase or run the migration SQL."
+            : "Configure Supabase in .env.local to load trending products."}
+        </p>
+      ) : (
+        trending.map((item) => (
+          <Link
+            key={item.id}
+            href={`/products/${item.id}`}
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition block"
+          >
+            <img
+              src={item.image}
+              alt={item.name}
+              className="h-80 w-full object-cover rounded mb-3"
+            />
+
+            <p className="font-medium">{item.name}</p>
+
+            <p className="text-sm text-gray-500">${item.price}</p>
+          </Link>
+        ))
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
-
-  const products = [
-    {
-      id: 1,
-      name: "Hoodie",
-      price: 39.99,
-      image: "/products/hoodie.jpg"
-    },
-    {
-      id: 2,
-      name: "T-Shirt",
-      price: 19.99,
-      image: "/products/T-shirt.jpg",
-    },
-    {
-      id: 3,
-      name: "Cargo Pants",
-      price: 59.99,
-      image: "/products/CargoPants.jpg",
-    },
-    {
-      id: 4,
-      name: "Denim Jacket",
-      price: 99.99,
-      image: "/products/DenimJacket.jpg",
-    },
-  ];
-
   return (
     <main className="min-h-screen flex flex-col justify-between w-full">
 
@@ -139,25 +179,13 @@ export default function Home() {
           Trending Preview
         </h3>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {products.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition"
-            >
-
-              <img
-                src={item.image}
-                alt={item.name}
-                className="h-80 w-full object-cover rounded mb-3"
-              />
-
-              <p className="font-medium">{item.name}</p>
-
-              <p className="text-sm text-gray-500">${item.price}</p>
-            </div>
-          ))}
-        </div>
+        <Suspense
+          fallback={
+            <p className="text-center text-gray-500">Loading trending...</p>
+          }
+        >
+          <TrendingPreview />
+        </Suspense>
       </section>
 
       <section className="px-3 py-15 text-center">
