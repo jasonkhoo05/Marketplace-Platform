@@ -26,12 +26,16 @@ async function ProductDetailContent({ params }: Props) {
     .select(`
       prod_id,
       prod_name,
+      prod_desc,
       prod_price,
       prod_stock_qty,
       prod_rating,
       prod_sold_qty,
       prod_image,
-      product_category_type!prod_prod_cat_fk(prod_cat_name),
+      prod_cat_link!prod_cat_link_prod_fk(
+        prod_cat_id,
+        product_category_type!prod_cat_link_prod_cat_fk(
+          prod_cat_name)),
       user!product_seller_uuid_fkey(username)
     `)
     .eq("prod_id", numericId)
@@ -41,7 +45,7 @@ async function ProductDetailContent({ params }: Props) {
     notFound();
   }
 
-  const product = productFromRow(row as ProductRow);
+  const product = productFromRow(row as unknown as ProductRow);
   const outOfStock = product.stockQuantity === 0;
 
   return (
@@ -66,7 +70,9 @@ async function ProductDetailContent({ params }: Props) {
           ${product.price}
         </p>
         <p className="mt-2 text-slate-600">Seller: {product.seller}</p>
-        <p className="mt-2 text-slate-600">Category: {product.category}</p>
+        <p className="mt-2 text-slate-600">
+          Category: {product.category.length ? product.category.join(", ") : "-"}
+        </p>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-slate-600">
           <RatingStars rating={product.rating} size={20} />
           <span>{product.rating} / 5</span>

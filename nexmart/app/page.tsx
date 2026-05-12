@@ -16,19 +16,23 @@ async function TrendingPreview() {
       .select(`
         prod_id,
         prod_name,
+        prod_desc,
         prod_price,
         prod_stock_qty,
         prod_rating,
         prod_sold_qty,
         prod_image,
-        product_category_type!prod_prod_cat_fk(prod_cat_name),
+        prod_cat_link!prod_cat_link_prod_fk(
+          prod_cat_id,
+          product_category_type!prod_cat_link_prod_cat_fk(
+            prod_cat_name)),
         user!product_seller_uuid_fkey(username)
       `)
       .order("prod_sold_qty", { ascending: false })
       .limit(4);
 
     trending =
-      (rows as ProductRow[] | null)?.map((r) => {
+      (rows as unknown as ProductRow[] | null)?.map((r) => {
         const p = productFromRow(r);
         return { id: p.id, name: p.name, price: p.price, image: p.image };
       }) ?? [];
