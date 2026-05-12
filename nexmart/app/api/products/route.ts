@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { productFromRow, type ProductView, type ProductRow } from "@/lib/products";
 import { hasEnvVars } from "@/lib/utils";
-import { AwaiterMulti } from "next/dist/server/after/awaiter";
 
 type SortOption =
   | "popular"
@@ -146,12 +145,14 @@ export async function GET(request: NextRequest) {
     let query = supabase.from("product").select(`
         prod_id,
         prod_name,
+        prod_desc,
         prod_price,
         prod_stock_qty,
         prod_rating,
         prod_sold_qty,
         prod_image,
         prod_cat_link!prod_cat_link_prod_fk(
+          prod_cat_id,
           product_category_type!prod_cat_link_prod_cat_fk(
             prod_cat_name)),
         user!product_seller_uuid_fkey(username)
@@ -190,7 +191,7 @@ export async function GET(request: NextRequest) {
           });
         }
 
-      query = query.eq("prod_id", productIdList);
+      query = query.in("prod_id", productIdList);
     }
 
     if (search && search.trim() !== "") {
@@ -241,7 +242,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const products: ProductView[] = ((rows ?? []) as ProductRow[]).map(
+    const products: ProductView[] = ((rows ?? []) as unknown as ProductRow[]).map(
       productFromRow,
     );
 

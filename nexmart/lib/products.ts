@@ -12,26 +12,18 @@ export type ProductView = {
   stockQuantity: number;
 };
 
-// export type Product = {
-//   id: number;
-//   name: string;
-//   price: number;
-//   category: string;
-//   image: string;
-//   rating: number;
-//   seller: string;
-//   quantitySold: number;
-//   stockQuantity: number;
-// };
-
-
 type ProductCategoryRow = {
   prod_cat_name: string | null;
 };
 
 type ProductCatLinkRow = {
-  product_category_type?: ProductCategoryRow | null;
-}
+  prod_cat_id?: number;
+  /** PostgREST may return one row or an array for the same relationship embed */
+  product_category_type?:
+    | ProductCategoryRow[]
+    | ProductCategoryRow
+    | null;
+};
 
 type SellerRow = {
   username: string | null;
@@ -52,15 +44,24 @@ export type ProductRow = {
   user?: SellerRow | SellerRow[] | null;
 };
 
+function namesFromCategoryEmbed(
+  pct: ProductCategoryRow[] | ProductCategoryRow | null | undefined,
+): string[] {
+  if (pct == null) {
+    return [];
+  }
+  if (Array.isArray(pct)) {
+    return pct
+      .map((p) => p?.prod_cat_name)
+      .filter((name): name is string => Boolean(name));
+  }
+  return pct.prod_cat_name ? [pct.prod_cat_name] : [];
+}
+
 export function productFromRow(row: ProductRow): ProductView {
-  // const categoryValue = Array.isArray(row.product_category_type)
-  //   ? row.product_category_type[0]
-  //   : row.product_category_type;
-  const category = (row.prod_cat_link ??[]).map(link => link.product_category_type?.prod_cat_name)
-                    .filter((name): name is string => Boolean(name));
-  // (row.prod_cat_link ?? [])
-  //       .map(link => link.product_category_type?.prod_cat_name)
-  //       .filter((name): name is string => Boolean(name));
+  const category = (row.prod_cat_link ?? []).flatMap((link) =>
+    namesFromCategoryEmbed(link.product_category_type),
+  );
 
   const sellerValue = Array.isArray(row.user) ? row.user[0] : row.user;
 
