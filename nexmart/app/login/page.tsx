@@ -60,6 +60,19 @@ export default function LoginPage() {
         }
     };
 
+    const handleSendOtp = async() => {
+        try {
+            const res = await fetch("/api/auth/otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            }
+            );
+
+            
+        }
+    }
+
     return (
         <div className="login-container">
             <div className="leftPanel">
