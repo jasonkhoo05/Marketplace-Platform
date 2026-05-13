@@ -69,5 +69,5 @@ export async function GET(request: Request) {
     }
   }
   
-  return NextResponse.redirect(`${origin}/seller/dashboard`);
+  return NextResponse.redirect(`${origin}/products`);
 }
