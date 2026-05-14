@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 
 import "./login.css";
 
-export default function VerityOtpPage() {
+export default function VerifyOtpPage() {
     const [otp, setOtp] = useState("");
     const [error, setError] = useState("");
 
@@ -14,6 +14,11 @@ export default function VerityOtpPage() {
     const router = useRouter();
 
     const email = searchParams.get("email");
+
+    if (!email) {
+        setError("Missing email. Please restart login process.");
+        return;
+    }
 
     const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
