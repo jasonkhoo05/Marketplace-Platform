@@ -12,7 +12,7 @@ export default function ProductCard({ product }: Props) {
   const isOutOfStock = product.stockQuantity === 0;
 
   return (
-    <Link href={`/products/${product.id}`}>
+    <Link href={`/buyer/products/${product.id}`}>
     <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
       <div className="relative aspect-square w-full bg-slate-100">
         {isOutOfStock && (
