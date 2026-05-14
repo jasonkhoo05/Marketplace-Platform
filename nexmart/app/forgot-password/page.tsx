@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -15,18 +15,24 @@ export default function VerifyOtpPage() {
 
     const email = searchParams.get("email");
 
-    if (!email) {
-        setError("Missing email. Please restart login process.");
-        return;
-    }
+    useEffect(() => {
+        if (!email) {
+            setError("Missing email. Please restart login process.");
+        }
+    }, [email]);
 
     const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!email) {
+            setError("Missing email. Please restart login process.");
+            return;
+        }
+
         const supabase = createClient();
 
         const { error } = await supabase.auth.verifyOtp({
-            email: email!,
+            email,
             token: otp,
             type: "email",
         });
