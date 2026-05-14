@@ -26,7 +26,5 @@ export async function POST(request: Request) {
             { success: true, message: "OTP successfully sent"},
             { status: 200}
         );
-    }
 }
-
 
