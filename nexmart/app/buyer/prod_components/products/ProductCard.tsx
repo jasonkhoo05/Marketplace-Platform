@@ -38,11 +38,13 @@ export default function ProductCard({ product }: Props) {
         <p className="text-lg font-bold text-teal-700">${product.price}</p>
 
         <div className="flex items-center gap-1 text-xs text-slate-500">
+        <div className="flex items-center gap-1">
           <RatingStars rating={product.rating} size={16} />
           <span>{product.rating}</span>
-          <span className="text-slate-400">·</span>
-          <span>{product.quantitySold} sold</span>
-          </div>
+        </div>
+
+        <p>{product.quantitySold} sold</p>
+      </div>
       </div>
     </div>
     </Link>
