@@ -69,7 +69,16 @@ export default function LoginPage() {
             }
             );
 
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || "Failed to send OTP");
+            }
+
+            alert("OTP has sent, please check your email.");
             
+        } catch (err) {
+            console.error(err);
         }
     }
 
