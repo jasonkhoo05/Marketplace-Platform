@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import SellerSidebar from "@/components/seller/SellerSidebar";
 import { Order, OrderStatus } from "@/types/order";
 import { FiEye, FiChevronDown,FiCheck } from "react-icons/fi";
-
+/*
 const MOCK_ORDERS: Order[] = [
     {
         id: "ORD-1005",
@@ -62,43 +62,52 @@ const MOCK_ORDERS: Order[] = [
         status: "Cancelled" as OrderStatus,
     },
 ];
-
+*/
 const ALL_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Completed", "Cancelled"];
 
 export default function SellerOrdersPage() {
-    const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
+    const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
-    // useEffect(() => {
-    //     fetchOrders();
-    // }, []);
+    useEffect(() => {
+    fetchOrders();
 
-    // async function fetchOrders() {
-    //     try {
-    //         const response = await fetch('/api/seller/orders');
-    //         if (!response.ok) throw new Error('Failed to fetch');
-    //         const data = await response.json();
-            
-    //         // Map PostgreSQL snake_case to our CamelCase Frontend types
-    //         const transformed = data.orders.map((o: any) => ({
-    //             id: o.order_id,
-    //             buyerName: o.profiles?.full_name || "Guest",
-    //             buyerEmail: o.profiles?.email || "N/A",
-    //             productName: o.products?.prod_name,
-    //             productImage: o.products?.prod_image || "/placeholder.jpg",
-    //             quantity: o.qty_purchased,
-    //             totalPrice: o.total_price,
-    //             orderDate: new Date(o.created_at).toLocaleString(),
-    //             status: o.status as OrderStatus,
-    //         }));
-    //         setOrders(transformed);
-    //     } catch (error) {
-    //         console.error("Error:", error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // }
+    const interval = setInterval(fetchOrders, 10000);
+
+    return () => clearInterval(interval);
+}, []);
+
+async function fetchOrders() {
+    try {
+        const response = await fetch("/api/seller/orders");
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch orders");
+        }
+
+        const data = await response.json();
+
+        const transformed = data.orders.map((o: any) => ({
+            id: o.order_id.toString(),
+            buyerName: o.buyer_name,
+            buyerEmail: o.buyer_email,
+            productName: o.product_name,
+            productImage: o.product_image || "/placeholder.jpg",
+            quantity: o.quantity,
+            totalPrice: o.total_price || 0,
+            orderDate: new Date(o.order_date).toLocaleString(),
+            status: o.status as OrderStatus,
+        }));
+
+        setOrders(transformed);
+    } catch (error) {
+        console.error("Failed to fetch orders:", error);
+    } finally {
+        setLoading(false);
+    }
+}
+
 
     const getStatusColor = (status: OrderStatus) => {
         switch (status) {
@@ -110,13 +119,33 @@ export default function SellerOrdersPage() {
             default: return 'bg-slate-100 text-slate-700';
         }
     };
+    
+    const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+    try {
+        const response = await fetch(`/api/seller/orders/${orderId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: newStatus }),
+        });
 
-    const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
-        setOrders(prev => prev.map(order => 
-            order.id === orderId ? { ...order, status: newStatus } : order
-        ));
-        setOpenDropdownId(null); // Close dropdown after selection
-    };
+        if (!response.ok) {
+            throw new Error("Failed to update order status");
+        }
+
+        setOrders((prev) =>
+            prev.map((order) =>
+                order.id === orderId ? { ...order, status: newStatus } : order
+            )
+        );
+
+        setOpenDropdownId(null);
+    } catch (error) {
+        console.error("Failed to update order:", error);
+        alert("Failed to update order status.");
+    }
+};
 
     return (
         <main className="min-h-screen bg-slate-50 pl-60">
