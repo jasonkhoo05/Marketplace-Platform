@@ -14,15 +14,17 @@ import {
 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { LogoutButton } from "../logout-button"
+import { usePathname } from "next/navigation";
 
 const menuItems = [
-    { label: "Dashboard", href: "/seller/dashboard", icon: FiGrid, active: true },
-    { label: "Products", href: "/seller/dashboard", icon: FiBox, active: false },
-    { label: "Orders", href: "#", icon: FiShoppingCart, active: false },
-    { label: "Settings", href: "#", icon: FiSettings, active: false },
+    { label: "Dashboard", href: "/seller/dashboard", icon: FiGrid },
+    { label: "Products", href: "#", icon: FiBox },
+    { label: "Orders", href: "/seller/order", icon: FiShoppingCart },
+    { label: "Settings", href: "#", icon: FiSettings},
 ];
 
 export default function SellerSidebar() {
+    const pathname = usePathname();
     // const supabase = createClient();
     // const router = useRouter();
 
@@ -58,11 +60,13 @@ export default function SellerSidebar() {
                 {menuItems.map((item) => {
                     const Icon = item.icon;
 
+                    const isActive = pathname === item.href;
+
                     return (
                         <Link
                             key={item.label}
                             href={item.href}
-                            className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${item.active
+                            className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${isActive
                                     ? "bg-teal-700 text-white"
                                     : "text-slate-700 hover:bg-slate-100"
                                 }`}
