@@ -63,7 +63,7 @@ const MOCK_ORDERS: Order[] = [
     },
 ];
 */
-const ALL_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Completed", "Cancelled"];
+const ALL_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Refunded"];
 
 export default function SellerOrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -116,6 +116,7 @@ async function fetchOrders() {
             case 'Pending': return 'bg-orange-100 text-orange-700';
             case 'Shipped': return 'bg-purple-100 text-purple-700';
             case 'Cancelled': return 'bg-red-100 text-red-700';
+            case 'Refunded': return 'bg-yellow-100 text-red-700';
             default: return 'bg-slate-100 text-slate-700';
         }
     };
