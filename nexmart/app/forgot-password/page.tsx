@@ -46,42 +46,42 @@ export default function VerifyOtpPage() {
     };
 
     return (
-        <div className="otp-container">
-            <div className="otpCard">
-                <h2>Verify OTP</h2>
+        <div className="login-container">
+            <div className="rightPanel">
+                <div className="formBox">
 
-                <p className="subtitle">
-                    Fill in OTP
-                </p>
+                    <h2>Verify OTP</h2>
 
-                <form onSubmit={handleVerifyOtp}>
-                    <input
-                        type="text"
-                        placeholder="OTP"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        required
-                    />
+                    <p className="subtitle">
+                        Enter the OTP sent to your email
+                    </p>
 
-                    {error && (
-                        <p
-                            style={{
-                                color: "red",
-                                fontSize: "13px",
-                                marginTop: "10px",
-                            }}
+                    <form onSubmit={handleVerifyOtp}>
+                        <label>OTP Code</label>
+
+                        <input
+                            type="text"
+                            placeholder="Enter OTP"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            required
+                        />
+
+                        {error && (
+                            <p style={{ color: "red", fontSize: "13px" }}>
+                                {error}
+                            </p>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="signinButton"
                         >
-                            {error}
-                        </p>
-                    )}
+                            Verify OTP
+                        </button>
+                    </form>
 
-                    <button
-                        type="submit"
-                        className="signinButton"
-                    >
-                        Verify OTP
-                    </button>
-                </form>
+                </div>
             </div>
         </div>
     );
