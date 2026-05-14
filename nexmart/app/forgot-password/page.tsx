@@ -1,43 +1,36 @@
 "use client";
 
-import { TbBrandAppgallery } from "react-icons/tb";
 import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 import "./login.css";
 
-export default function ForgotPasswordPage() {
-    const [email, setEmail] = useState("");
-    const [message, setMessage] = useState("");
+export default function VerityOtpPage() {
+    const [otp, setOtp] = useState("");
     const [error, setError] = useState("");
 
+    const searchParams = useSearchParams();
+    const router = useRouter();
 
-    const handleForgotPassword = async (e: React.FormEvent) => {
+    const email = searchParams.get("email");
+
+    const handleVerifyOtp = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        setError("");
-        setMessage("");
+        const supabase = createClient();
 
-        try {
-            const res = await fetch("/api/auth/forgot-password", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email }),
-            });
+        const { error } = await supabase.auth.verifyOtp({
+            email: email!,
+            token: otp,
+            type: "email",
+        });
 
-            const data = await res.json();
-
-            if (!res.ok) {
-                setError(data.error || "Failed to send reset email.");
-                return;
-            }
-
-            setMessage("Password reset email sent. Please check your inbox.");
-        } catch {
-            setError("Something went wrong.");
+        if (error) {
+            setError(error.message);
+            return;
         }
-    };
 
-    
+        router.push("/reset-password");
+    };
 }
