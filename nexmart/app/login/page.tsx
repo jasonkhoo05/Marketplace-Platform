@@ -60,28 +60,6 @@ export default function LoginPage() {
         }
     };
 
-    const handleSendOtp = async() => {
-        try {
-            const res = await fetch("/api/auth/otp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email }),
-            }
-            );
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                setError(data.error || "Failed to send OTP");
-            }
-
-            alert("OTP has sent, please check your email.");
-            
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
     return (
         <div className="login-container">
             <div className="leftPanel">
@@ -126,7 +104,7 @@ export default function LoginPage() {
 
                         <div className="passwordTop">
                             <label>Password</label>
-                            <a href="#">Forgot password?</a>
+                            <a href="/forgot-password">Forgot password?</a>
                         </div>
 
                         <div className="passwordInputBox">

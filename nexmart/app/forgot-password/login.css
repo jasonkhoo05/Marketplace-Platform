@@ -1,6 +1,14 @@
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+.otpPage {
+    min-height: 100vh;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.otpCard {
+    width: 400px;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
 }

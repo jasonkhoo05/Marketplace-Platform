@@ -33,4 +33,45 @@ export default function VerityOtpPage() {
 
         router.push("/reset-password");
     };
+
+    return (
+        <div className="otp-container">
+            <div className="otpCard">
+                <h2>Verify OTP</h2>
+
+                <p className="subtitle">
+                    Fill in OTP
+                </p>
+
+                <form onSubmit={handleVerifyOtp}>
+                    <input
+                        type="text"
+                        placeholder="OTP"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        required
+                    />
+
+                    {error && (
+                        <p
+                            style={{
+                                color: "red",
+                                fontSize: "13px",
+                                marginTop: "10px",
+                            }}
+                        >
+                            {error}
+                        </p>
+                    )}
+
+                    <button
+                        type="submit"
+                        className="signinButton"
+                    >
+                        Verify OTP
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
 }
