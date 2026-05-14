@@ -18,7 +18,7 @@ import { usePathname } from "next/navigation";
 
 const menuItems = [
     { label: "Dashboard", href: "/seller/dashboard", icon: FiGrid },
-    { label: "Products", href: "#", icon: FiBox },
+    { label: "Products", href: "/seller/product", icon: FiBox },
     { label: "Orders", href: "/seller/order", icon: FiShoppingCart },
     { label: "Settings", href: "#", icon: FiSettings},
 ];
