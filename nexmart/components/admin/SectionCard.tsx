@@ -209,6 +209,12 @@ export function SectionCard({
   const colors = colorMap[type];
   const badgeCount = totalCount !== undefined && type === "user" ? totalCount : items.length;
 
+  const viewAllHref: Record<ModerationType, string> = {
+    product: "#", // /admin/products
+    user: "#",    // /admin/users
+    report: "#",  // /admin/reportcontent
+  };
+
   return (
     <>
       {selectedUser && (
@@ -316,10 +322,13 @@ export function SectionCard({
         </div>
 
         <div className="p-4 mt-auto border-t border-slate-100 bg-white">
-          <button className={`w-full inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-9 px-4 py-2 group ${colors.footerText} ${colors.footerHover}`}>
+          <a
+            href={viewAllHref[type]}
+            className={`w-full inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-9 px-4 py-2 group ${colors.footerText} ${colors.footerHover}`}
+          >
             View all {title}
             <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </a>
         </div>
       </div>
     </>
