@@ -15,9 +15,9 @@ import {
 import { LogoutButton } from "../logout-button";
 
 const menuItems = [
-    { label: "Dashboard", href: "/admin/dashboard", icon: FiGrid, disabled: true },
-    { label: "Moderation", href: "/admin/moderation", icon: FiShield, disabled: false },
-    { label: "Settings", href: "/admin/settings", icon: FiSettings, disabled: true },
+    { label: "Dashboard", href: "#", icon: FiGrid, disabled: false, active: false },
+    { label: "Moderation", href: "/admin/moderation", icon: FiShield, disabled: false, active: true },
+    { label: "Settings", href: "#", icon: FiSettings, disabled: false, active: false },
 ];
 
 export function AdminSidebar() {
@@ -34,7 +34,12 @@ export function AdminSidebar() {
             if (user) {
                 setAdminEmail(user.email || "No email");
 
-
+                // Fetch the username from database
+                const { data: userData } = await supabase
+                    .from("user")
+                    .select("username")
+                    .eq("user_uuid", user.id)
+                    .single();
 
                 if (userData?.username) {
                     setAdminName(userData.username);
@@ -55,7 +60,7 @@ export function AdminSidebar() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-700 text-white">
                     <FiBox size={18} />
                 </div>
-                <span className="text-lg font-bold text-slate-900">NexMart Admin</span>
+                <span className="text-lg font-bold text-slate-900">NexMart</span>
             </div>
 
             <nav className="flex-1 space-y-2 px-3 py-5">
