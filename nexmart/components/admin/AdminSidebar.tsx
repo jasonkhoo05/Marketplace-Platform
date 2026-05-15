@@ -15,9 +15,9 @@ import {
 import { LogoutButton } from "../logout-button";
 
 const menuItems = [
-    { label: "Dashboard", href: "#", icon: FiGrid, disabled: false, active: false },
-    { label: "Moderation", href: "/admin/moderation", icon: FiShield, disabled: false, active: true },
-    { label: "Settings", href: "#", icon: FiSettings, disabled: false, active: false },
+    { label: "Dashboard", href: "#", icon: FiGrid, disabled: false, activePaths: [] },
+    { label: "Moderation", href: "/admin/moderation", icon: FiShield, disabled: false, activePaths: ["/admin/moderation", "/admin/approval", "/admin/usermanagement"] },
+    { label: "Settings", href: "#", icon: FiSettings, disabled: false, activePaths: [] },
 ];
 
 export function AdminSidebar() {
@@ -66,7 +66,7 @@ export function AdminSidebar() {
             <nav className="flex-1 space-y-2 px-3 py-5">
                 {menuItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname.startsWith(item.href);
+                    const isActive = item.activePaths.some((p) => pathname.startsWith(p));
 
                     if (item.disabled) {
                         return (
