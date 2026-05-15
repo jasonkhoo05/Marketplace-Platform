@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import ApprovalActions from "@/components/admin/ApprovalActions";
 
 type ProductCategoryRow = {
   prod_cat_name: string | null;
@@ -204,21 +205,7 @@ export default async function AdminApprovalPage() {
                       </td>
 
                       <td className="px-3 py-4">
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            className="rounded-xl bg-teal-600 px-3 py-2 text-xs font-semibold text-white hover:bg-teal-700"
-                          >
-                            Approve
-                          </button>
-
-                          <button
-                            type="button"
-                            className="rounded-xl bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-200"
-                          >
-                            Reject
-                          </button>
-                        </div>
+                        <ApprovalActions productId={product.prod_id} />
                       </td>
                     </tr>
                   ))}
