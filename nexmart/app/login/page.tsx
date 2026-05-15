@@ -49,10 +49,10 @@ export default function LoginPage() {
                 return;
             }
 
-            // router.push("/buyer/dashboard");
+            router.push("/products");
             // router.push("/admin/dashboard");
 
-            router.push("seller/dashboard");
+            // router.push("seller/dashboard");
         } catch {
             setError("Something went wrong. Please try again.");
         } finally {
