@@ -16,7 +16,16 @@ export default function ApprovalActions({ productId }: ApprovalActionsProps) {
   const [rejectionReason, setRejectionReason] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  function isValidProductId() {
+    return Number.isFinite(productId) && productId > 0;
+  }
+
   async function handleApprove() {
+    if (!isValidProductId()) {
+      setErrorMessage("Invalid product ID.");
+      return;
+    }
+
     setErrorMessage("");
     setIsApproving(true);
 
@@ -48,6 +57,11 @@ export default function ApprovalActions({ productId }: ApprovalActionsProps) {
   }
 
   async function handleReject() {
+    if (!isValidProductId()) {
+      setErrorMessage("Invalid product ID.");
+      return;
+    }
+
     setErrorMessage("");
     setIsRejecting(true);
 
@@ -86,6 +100,17 @@ export default function ApprovalActions({ productId }: ApprovalActionsProps) {
     }
   }
 
+  function openRejectForm() {
+    if (!isValidProductId()) {
+      setErrorMessage("Invalid product ID.");
+      return;
+    }
+
+    setErrorMessage("");
+    setRejectionReason("");
+    setIsRejectFormOpen(true);
+  }
+
   function closeRejectForm() {
     if (isRejecting) {
       return;
@@ -111,10 +136,7 @@ export default function ApprovalActions({ productId }: ApprovalActionsProps) {
 
           <button
             type="button"
-            onClick={() => {
-              setErrorMessage("");
-              setIsRejectFormOpen(true);
-            }}
+            onClick={openRejectForm}
             disabled={isApproving || isRejecting}
             className="rounded-xl bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50"
           >

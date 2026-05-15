@@ -1,10 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-type ProductStatus = "approved" | "hidden";
-
 export async function PATCH(
-  req: Request,
+  _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -31,36 +29,28 @@ export async function PATCH(
       );
     }
 
-    const body = await req.json();
-
-    const prodStatus = body.prod_status as ProductStatus;
-    const rejectionReason =
-      typeof body.prod_rejection_reason === "string"
-        ? body.prod_rejection_reason
-        : "";
-
-    if (prodStatus !== "approved" && prodStatus !== "hidden") {
-      return NextResponse.json(
-        { error: "Invalid product status" },
-        { status: 400 },
-      );
-    }
-
     const { data, error } = await supabase
       .from("product")
       .update({
-        prod_status: prodStatus,
-        prod_rejection_reason:
-          prodStatus === "hidden" ? rejectionReason : "",
+        prod_status: "approved",
+        prod_rejection_reason: "",
       })
       .eq("prod_id", prodId)
+      .eq("prod_status", "pending")
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       return NextResponse.json(
         { error: error.message },
         { status: 500 },
+      );
+    }
+
+    if (!data) {
+      return NextResponse.json(
+        { error: "Pending product not found" },
+        { status: 404 },
       );
     }
 

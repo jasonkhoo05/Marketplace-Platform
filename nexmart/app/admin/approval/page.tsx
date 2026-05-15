@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import ApprovalActions from "@/components/admin/ApprovalActions";
 import { Suspense } from "react";
+import ApprovalActions from "@/components/admin/ApprovalActions";
 
 type ProductCategoryRow = {
   prod_cat_name: string | null;
@@ -14,11 +14,10 @@ type ProductCatLinkRow = {
 
 type SellerRow = {
   username: string | null;
-  email?: string | null;
 };
 
 type PendingProductRow = {
-  prod_id: number;
+  prod_id: number | string;
   prod_name: string;
   prod_desc: string | null;
   prod_price: number | string;
@@ -57,7 +56,7 @@ function getSellerName(product: PendingProductRow): string {
   return seller?.username ?? "Unknown seller";
 }
 
-export async function AdminApprovalContent() {
+async function AdminApprovalContent() {
   const supabase = await createClient();
 
   const { data: products, error } = await supabase
@@ -97,6 +96,8 @@ export async function AdminApprovalContent() {
     );
   }
 
+  const pendingProducts = (products ?? []) as PendingProductRow[];
+
   return (
     <main className="min-h-screen bg-slate-50 p-8">
       <div className="mx-auto max-w-6xl">
@@ -127,11 +128,11 @@ export async function AdminApprovalContent() {
               Pending Listings
             </h2>
             <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
-              {products?.length ?? 0} pending
+              {pendingProducts.length} pending
             </span>
           </div>
 
-          {!products || products.length === 0 ? (
+          {pendingProducts.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-200 p-10 text-center">
               <p className="font-semibold text-slate-700">
                 No pending products
@@ -156,7 +157,7 @@ export async function AdminApprovalContent() {
                 </thead>
 
                 <tbody>
-                  {(products as PendingProductRow[]).map((product) => (
+                  {pendingProducts.map((product) => (
                     <tr
                       key={product.prod_id}
                       className="border-b border-slate-100 transition hover:bg-slate-50"
@@ -176,7 +177,7 @@ export async function AdminApprovalContent() {
                             <p className="font-semibold text-slate-900">
                               {product.prod_name}
                             </p>
-                            <p className="line-clamp-2 max-w-xs text-xs text-slate-500">
+                            <p className="max-w-xs text-xs text-slate-500">
                               {product.prod_desc || "No description"}
                             </p>
                           </div>
@@ -206,7 +207,7 @@ export async function AdminApprovalContent() {
                       </td>
 
                       <td className="px-3 py-4">
-                        <ApprovalActions productId={product.prod_id} />
+                        <ApprovalActions productId={Number(product.prod_id)} />
                       </td>
                     </tr>
                   ))}
@@ -219,7 +220,6 @@ export async function AdminApprovalContent() {
     </main>
   );
 }
-
 
 export default function AdminApprovalPage() {
   return (
