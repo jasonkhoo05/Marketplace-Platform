@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   XCircle,
@@ -13,6 +14,11 @@ import {
   MapPin,
   Calendar,
   VenusAndMars,
+  Package,
+  Tag,
+  User,
+  DollarSign,
+  Layers,
 } from "lucide-react";
 
 export type ModerationStatus = "pending" | "approved" | "rejected";
@@ -31,129 +37,13 @@ interface SectionCardProps {
   icon: any;
   items: ModerationRequest[];
   type: ModerationType;
-  onAction: (id: string, status: "approved" | "rejected") => void;
+  onAction: (id: string, status: "approved" | "rejected", reason?: string) => void;
   isLoading: boolean;
   totalCount?: number;
 }
 
-function UserDetailModal({
-  user,
-  onClose,
-}: {
-  user: ModerationRequest;
-  onClose: () => void;
-}) {
-  const d = user.details;
-  const formattedDateOfBirth = d.date_of_birth
-    ? new Date(d.date_of_birth).toLocaleDateString("en-MY", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    })
-    : "None";
-  const roleBadgeClass = (role: string) =>
-    role === "admin"
-      ? "bg-purple-100 text-purple-700"
-      : role === "seller"
-        ? "bg-teal-100 text-teal-700"
-        : "bg-blue-100 text-blue-700";
-
-  const allRoles: string[] = d.roles?.length
-    ? [...new Set(d.roles as string[])]
-    : [d.role || "buyer"];
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4"
-      onClick={onClose}
-    >
-      <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900">User Details</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Full profile information for this registered account.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-full p-2 text-slate-500 hover:bg-slate-100 transition"
-            aria-label="Close"
-          >
-            <X size={22} />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-4 rounded-2xl bg-slate-50 p-4 mb-6">
-          {d.user_image ? (
-            <img
-              src={d.user_image}
-              alt={`${d.username || "User"} profile picture`}
-              className="h-14 w-14 shrink-0 rounded-full object-cover border border-slate-200"
-            />
-          ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-xl font-bold shrink-0">
-              {d.username ? d.username.charAt(0).toUpperCase() : "U"}
-            </div>
-          )}
-          <div className="min-w-0">
-            <p className="text-base font-bold text-slate-900 truncate">{d.username || "Unknown"}</p>
-            {/* Show ALL roles as separate badges */}
-            <div className="mt-1 flex flex-wrap gap-1.5">
-              {allRoles.map((role) => (
-                <span
-                  key={role}
-                  className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${roleBadgeClass(role)}`}
-                >
-                  {role}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <InfoRow icon={Mail} label="Email" value={d.email || "—"} />
-          <InfoRow icon={Phone} label="Phone" value={d.phone || "None"} />
-          <InfoRow icon={VenusAndMars} label="Gender" value={d.gender || "None"} />
-          <InfoRow
-            icon={Calendar}
-            label="Date of Birth"
-            value={formattedDateOfBirth}
-          />
-          <InfoRow
-            icon={MapPin}
-            label="Address"
-            value={d.address || "None"}
-          />
-        </div>
-
-        <div className="mt-6 flex justify-end border-t border-slate-100 pt-5">
-          <button
-            onClick={onClose}
-            className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function InfoRow({
-  icon: Icon,
-  label,
-  value,
-  mono = false,
-}: {
-  icon: any;
-  label: string;
-  value: string;
-  mono?: boolean;
+function InfoRow({ icon: Icon, label, value, mono = false }: {
+  icon: any; label: string; value: string; mono?: boolean;
 }) {
   return (
     <div className="flex items-start gap-3 rounded-xl border border-slate-100 p-4">
@@ -168,6 +58,188 @@ function InfoRow({
   );
 }
 
+function UserDetailModal({ user, onClose }: { user: ModerationRequest; onClose: () => void }) {
+  const d = user.details;
+  const formattedDateOfBirth = d.date_of_birth
+    ? new Date(d.date_of_birth).toLocaleDateString("en-MY", { day: "2-digit", month: "short", year: "numeric" })
+    : "None";
+  const roleBadgeClass = (role: string) =>
+    role === "admin" ? "bg-purple-100 text-purple-700"
+      : role === "seller" ? "bg-teal-100 text-teal-700"
+        : "bg-blue-100 text-blue-700";
+  const allRoles: string[] = d.roles?.length ? [...new Set(d.roles as string[])] : [d.role || "buyer"];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4" onClick={onClose}>
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">User Details</h2>
+            <p className="mt-1 text-sm text-slate-500">Full profile information for this registered account.</p>
+          </div>
+          <button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100 transition" aria-label="Close">
+            <X size={22} />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-4 rounded-2xl bg-slate-50 p-4 mb-6">
+          {d.user_image ? (
+            <img src={d.user_image} alt={`${d.username || "User"} profile picture`} className="h-14 w-14 shrink-0 rounded-full object-cover border border-slate-200" />
+          ) : (
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-xl font-bold shrink-0">
+              {d.username ? d.username.charAt(0).toUpperCase() : "U"}
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="text-base font-bold text-slate-900 truncate">{d.username || "Unknown"}</p>
+            <div className="mt-1 flex flex-wrap gap-1.5">
+              {allRoles.map((role) => (
+                <span key={role} className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${roleBadgeClass(role)}`}>{role}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <InfoRow icon={Mail} label="Email" value={d.email || "—"} />
+          <InfoRow icon={Phone} label="Phone" value={d.phone || "None"} />
+          <InfoRow icon={VenusAndMars} label="Gender" value={d.gender || "None"} />
+          <InfoRow icon={Calendar} label="Date of Birth" value={formattedDateOfBirth} />
+          <InfoRow icon={MapPin} label="Address" value={d.address || "None"} />
+        </div>
+
+        <div className="mt-6 flex justify-end border-t border-slate-100 pt-5">
+          <button onClick={onClose} className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProductDetailModal({
+  product,
+  onClose,
+  onApprove,
+  onReject,
+}: {
+  product: ModerationRequest;
+  onClose: () => void;
+  onApprove: () => void;
+  onReject: (reason: string) => void;
+}) {
+  const d = product.details;
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [isActing, setIsActing] = useState(false);
+
+  const handleApprove = async () => {
+    setIsActing(true);
+    await onApprove();
+    setIsActing(false);
+    onClose();
+  };
+
+  const handleReject = async () => {
+    setIsActing(true);
+    await onReject(rejectionReason);
+    setIsActing(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4" onClick={onClose}>
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Product Details</h2>
+            <p className="mt-1 text-sm text-slate-500">Review this pending product listing before approving or rejecting.</p>
+          </div>
+          <button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100 transition" aria-label="Close">
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* Product image */}
+        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50">
+          {d.image ? (
+            <img src={d.image} alt={d.title || "Product"} className="h-48 w-full object-cover" />
+          ) : (
+            <div className="flex h-48 items-center justify-center text-slate-300">
+              <Package className="h-16 w-16" />
+            </div>
+          )}
+        </div>
+
+        {/* Badge */}
+        <div className="mb-4 flex items-center gap-2">
+          <span className="rounded-full bg-yellow-100 px-3 py-0.5 text-xs font-semibold text-yellow-700">Pending Review</span>
+        </div>
+
+        <div className="space-y-4">
+          <InfoRow icon={Package} label="Product Name" value={d.title || "—"} />
+          <InfoRow icon={Tag} label="Description" value={d.description || "No description"} />
+          <InfoRow icon={User} label="Seller" value={d.seller || "Unknown seller"} />
+          <InfoRow icon={DollarSign} label="Price" value={d.price !== undefined ? `RM ${Number(d.price).toFixed(2)}` : "—"} />
+        </div>
+
+        {/* Reject reason form */}
+        {showRejectForm && (
+          <div className="mt-4 rounded-2xl border border-rose-100 bg-rose-50 p-4 space-y-3">
+            <p className="text-sm font-semibold text-rose-800">Rejection Reason</p>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Example: Product image is unclear or inappropriate."
+              className="min-h-[80px] w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+            />
+          </div>
+        )}
+
+        <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
+          <button onClick={onClose} className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+            Cancel
+          </button>
+          <div className="flex gap-3">
+            {!showRejectForm ? (
+              <>
+                <button
+                  onClick={() => setShowRejectForm(true)}
+                  disabled={isActing}
+                  className="rounded-xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-semibold text-rose-700 hover:bg-rose-100 transition disabled:opacity-50"
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={handleApprove}
+                  disabled={isActing}
+                  className="rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition disabled:opacity-50"
+                >
+                  {isActing ? "Approving…" : "Approve"}
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => setShowRejectForm(false)} disabled={isActing} className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition disabled:opacity-50">
+                  Back
+                </button>
+                <button
+                  onClick={handleReject}
+                  disabled={isActing}
+                  className="rounded-xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white hover:bg-rose-700 transition disabled:opacity-50"
+                >
+                  {isActing ? "Rejecting…" : "Confirm Reject"}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SectionCard({
   title,
   icon: Icon,
@@ -177,33 +249,14 @@ export function SectionCard({
   isLoading = false,
   totalCount,
 }: SectionCardProps) {
+  const router = useRouter();
   const [selectedUser, setSelectedUser] = useState<ModerationRequest | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ModerationRequest | null>(null);
 
   const colorMap = {
-    product: {
-      icon: "text-teal-700",
-      badgeBg: "bg-teal-50",
-      badgeText: "text-teal-700",
-      footerHover: "hover:bg-teal-50",
-      footerText: "text-teal-700",
-      borderTop: "border-t-teal-500",
-    },
-    user: {
-      icon: "text-blue-600",
-      badgeBg: "bg-blue-50",
-      badgeText: "text-blue-600",
-      footerHover: "hover:bg-blue-50",
-      footerText: "text-blue-600",
-      borderTop: "border-t-blue-500",
-    },
-    report: {
-      icon: "text-rose-600",
-      badgeBg: "bg-rose-50",
-      badgeText: "text-rose-600",
-      footerHover: "hover:bg-rose-50",
-      footerText: "text-rose-600",
-      borderTop: "border-t-rose-500",
-    },
+    product: { icon: "text-teal-700", badgeBg: "bg-teal-50", badgeText: "text-teal-700", footerHover: "hover:bg-teal-50", footerText: "text-teal-700", borderTop: "border-t-teal-500" },
+    user: { icon: "text-blue-600", badgeBg: "bg-blue-50", badgeText: "text-blue-600", footerHover: "hover:bg-blue-50", footerText: "text-blue-600", borderTop: "border-t-blue-500" },
+    report: { icon: "text-rose-600", badgeBg: "bg-rose-50", badgeText: "text-rose-600", footerHover: "hover:bg-rose-50", footerText: "text-rose-600", borderTop: "border-t-rose-500" },
   };
 
   const colors = colorMap[type];
@@ -215,10 +268,50 @@ export function SectionCard({
     report: "#",  // /admin/reportcontent
   };
 
+  // Approve
+  const handleApprove = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/products/${id}/approve`, { method: "PATCH" });
+      if (res.ok) {
+        onAction(id, "approved");
+        router.refresh();
+      } else {
+        console.error("Approve failed:", await res.text());
+      }
+    } catch (e) {
+      console.error("Approve error:", e);
+    }
+  };
+
+  // Reject
+  const handleReject = async (id: string, reason: string) => {
+    try {
+      const res = await fetch(`/api/admin/products/${id}/reject`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prod_rejection_reason: reason }),
+      });
+      if (res.ok) {
+        onAction(id, "rejected");
+        router.refresh();
+      } else {
+        console.error("Reject failed:", await res.text());
+      }
+    } catch (e) {
+      console.error("Reject error:", e);
+    }
+  };
+
   return (
     <>
-      {selectedUser && (
-        <UserDetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />
+      {selectedUser && <UserDetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />}
+      {selectedProduct && (
+        <ProductDetailModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onApprove={() => handleApprove(selectedProduct.id)}
+          onReject={(reason) => handleReject(selectedProduct.id, reason)}
+        />
       )}
 
       <div className={`flex flex-col h-full rounded-2xl border border-slate-200 border-t-4 ${colors.borderTop} bg-white shadow-sm overflow-hidden transition-all hover:shadow-md`}>
@@ -245,74 +338,67 @@ export function SectionCard({
           ) : (
             <ul className="divide-y">
               {items.map((item) => (
-                <li
-                  key={item.id}
-                  className="p-4 hover:bg-slate-50 transition-colors group"
-                >
+                <li key={item.id} className="p-4 hover:bg-slate-50 transition-colors group">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1 min-w-0">
+
                       {type === "user" && (
                         <>
                           {item.details.user_image ? (
-                            <img
-                              src={item.details.user_image}
-                              alt={`${item.details.username || "User"} profile picture`}
-                              className="h-10 w-10 shrink-0 rounded-full object-cover border border-slate-200"
-                            />
+                            <img src={item.details.user_image} alt={`${item.details.username || "User"} profile`} className="h-10 w-10 shrink-0 rounded-full object-cover border border-slate-200" />
                           ) : (
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-sm font-bold">
-                              {item.details.username
-                                ? item.details.username.charAt(0).toUpperCase()
-                                : "U"}
+                              {item.details.username ? item.details.username.charAt(0).toUpperCase() : "U"}
                             </div>
                           )}
                         </>
                       )}
 
-                      <div className="space-y-1 flex-1 min-w-0">
+                      {type === "product" && (
+                        <>
+                          {item.details.image ? (
+                            <img src={item.details.image} alt={item.details.title || "Product"} className="h-10 w-10 shrink-0 rounded-lg object-cover border border-slate-200" />
+                          ) : (
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
+                              <Package className="h-5 w-5" />
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      <div className="space-y-0.5 flex-1 min-w-0">
                         <p className="text-sm font-medium leading-none truncate">
                           {type === "product" && item.details.title}
                           {type === "user" && item.details.username}
                           {type === "report" && item.details.report_reason}
                         </p>
 
-                        <p className="text-sm text-slate-500 line-clamp-1">
-                          {type === "user"
-                            ? item.details.email || "No email"
-                            : item.details.description ||
-                            item.details.reason ||
-                            item.details.reported_by ||
-                            "No details provided"}
-                        </p>
+                        {type === "product" ? (
+                          <>
+                            <p className="text-xs text-slate-400 truncate">By {item.details.seller || "Unknown seller"}</p>
+                            <p className="text-xs text-slate-500 line-clamp-1">{item.details.description || "No description"}</p>
+                          </>
+                        ) : (
+                          <p className="text-sm text-slate-500 line-clamp-1">
+                            {type === "user"
+                              ? item.details.email || "No email"
+                              : item.details.description || item.details.reason || item.details.reported_by || "No details provided"}
+                          </p>
+                        )}
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={() => type === "user" ? setSelectedUser(item) : alert(`Viewing details for ${item.id}`)}
-                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8"
+                        onClick={() => {
+                          if (type === "user") setSelectedUser(item);
+                          else if (type === "product") setSelectedProduct(item);
+                        }}
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8"
                         title="View Details"
                       >
                         <Eye className="h-4 w-4 text-slate-600" />
                       </button>
-                      {type !== "user" && (
-                        <>
-                          <button
-                            onClick={() => onAction(item.id, "approved")}
-                            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-emerald-50 text-emerald-600 hover:bg-emerald-100 h-8 w-8"
-                            title="Approve"
-                          >
-                            <CheckCircle2 className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => onAction(item.id, "rejected")}
-                            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-red-50 text-red-600 hover:bg-red-100 h-8 w-8"
-                            title="Reject"
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </button>
-                        </>
-                      )}
                     </div>
                   </div>
                 </li>
