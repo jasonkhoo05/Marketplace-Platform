@@ -21,6 +21,7 @@ interface SectionCardProps {
   type: ModerationType;
   onAction: (id: string, status: "approved" | "rejected") => void;
   isLoading: boolean;
+  totalCount?: number;
 }
 
 export function SectionCard({
@@ -30,6 +31,7 @@ export function SectionCard({
   type,
   onAction,
   isLoading = false,
+  totalCount,
 }: SectionCardProps) {
   const colorMap = {
     product: {
@@ -68,7 +70,7 @@ export function SectionCard({
           <h3 className="text-lg font-bold text-slate-900">{title}</h3>
         </div>
         <div className={`flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${colors.badgeBg} ${colors.badgeText}`}>
-          {items.length} {type === "user" ? "New" : "Pending"}
+          {totalCount !== undefined && type === "user" ? totalCount : items.length} {type === "user" ? "Accounts" : "Pending"}
         </div>
       </div>
 

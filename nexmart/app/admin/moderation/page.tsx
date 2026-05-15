@@ -76,7 +76,7 @@ export default function ModerationDashboard() {
           isLoading={isLoading}
         />
         <SectionCard
-          title="Reported Content"
+          title="Reported Contents"
           icon={FlagTriangleRight}
           items={reports}
           type="report"
