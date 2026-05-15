@@ -88,20 +88,17 @@ async function AdminApprovalContent() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-slate-50 p-8">
-        <div className="mx-auto max-w-6xl rounded-2xl border border-red-200 bg-white p-6 text-red-600 shadow-sm">
-          Failed to load pending products: {error.message}
-        </div>
-      </main>
+      <div className="mx-auto max-w-6xl rounded-2xl border border-red-200 bg-white p-6 text-red-600 shadow-sm">
+        Failed to load pending products: {error.message}
+      </div>
     );
   }
 
   const pendingProducts = (products ?? []) as PendingProductRow[];
 
   return (
-    <main className="min-h-screen bg-slate-50 p-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex items-center justify-between">
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="mt-1 text-3xl font-bold text-slate-900">
               Product Approval
@@ -112,7 +109,7 @@ async function AdminApprovalContent() {
           </div>
 
           <Link
-            href="/"
+            href="/admin/moderation"
             className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-100"
           >
             Back to Moderation
@@ -213,8 +210,7 @@ async function AdminApprovalContent() {
             </div>
           )}
         </section>
-      </div>
-    </main>
+    </div>
   );
 }
 
@@ -222,13 +218,11 @@ export default function AdminApprovalPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-slate-50 p-8">
-          <div className="mx-auto max-w-6xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-sm font-semibold text-slate-600">
-              Loading pending products...
-            </p>
-          </div>
-        </main>
+        <div className="mx-auto max-w-6xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-semibold text-slate-600">
+            Loading pending products...
+          </p>
+        </div>
       }
     >
       <AdminApprovalContent />
