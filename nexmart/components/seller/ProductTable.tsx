@@ -22,12 +22,12 @@ export default function ProductTable({
                         <tr className="border-b border-slate-100 text-left text-xs font-bold uppercase tracking-wide text-slate-500">
                             <th className="px-3 py-4">Product</th>
                             <th className="px-3 py-4">Category</th>
-                            <th className="px-3 py-4">Listing Status</th>
                             <th className="px-3 py-4">Price</th>
                             <th className="px-3 py-4">Stock</th>
                             <th className="px-3 py-4">Sales</th>
                             <th className="px-3 py-4">Buyer Status</th>
                             <th className="px-3 py-4">Actions</th>
+                            <th className="px-3 py-4">Product Status</th>
                         </tr>
                     </thead>
 
@@ -58,10 +58,12 @@ export default function ProductTable({
                                                     isHidden ? "grayscale" : ""
                                                 }`}
                                             />
+
                                             <div>
                                                 <p className="font-semibold text-slate-900">
                                                     {product.name}
                                                 </p>
+
                                                 <p className="text-xs text-slate-500">
                                                     {product.imageUrls.length} image
                                                     {product.imageUrls.length > 1 ? "s" : ""}
@@ -80,24 +82,6 @@ export default function ProductTable({
                                         {product.category.length
                                             ? product.category.join(", ")
                                             : "Uncategorised"}
-                                    </td>
-
-                                    <td className="px-3 py-4">
-                                        <span
-                                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                                                isApproved
-                                                    ? "bg-green-100 text-green-700"
-                                                    : isPending
-                                                        ? "bg-yellow-100 text-yellow-700"
-                                                        : "bg-slate-200 text-slate-700"
-                                            }`}
-                                        >
-                                            {isApproved
-                                                ? "Approved"
-                                                : isPending
-                                                    ? "Pending"
-                                                    : "Hidden"}
-                                        </span>
                                     </td>
 
                                     <td className="px-3 py-4 text-sm font-bold text-slate-900">
@@ -158,6 +142,24 @@ export default function ProductTable({
                                                 <FiTrash2 size={16} />
                                             </button>
                                         </div>
+                                    </td>
+
+                                    <td className="px-3 py-4">
+                                        <span
+                                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                                isApproved
+                                                    ? "bg-green-100 text-green-700"
+                                                    : isPending
+                                                        ? "bg-yellow-100 text-yellow-700"
+                                                        : "bg-slate-200 text-slate-700"
+                                            }`}
+                                        >
+                                            {isApproved
+                                                ? "Approved"
+                                                : isPending
+                                                    ? "Pending"
+                                                    : "Hidden"}
+                                        </span>
                                     </td>
                                 </tr>
                             );
