@@ -6,6 +6,7 @@ import { SectionCard, ModerationRequest } from "@/components/admin/SectionCard";
 
 export default function ModerationDashboard() {
   const [requests, setRequests] = useState<ModerationRequest[]>([]);
+  const [userCount, setUserCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -15,16 +16,72 @@ export default function ModerationDashboard() {
   const fetchRequests = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch("/api/admin/moderation?status=pending&limit=15");
-      if (!res.ok) throw new Error("Failed to fetch data");
-      const data = await res.json();
+      const [modRes, userRes] = await Promise.all([
+        fetch("/api/admin/moderation?status=pending&limit=15"),
+        fetch("/api/admin/users?limit=5")
+      ]);
 
-      // If DB is empty, use mock data for demonstration
-      if (data.length === 0) {
-        setRequests(generateMockData());
+      let modData = [];
+      if (!modRes.ok) {
+        console.warn("modRes failed (table likely missing). Falling back to mock products.", await modRes.text());
       } else {
-        setRequests(data);
+        modData = await modRes.json();
       }
+
+      let userData = [];
+      if (!userRes.ok) {
+        console.error("userRes failed:", await userRes.text());
+      } else {
+        const userResData = await userRes.json();
+        userData = userResData.users || [];
+        setUserCount(userResData.totalCount || 0);
+      }
+
+      const mappedUsers = userData.map((u: any) => {
+        const defaultAddress =
+          u.address?.find((a: any) => a.is_default) || u.address?.[0] || null;
+
+        const roles =
+          u.user_role
+            ?.map((item: any) => item.role?.role_name)
+            .filter(Boolean) || [];
+
+        return {
+          id: u.user_uuid,
+          type: "user" as const,
+          status: "approved" as const,
+          details: {
+            username: u.username,
+            email: u.email,
+            phone: u.phone || null,
+
+            role: u.last_active_role || "buyer",
+
+            roles: roles.length > 0 ? roles : [u.last_active_role || "buyer"],
+
+            user_image: u.user_image || null,
+            gender: u.gender || null,
+            date_of_birth: u.date_of_birth || null,
+
+            address: defaultAddress
+              ? `${defaultAddress.address_line}, ${defaultAddress.city}, ${defaultAddress.postcode}`
+              : null,
+          },
+          created_at: new Date().toISOString(),
+        };
+      });
+
+      let finalModData = modData;
+      let finalUserData = mappedUsers;
+
+      if (modData.length === 0) {
+        finalModData = generateMockData().filter(r => r.type !== "user");
+      }
+      if (mappedUsers.length === 0) {
+        finalUserData = generateMockData().filter(r => r.type === "user");
+      }
+
+      setRequests([...finalModData, ...finalUserData]);
     } catch (err: any) {
       console.error(err);
       // Fallback to mock data on error
@@ -74,6 +131,7 @@ export default function ModerationDashboard() {
           type="user"
           onAction={handleAction}
           isLoading={isLoading}
+          totalCount={userCount}
         />
         <SectionCard
           title="Reported Contents"
