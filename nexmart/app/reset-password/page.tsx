@@ -5,8 +5,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-import "./login.css";
-
 export default function ResetPasswordPage() {
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
