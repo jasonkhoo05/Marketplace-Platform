@@ -8,6 +8,7 @@ export default function ModerationDashboard() {
   const [requests, setRequests] = useState<ModerationRequest[]>([]);
   const [userCount, setUserCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRequests();
@@ -15,22 +16,41 @@ export default function ModerationDashboard() {
 
   const fetchRequests = async () => {
     try {
+      setErrorMessage(null);
       setIsLoading(true);
       const [modRes, userRes] = await Promise.all([
-        fetch("/api/admin/moderation?status=pending&limit=15"),
-        fetch("/api/admin/users?limit=5")
+        fetch("/api/admin/products?limit=15"),
+        fetch("/api/admin/users?limit=5"),
       ]);
 
-      let modData = [];
+      let modData: any[] = [];
       if (!modRes.ok) {
-        console.warn("modRes failed (table likely missing). Falling back to mock products.", await modRes.text());
+        const errorText = await modRes.text();
+        console.warn("modRes failed.", errorText);
+        setErrorMessage("Failed to load pending products from the database.");
       } else {
-        modData = await modRes.json();
+        const productRows = await modRes.json();
+        modData = (productRows ?? []).map((product: any) => ({
+          id: String(product.prod_id),
+          type: "product" as const,
+          status: product.prod_status || "pending",
+          created_at: product.prod_created_at || new Date().toISOString(),
+          details: {
+            title: product.prod_name || "Unnamed product",
+            description: product.prod_desc || "No description",
+            image: product.prod_image || null,
+            seller: product.user?.username ?? "Unknown seller",
+            price: product.prod_price,
+            stock: product.prod_stock_qty,
+          },
+        }));
       }
 
-      let userData = [];
+      let userData: any[] = [];
       if (!userRes.ok) {
-        console.error("userRes failed:", await userRes.text());
+        const errorText = await userRes.text();
+        console.error("userRes failed:", errorText);
+        setErrorMessage((prev) => prev ?? "Failed to load user moderation data.");
       } else {
         const userResData = await userRes.json();
         userData = userResData.users || [];
@@ -54,15 +74,11 @@ export default function ModerationDashboard() {
             username: u.username,
             email: u.email,
             phone: u.phone || null,
-
             role: u.last_active_role || "buyer",
-
             roles: roles.length > 0 ? roles : [u.last_active_role || "buyer"],
-
             user_image: u.user_image || null,
             gender: u.gender || null,
             date_of_birth: u.date_of_birth || null,
-
             address: defaultAddress
               ? `${defaultAddress.address_line}, ${defaultAddress.city}, ${defaultAddress.postcode}`
               : null,
@@ -71,42 +87,28 @@ export default function ModerationDashboard() {
         };
       });
 
-      let finalModData = modData;
-      let finalUserData = mappedUsers;
+      let finalModData: ModerationRequest[] = modData;
+      let finalUserData: ModerationRequest[] = mappedUsers;
 
-      if (modData.length === 0) {
-        finalModData = generateMockData().filter(r => r.type !== "user");
-      }
-      if (mappedUsers.length === 0) {
-        finalUserData = generateMockData().filter(r => r.type === "user");
+      if (!userRes.ok) {
+        finalUserData = generateMockData().filter(
+          (r): r is Extract<ModerationRequest, { type: "user" }> =>
+            r.type === "user",
+        );
       }
 
       setRequests([...finalModData, ...finalUserData]);
     } catch (err: any) {
       console.error(err);
-      // Fallback to mock data on error
-      setRequests(generateMockData());
+      setErrorMessage("Failed to load moderation data.");
+      setRequests([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAction = async (id: string, status: "approved" | "rejected") => {
+  const handleAction = (id: string, status: "approved" | "rejected") => {
     setRequests((prev) => prev.filter((req) => req.id !== id));
-
-    try {
-      const res = await fetch(`/api/admin/moderation`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, status }),
-      });
-      if (!res.ok) {
-        fetchRequests();
-      }
-    } catch (err) {
-      console.error(err);
-      fetchRequests();
-    }
   };
 
   const products = requests.filter((r) => r.type === "product").slice(0, 5);
@@ -115,6 +117,12 @@ export default function ModerationDashboard() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
+      {errorMessage ? (
+        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+          {errorMessage}
+        </div>
+      ) : null}
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-start">
         <SectionCard
           title="Pending Products"
