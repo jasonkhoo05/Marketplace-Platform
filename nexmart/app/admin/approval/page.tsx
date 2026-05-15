@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import ApprovalActions from "@/components/admin/ApprovalActions";
+import { Suspense } from "react";
 
 type ProductCategoryRow = {
   prod_cat_name: string | null;
@@ -56,7 +57,7 @@ function getSellerName(product: PendingProductRow): string {
   return seller?.username ?? "Unknown seller";
 }
 
-export default async function AdminApprovalPage() {
+export async function AdminApprovalContent() {
   const supabase = await createClient();
 
   const { data: products, error } = await supabase
@@ -216,5 +217,24 @@ export default async function AdminApprovalPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+
+export default function AdminApprovalPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-slate-50 p-8">
+          <div className="mx-auto max-w-6xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-sm font-semibold text-slate-600">
+              Loading pending products...
+            </p>
+          </div>
+        </main>
+      }
+    >
+      <AdminApprovalContent />
+    </Suspense>
   );
 }
