@@ -48,8 +48,10 @@ export default function LoginPage() {
                 setError(data.error || "Login failed");
                 return;
             }
+            
+            const userRole = data.user?.last_active_role;
 
-            if (data.user.last_active_role === "seller") {
+            if (userRole === "seller") {
                 router.push("/seller/dashboard");
             } else {
                 router.push("/products");
