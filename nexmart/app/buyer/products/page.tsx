@@ -151,7 +151,7 @@ export default function ProductsPage() {
           </Link>
 
           <Link
-            href="#"
+            href="/buyer/cart"
             className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
           >
             <FiShoppingCart size={18} />
