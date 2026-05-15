@@ -11,7 +11,7 @@ export function AdminHeader() {
 
   if (pathname.startsWith("/admin/moderation")) {
     title = "Admin Moderation";
-    subtitle = "Review and manage user registrations, product listings, and reported content.";
+    subtitle = "Review and manage users, product listings and reported content.";
   } else if (pathname.startsWith("/admin/settings")) {
     title = "System Settings";
     subtitle = "Configure platform-wide settings and preferences.";
