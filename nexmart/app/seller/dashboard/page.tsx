@@ -41,7 +41,7 @@ export default function SellerDashboardPage() {
                     sales: product.prod_sold_qty || 0,
 
                     // approval
-                    status: product.prod_status,
+                    status: product.prod_status ?? "pending",
                     rejectionReason: product.prod_rejection_reason ?? "",
 
                     createdAt: product.created_at,
@@ -110,6 +110,7 @@ export default function SellerDashboardPage() {
                     errorMessage = errorData.error || errorMessage;
                 } catch {
                     // Keep default error message if response is not JSON
+                    alert("Failed to save product. Please try again.");
                 }
 
                 alert(errorMessage);
