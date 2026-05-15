@@ -34,7 +34,7 @@ export default function VerifyOtpPage() {
         const { error } = await supabase.auth.verifyOtp({
             email,
             token: otp,
-            type: "email",
+            type: "recovery",
         });
 
         if (error) {

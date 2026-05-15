@@ -60,6 +60,28 @@ export default function LoginPage() {
         }
     };
 
+    const handleForgotPassword = async () => {
+        if (!email) {
+            setError("Please enter your email.")
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        const supabase = createClient();
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+        if (error) {
+            setError(error.message);
+        } else {
+            router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+        }
+
+        setIsLoading(false);
+    };
+
     return (
         <div className="login-container">
             <div className="leftPanel">
@@ -104,7 +126,13 @@ export default function LoginPage() {
 
                         <div className="passwordTop">
                             <label>Password</label>
-                            <a href="/forgot-password">Forgot password?</a>
+                            <button
+                                type="button"
+                                className="forgotPasswordBtn"
+                                onClick={handleForgotPassword}
+                            >
+                                Forgot password
+                            </button>
                         </div>
 
                         <div className="passwordInputBox">
