@@ -49,10 +49,13 @@ export default function LoginPage() {
                 return;
             }
 
-            router.push("/products");
+            if (data.user.last_active_role === "seller") {
+                router.push("/seller/dashboard");
+            } else {
+                router.push("/products");
+            }
             // router.push("/admin/dashboard");
 
-            // router.push("seller/dashboard");
         } catch {
             setError("Something went wrong. Please try again.");
         } finally {
