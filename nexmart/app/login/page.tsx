@@ -126,13 +126,13 @@ export default function LoginPage() {
 
                         <div className="passwordTop">
                             <label>Password</label>
-                            <button
-                                type="button"
+                            <span
                                 className="forgotPasswordBtn"
                                 onClick={handleForgotPassword}
+                                style={{ cursor: "pointer" }}
                             >
-                                Forgot password
-                            </button>
+                                Forgot password?
+                            </span>
                         </div>
 
                         <div className="passwordInputBox">
