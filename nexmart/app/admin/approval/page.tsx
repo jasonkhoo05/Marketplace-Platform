@@ -103,9 +103,6 @@ async function AdminApprovalContent() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-teal-700">
-              Admin Moderation
-            </p>
             <h1 className="mt-1 text-3xl font-bold text-slate-900">
               Product Approval
             </h1>
@@ -118,7 +115,7 @@ async function AdminApprovalContent() {
             href="/"
             className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-100"
           >
-            Back to Home
+            Back to Moderation
           </Link>
         </div>
 
