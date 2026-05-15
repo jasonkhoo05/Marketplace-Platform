@@ -1,3 +1,4 @@
+import { createAdminClient } from "@/lib/supabaseServer";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -6,7 +7,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const supabase = await createClient();
+    const authSupabase = await createClient();
     const { id } = await params;
     const prodId = Number(id);
 
@@ -20,7 +21,7 @@ export async function PATCH(
     const {
       data: { user },
       error: authError,
-    } = await supabase.auth.getUser();
+    } = await authSupabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
@@ -36,6 +37,7 @@ export async function PATCH(
         ? body.prod_rejection_reason
         : "";
 
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("product")
       .update({
