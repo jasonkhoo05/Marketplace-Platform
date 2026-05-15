@@ -9,7 +9,7 @@ export function AdminHeader() {
   let title = "Admin Dashboard";
   let subtitle = "Overview of your platform's performance and key metrics.";
 
-  if (pathname.startsWith("/admin/moderation")) {
+  if (pathname.startsWith("/admin/moderation") || pathname.startsWith("/admin/approval")) {
     title = "Admin Moderation";
     subtitle = "Review and manage users, product listings and reported content.";
   } else if (pathname.startsWith("/admin/settings")) {
