@@ -210,7 +210,7 @@ export function SectionCard({
   const badgeCount = totalCount !== undefined && type === "user" ? totalCount : items.length;
 
   const viewAllHref: Record<ModerationType, string> = {
-    product: "#", // /admin/products
+    product: "/admin/approval",
     user: "#",    // /admin/users
     report: "#",  // /admin/reportcontent
   };
