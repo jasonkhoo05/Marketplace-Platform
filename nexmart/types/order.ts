@@ -5,6 +5,7 @@ export interface Order {
     id: string;
     buyerName: string;
     buyerEmail: string;
+    buyerAddress: string;
     productName: string;
     productImage: string;
     quantity: number;

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import SellerSidebar from "@/components/seller/SellerSidebar";
 import { Order, OrderStatus } from "@/types/order";
-import { FiEye, FiChevronDown,FiCheck } from "react-icons/fi";
+import { FiEye, FiChevronDown,FiCheck,FiMapPin } from "react-icons/fi";
 /*
 const MOCK_ORDERS: Order[] = [
     {
@@ -94,6 +94,7 @@ async function fetchOrders() {
             buyerEmail: o.buyer_email,
             productName: o.product_name,
             productImage: o.product_image || "/placeholder.jpg",
+            buyerAddress: o.buyer_address,
             quantity: o.quantity,
             totalPrice: o.total_price || 0,
             orderDate: new Date(o.order_date).toLocaleString(),
@@ -163,6 +164,7 @@ async function fetchOrders() {
                                 <th className="px-6 py-4">Order ID</th>
                                 <th className="px-6 py-4">Buyer</th>
                                 <th className="px-6 py-4">Product</th>
+                                <th className="px-6 py-4">Address</th>
                                 <th className="px-6 py-4 text-center">Quantity</th>
                                 <th className="px-6 py-4">Total Price</th>
                                 <th className="px-6 py-4">Status</th>
@@ -179,6 +181,15 @@ async function fetchOrders() {
                                             <span className="text-xs text-slate-500">{order.buyerEmail}</span>
                                         </div>
                                     </td>
+                                    <td className="px-6 py-4 max-w-[200px]">
+                                            <div className="flex items-start gap-1 text-slate-600">
+                                                <FiMapPin className="text-slate-400 mt-0.5 flex-shrink-0" size={14} />
+                                                <span className="text-xs break-words line-clamp-2" title={order.buyerAddress}>
+                                                    {order.buyerAddress}
+                                                </span>
+                                            </div>
+                                    </td>
+
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <img src={order.productImage} alt="" className="h-10 w-10 rounded-lg object-cover bg-slate-100" />
