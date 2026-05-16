@@ -48,11 +48,16 @@ export default function LoginPage() {
                 setError(data.error || "Login failed");
                 return;
             }
+            
+            const userRole = data.user?.last_active_role;
 
-            // router.push("/buyer/dashboard");
+            if (userRole === "seller") {
+                router.push("/seller/dashboard");
+            } else {
+                router.push("/products");
+            }
             // router.push("/admin/dashboard");
 
-            router.push("seller/dashboard");
         } catch {
             setError("Something went wrong. Please try again.");
         } finally {
