@@ -93,7 +93,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-100">
 
-      {/* Sidebar — matches SellerSidebar */}
+      {/* Sidebar - matches SellerSidebar */}
       <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-slate-200 bg-white z-30">
         <div className="flex h-16 items-center gap-3 border-b border-slate-100 px-5">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-700 text-white">
@@ -214,13 +214,13 @@ export default function ProfilePage() {
                     <div className="flex items-center justify-center gap-3 pt-2">
                       {success && <p className="text-sm text-teal-700">{success}</p>}
                       <Button type="submit" disabled={isSaving} className="bg-teal-700 hover:bg-teal-800 text-white px-8">
-                        {isSaving ? "Saving…" : "Save"}
+                        {isSaving ? "Saving..." : "Save"}
                       </Button>
                     </div>
 
                   </div>
 
-                  {/* Avatar — right column */}
+                  {/* Avatar - right column */}
                   <div className="w-44 flex flex-col items-center gap-3 py-8 px-4">
                     <div className="relative cursor-pointer group" onClick={() => fileInputRef.current?.click()}>
                       {avatarPreview
