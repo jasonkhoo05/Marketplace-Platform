@@ -10,15 +10,17 @@ type CartItem = {
   stockQuantity: number;
 };
 
+type CartProductInput = {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  seller: string;
+  stockQuantity: number;
+};
+
 type AddToCartRequestBody = {
-  product?: {
-    id?: number;
-    name?: string;
-    price?: number;
-    image?: string;
-    seller?: string;
-    stockQuantity?: number;
-  };
+  product?: Partial<CartProductInput>;
   quantity?: number;
 };
 
@@ -28,8 +30,8 @@ type UpdateCartRequestBody = {
 };
 
 declare global {
-  // This is temporary mock storage.
-  // Your teammate can later replace this with Supabase cart table logic.
+  // Temporary mock storage.
+  // Later, this can be replaced with Supabase cart table logic.
   // eslint-disable-next-line no-var
   var mockCartItems: CartItem[] | undefined;
 }
@@ -53,7 +55,13 @@ function isPositiveWholeNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value > 0;
 }
 
-function isValidProduct(product: AddToCartRequestBody["product"]) {
+function isNonNegativeWholeNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
+function isValidProduct(
+  product: AddToCartRequestBody["product"]
+): product is CartProductInput {
   return (
     product !== undefined &&
     isPositiveWholeNumber(product.id) &&
@@ -65,7 +73,7 @@ function isValidProduct(product: AddToCartRequestBody["product"]) {
     product.image.trim() !== "" &&
     typeof product.seller === "string" &&
     product.seller.trim() !== "" &&
-    isPositiveWholeNumber(product.stockQuantity)
+    isNonNegativeWholeNumber(product.stockQuantity)
   );
 }
 
