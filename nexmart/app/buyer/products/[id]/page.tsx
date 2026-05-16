@@ -4,7 +4,7 @@ import { RatingStars } from "@/components/rating-star";
 import { createClient } from "@/lib/supabase/server";
 import { productFromRow, type ProductRow } from "@/lib/products";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Suspense } from "react";
 
 type Props = {
@@ -13,12 +13,40 @@ type Props = {
   }>;
 };
 
+function ProductUnavailableMessage() {
+  return (
+    <>
+      <BuyerHeader />
+
+      <main className="min-h-screen bg-slate-50 px-10 py-8">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-8 text-center">
+          <h1 className="text-2xl font-bold text-slate-900">
+            This product is no longer available.
+          </h1>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            The product listing may have been removed, hidden, not approved, or
+            it may no longer exist.
+          </p>
+
+          <Link
+            href="/buyer/products"
+            className="mt-6 inline-flex rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800"
+          >
+            Back to products
+          </Link>
+        </div>
+      </main>
+    </>
+  );
+}
+
 async function ProductDetailContent({ params }: Props) {
   const { id } = await params;
   const numericId = Number(id);
 
   if (Number.isNaN(numericId)) {
-    notFound();
+    return <ProductUnavailableMessage />;
   }
 
   const supabase = await createClient();
@@ -44,101 +72,114 @@ async function ProductDetailContent({ params }: Props) {
     .maybeSingle();
 
   if (error || !row) {
-    notFound();
+    return <ProductUnavailableMessage />;
   }
 
   const product = productFromRow(row as unknown as ProductRow);
   const outOfStock = product.stockQuantity === 0;
 
   return (
-      <>
-    <BuyerHeader />
+    <>
+      <BuyerHeader />
 
-    <main className="min-h-screen bg-slate-50 px-10 py-8">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <div className="grid grid-cols-[420px_1fr] gap-10">
-            <div>
-              <div className="relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
-                {outOfStock && (
-                  <span className="absolute left-4 top-4 z-10 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
-                    Out of stock
-                  </span>
-                )}
-  
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  sizes="420px"
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            </div>
-  
-            <div>
-              <h1 className="text-2xl font-semibold text-slate-900">
-                {product.name}
-              </h1>
-  
-              <div className="mt-4 flex items-center gap-4 text-sm text-slate-500">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-teal-700">
-                    {product.rating}
-                  </span>
-                  <RatingStars rating={product.rating} size={18} />
+      <main className="min-h-screen bg-slate-50 px-10 py-8">
+        <div className="mx-auto max-w-6xl space-y-6">
+          <Link
+            href="/buyer/products"
+            className="inline-flex text-sm font-medium text-teal-700 hover:underline"
+          >
+            ← Back to products
+          </Link>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="grid grid-cols-[420px_1fr] gap-10">
+              <div>
+                <div className="relative aspect-square overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                  {outOfStock && (
+                    <span className="absolute left-4 top-4 z-10 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
+                      Out of stock
+                    </span>
+                  )}
+
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    sizes="420px"
+                    className="object-cover"
+                    priority
+                  />
                 </div>
-  
-                <span className="h-4 w-px bg-slate-200" />
-  
-                <span>{product.quantitySold} sold</span>
               </div>
-  
-              <div className="mt-6 rounded-xl bg-slate-50 px-6 py-5">
-                <p className="text-3xl font-bold text-teal-700">
-                  ${product.price}
-                </p>
-              </div>
-  
-              <div className="mt-6 space-y-4 text-sm">
-                <div className="flex">
-                  <p className="w-24 text-slate-500">Seller</p>
-                  <p className="font-medium text-slate-800">{product.seller}</p>
+
+              <div>
+                <h1 className="text-2xl font-semibold text-slate-900">
+                  {product.name}
+                </h1>
+
+                <div className="mt-4 flex items-center gap-4 text-sm text-slate-500">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-teal-700">
+                      {product.rating}
+                    </span>
+                    <RatingStars rating={product.rating} size={18} />
+                  </div>
+
+                  <span className="h-4 w-px bg-slate-200" />
+
+                  <span>{product.quantitySold} sold</span>
                 </div>
-  
-                <div className="flex">
-                  <p className="w-24 text-slate-500">Category</p>
-                  <p className="font-medium text-slate-800">
-                    {product.category.length ? product.category.join(", ") : "-"}
+
+                <div className="mt-6 rounded-xl bg-slate-50 px-6 py-5">
+                  <p className="text-3xl font-bold text-teal-700">
+                    ${product.price}
                   </p>
                 </div>
-  
-                <div className="flex">
-                  <p className="w-24 text-slate-500">Stock</p>
-                  <p className="font-medium text-slate-800">
-                    {outOfStock ? "Unavailable" : `${product.stockQuantity} available`}
-                  </p>
+
+                <div className="mt-6 space-y-4 text-sm">
+                  <div className="flex">
+                    <p className="w-24 text-slate-500">Seller</p>
+                    <p className="font-medium text-slate-800">
+                      {product.seller}
+                    </p>
+                  </div>
+
+                  <div className="flex">
+                    <p className="w-24 text-slate-500">Category</p>
+                    <p className="font-medium text-slate-800">
+                      {product.category.length
+                        ? product.category.join(", ")
+                        : "-"}
+                    </p>
+                  </div>
+
+                  <div className="flex">
+                    <p className="w-24 text-slate-500">Stock</p>
+                    <p className="font-medium text-slate-800">
+                      {outOfStock
+                        ? "Unavailable"
+                        : `${product.stockQuantity} available`}
+                    </p>
+                  </div>
                 </div>
+
+                <ProductPurchasePanel product={product} />
               </div>
-  
-              <ProductPurchasePanel stockQuantity={product.stockQuantity} />
             </div>
           </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Product Description
+            </h2>
+
+            <p className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-600">
+              {product.description || "No description provided."}
+            </p>
+          </div>
         </div>
-  
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-slate-900">
-            Product Description
-          </h2>
-  
-          <p className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-600">
-            {product.description || "No description provided."}
-          </p>
-        </div>
-      </div>
-    </main>
-  </>
+      </main>
+    </>
   );
 }
 
