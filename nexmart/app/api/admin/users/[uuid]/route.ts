@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { isAdminUser } from "../../../../admin/validation/adminValidation";
+import { Meera_Inimai } from "next/font/google";
 
 
 export async function GET(
@@ -98,7 +99,99 @@ export async function GET(
 }
 
 
+export async function DELETE(
+    req: Request,
+    { params } : { params: Promise <{uuid: string}> }
+) {
+    try {
+        const supabase = await createClient();
 
+        const {
+            data: { user },
+            error: authError,
+        } = await supabase.auth.getUser();
+
+        if (authError || !user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const admin = await isAdminUser(user.id);
+
+        if (!admin) {
+            return NextResponse.json({ error: "Forbidden Access" }, { status: 403 });
+        }
+
+        const resolvedParams =  await params;
+        const userUuid = resolvedParams.uuid;
+
+        if (userUuid === user.id) {
+            return NextResponse.json(
+                { error: "Admin cannot delete themselves." },
+                { status: 400 }
+            );
+        }
+
+        // delete address
+        const { error: addressError } = await supabaseAdmin
+            .from("address")
+            .delete()
+            .eq("user_uuid", userUuid);
+
+        if (addressError) {
+            return NextResponse.json(
+                { error: "Failed to delete address record." },
+                { status: 500 }
+            );
+        }
+
+        // delete user role
+        const { error: userRoleError } = await supabaseAdmin
+            .from("user_role")
+            .delete()
+            .eq("user_uuid", userUuid);
+
+        if (userRoleError) {
+            return NextResponse.json(
+                { error: "Failed to delete user role record." },
+                { status: 500 }
+            );
+        }
+
+        // delete user
+        const { error: userError } = await supabaseAdmin
+            .from("user")
+            .delete()
+            .eq("user_uuid", userUuid);
+
+        if (userError) {
+            return NextResponse.json(
+                { error: "Failed to delete user record." },
+                { status: 500 }
+            );
+        }
+
+        // delete user from auth section
+        const { error: userAuthError } = await supabaseAdmin.auth.admin.deleteUser(userUuid);
+
+
+        if (userAuthError) {
+            return NextResponse.json(
+                { error: "Failed to delete user in authentication" },
+                { status: 500 }
+            );
+        }
+
+        return NextResponse.json(
+            { message: "User deleted successfully" }
+        );
+    } catch (error: any) {
+        console.error(error);
+        return NextResponse.json(
+            { error: "Server error in deleting user" },
+            { status: 500 }
+        );
+    }
+}
 
 
 
