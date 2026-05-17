@@ -69,6 +69,8 @@ function UserDetailModal({ user, onClose }: { user: ModerationRequest; onClose: 
         : "bg-blue-100 text-blue-700";
   const allRoles: string[] = d.roles?.length ? [...new Set(d.roles as string[])] : [d.role || "buyer"];
 
+
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4" onClick={onClose}>
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -261,6 +263,10 @@ export function SectionCard({
 
   const colors = colorMap[type];
   const badgeCount = totalCount !== undefined && type === "user" ? totalCount : items.length;
+
+  const navigateUserManagement = () => {
+    router.push("/admin/moderation/usermanagement");
+  }
 
   const viewAllHref: Record<ModerationType, string> = {
     product: "/admin/approval",

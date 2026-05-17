@@ -8,7 +8,6 @@ import { AiFillSwitcher } from "react-icons/ai";
 
 
 export default function AdminUserManagementDashboard() {
-
     const router = useRouter();
 
     const [users, setUsers] = useState<User[]>([]);

@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { PackageSearch, UserPlus, FlagTriangleRight } from "lucide-react";
 import { SectionCard, ModerationRequest } from "@/components/admin/SectionCard";
 
+
 export default function ModerationDashboard() {
+
   const [requests, setRequests] = useState<ModerationRequest[]>([]);
   const [userCount, setUserCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -113,6 +115,8 @@ export default function ModerationDashboard() {
   const products = requests.filter((r) => r.type === "product").slice(0, 5);
   const users = requests.filter((r) => r.type === "user").slice(0, 5);
   const reports = requests.filter((r) => r.type === "report").slice(0, 5);
+
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
