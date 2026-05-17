@@ -131,16 +131,18 @@ input:focus{
   align-items:center;
 }
 
-.passwordTop a{
+.forgotPasswordBtn {
   font-size: 12px;
   color: #0f766e;
   text-decoration: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+  text-align:right;
 }
 
-.passwordTop{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.forgotPasswordBtn:hover {
+  color: #1559a1;
+  text-decoration: underline;
 }
 
 .passwordInputBox {
