@@ -37,10 +37,10 @@ export default function ProductCard({ product }: Props) {
         <p className="text-xs text-slate-500">Seller: {product.seller}</p>
         <p className="text-lg font-bold text-teal-700">${product.price}</p>
 
-        <div className="flex items-center gap-1 text-xs text-slate-500">
-        <div className="flex items-center gap-1">
-          <RatingStars rating={product.rating} size={16} />
-          <span>{product.rating}</span>
+        <div className="space-y-1 text-xs text-slate-500">
+          <div className="flex items-center gap-1">
+            <RatingStars rating={product.rating} size={16} />
+            <span>{product.rating}</span>
         </div>
 
         <p>{product.quantitySold} sold</p>
