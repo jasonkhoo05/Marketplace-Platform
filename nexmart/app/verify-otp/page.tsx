@@ -4,8 +4,6 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-import "./login.css";
-
 export default function VerifyOtpPage() {
     const [otp, setOtp] = useState("");
     const [error, setError] = useState("");
@@ -17,7 +15,7 @@ export default function VerifyOtpPage() {
 
     useEffect(() => {
         if (!email) {
-            setError("Missing email. Please restart login process.");
+            setError("Missing email. Please enter your email address.");
         }
     }, [email]);
 
@@ -25,7 +23,7 @@ export default function VerifyOtpPage() {
         e.preventDefault();
 
         if (!email) {
-            setError("Missing email. Please restart login process.");
+            setError("Missing email. Please enter your email address.");
             return;
         }
 
@@ -46,8 +44,8 @@ export default function VerifyOtpPage() {
     };
 
     return (
-        <div className="login-container">
-            <div className="rightPanel">
+        <div className="otp-container">
+            <div className="otp-panel">
                 <div className="formBox">
 
                     <h2>Verify OTP</h2>
@@ -75,7 +73,7 @@ export default function VerifyOtpPage() {
 
                         <button
                             type="submit"
-                            className="signinButton"
+                            className="submitButton"
                         >
                             Verify OTP
                         </button>
