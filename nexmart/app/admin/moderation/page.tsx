@@ -61,10 +61,9 @@ export default function ModerationDashboard() {
         const defaultAddress =
           u.address?.find((a: any) => a.is_default) || u.address?.[0] || null;
 
-        const roles =
-          u.user_role
-            ?.map((item: any) => item.role?.role_name)
-            .filter(Boolean) || [];
+        const roles = u.user_role;
+            // ?.map((item: any) => item.role?.role_name)
+            // .filter(Boolean) || [];
 
         return {
           id: u.user_uuid,

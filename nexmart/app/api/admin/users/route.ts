@@ -8,14 +8,14 @@ export async function GET(request: Request) {
 
   const supabase = await createClient();
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  // const {
+  //   data: { user },
+  //   error: authError,
+  // } = await supabase.auth.getUser();
 
-  if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // if (authError || !user) {
+  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // }
 
   const { data, error, count } = await supabase
     .from("user")
@@ -35,8 +35,8 @@ export async function GET(request: Request) {
         postcode,
         is_default
       ),
-      user_role(
-        role(
+      user_role!user_role_user_uuid_fkey(
+        role!user_role_role_id_fkey(
           role_name
         )
       )
@@ -51,7 +51,16 @@ export async function GET(request: Request) {
   const users = data ?? [];
 
   // const limitedUsers = users.slice(0, limit);
-  const resultUsers = limit ? users.slice(0, limit) : users
+  const resultUsers = (limit ? users.slice(0, limit) : users).map((user) => ({
+    ...user,
+    user_role: {
+      role_name: user.user_role.map((userRole) => userRole.role.role_name),
+    },
+    // roles: user.user_role.map((ur) => (ur.role as { role_name: string }).role_name),
+    // user_role: undefined,
+  }));
+
+
 
   return NextResponse.json({
     users: resultUsers,
