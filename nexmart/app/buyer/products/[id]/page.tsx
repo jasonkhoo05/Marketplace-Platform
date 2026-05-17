@@ -1,5 +1,6 @@
 import ProductPurchasePanel from "@/components/buyer/products/ProductPurchasePanel";
 import BuyerHeader from "@/components/buyer/layout/BuyerHeader";
+import ProductReviews from "@/components/buyer/ProductReviews";
 import { RatingStars } from "@/components/rating-star";
 import { createClient } from "@/lib/supabase/server";
 import { productFromRow, type ProductRow } from "@/lib/products";
@@ -177,6 +178,8 @@ async function ProductDetailContent({ params }: Props) {
               {product.description || "No description provided."}
             </p>
           </div>
+
+          <ProductReviews productRating={product.rating} />
         </div>
       </main>
     </>
