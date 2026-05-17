@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+import ".reset-password.css";
+
 export default function ResetPasswordPage() {
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
@@ -16,6 +18,11 @@ export default function ResetPasswordPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters.")
+            return;
+        }
 
         if (password !== confirm) {
             setError("Passwords do not match.");
@@ -30,22 +37,26 @@ export default function ResetPasswordPage() {
 
         if (error) {
             setError(error.message);
-        } else {
-            router.push("/login"); 
+            setIsLoading(false);
+            return;
         }
 
-        setIsLoading(false);
+        router.push("/login");
     };
 
     return (
-        <div className="login-container">
-            <div className="rightPanel">
+        <div className="reset-container">
+            <div className="reset-panel">
+
                 <div className="formBox">
                     <h2>Reset Password</h2>
-                    <p className="subtitle">Enter your email</p>
+                    <p className="subtitle">Create a new secure password</p>
+
                     <form onSubmit={handleSubmit}>
+
                         <label>New Password</label>
                         <input
+
                             type="password"
                             placeholder="Enter new password"
                             value={password}
@@ -56,19 +67,36 @@ export default function ResetPasswordPage() {
                         <label>Confirm Password</label>
                         <input
                             type="password"
-                            placeholder="Confirm new password"
+                            placeholder="Confirm password"
                             value={confirm}
                             onChange={(e) => setConfirm(e.target.value)}
                             required
                         />
-                        {error && <p style={{ color: "red", fontSize: "13px" }}>{error}</p>}
-                        <button type="submit" className="signinButton" disabled={isLoading}>
-                            {isLoading ? "Updating..." : "Reset Password"}
+                        
+                        {error && (
+                            <p className="errorMessage">
+                                {error}
+                            </p>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="signinButton"
+                            disabled={isLoading}
+                        >
+                            {isLoading
+                                ? "Updating..."
+                                : "Reset Password"}
                         </button>
+
                     </form>
+
                     <div className="links">
-                        <Link href="/login">Back to Login</Link>
+                        <Link href="/login">
+                            Back to Login
+                        </Link>
                     </div>
+
                 </div>
             </div>
         </div>
