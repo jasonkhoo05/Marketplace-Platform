@@ -81,7 +81,7 @@ export default function ResetPasswordPage() {
 
                         <button
                             type="submit"
-                            className="signinButton"
+                            className="submitButton"
                             disabled={isLoading}
                         >
                             {isLoading
