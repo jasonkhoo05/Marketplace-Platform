@@ -10,11 +10,13 @@ import {
 } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import ProductFilters from "@/app/buyer/prod_components/products/ProductFilters";
+import ProductPagination from "@/app/buyer/prod_components/products/ProductPagination";
 import ProductGrid from "@/app/buyer/prod_components/products/ProductGrid";
 import ProductToolbar, {
   type SortOption,
 } from "@/app/buyer/prod_components/products/ProductToolbar";
 import { type ProductView } from "@/lib/products";
+
 
 type ProductsApiResponse = {
   products: ProductView[];
@@ -27,7 +29,6 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<ProductView[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [categories, setCategories] = useState<string[]>(["All"]);
-
   const [category, setCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [minPrice, setMinPrice] = useState("");
@@ -36,7 +37,8 @@ export default function ProductsPage() {
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sort, setSort] = useState<SortOption>("popular");
   const [showAllCategories, setShowAllCategories] = useState(false);
-
+  const [page, setPage] = useState(1);
+  const PRODUCTS_PER_PAGE = 12;
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -130,6 +132,8 @@ export default function ProductsPage() {
     setInStockOnly(false);
     setSort("popular");
   }
+
+  const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
 
   return (
     <main className="min-h-screen bg-slate-50 pl-60">
@@ -273,7 +277,14 @@ export default function ProductsPage() {
             Loading products...
           </div>
         ) : (
+          <>
           <ProductGrid products={products} />
+          <ProductPagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+          </>
         )}
       </div>
     </main>
