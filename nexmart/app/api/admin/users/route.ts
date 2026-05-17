@@ -8,14 +8,14 @@ export async function GET(request: Request) {
 
   const supabase = await createClient();
 
-  // const {
-  //   data: { user },
-  //   error: authError,
-  // } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
-  // if (authError || !user) {
-  //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // }
+  if (authError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { data, error, count } = await supabase
     .from("user")
