@@ -3,6 +3,7 @@
 import BuyerHeader from "@/app/buyer/prod_components/layout/BuyerHeader";
 import Link from "next/link";
 import { FiTrash2, FiTag, FiArrowRight } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 type CartItem = {
@@ -24,6 +25,7 @@ type CartApiResponse = {
 };
 
 export default function CartPage() {
+  const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
   const [promoCode, setPromoCode] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -36,6 +38,11 @@ export default function CartPage() {
     try {
       const response = await fetch("/api/cart");
       const data = (await response.json()) as CartApiResponse;
+
+      if (response.status === 401) {
+        router.push("/login");
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(data.error ?? "Failed to load cart.");

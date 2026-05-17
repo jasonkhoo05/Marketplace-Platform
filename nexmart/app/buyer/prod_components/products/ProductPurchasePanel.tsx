@@ -63,6 +63,11 @@ export default function ProductPurchasePanel({ product }: Props) {
 
       const data = (await response.json()) as CartApiResponse;
 
+      if (response.status === 401) {
+        router.push("/login");
+        return false;
+      }
+
       if (!response.ok) {
         throw new Error(data.error ?? "Failed to add product to cart.");
       }

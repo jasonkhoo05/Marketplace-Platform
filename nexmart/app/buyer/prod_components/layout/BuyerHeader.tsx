@@ -1,5 +1,6 @@
+import CartBadge from "@/components/buyer/CartBadge";
 import Link from "next/link";
-import { FiBox, FiSearch, FiShoppingCart, FiUser } from "react-icons/fi";
+import { FiBox, FiSearch, FiUser } from "react-icons/fi";
 
 export default function BuyerHeader() {
   return (
@@ -30,15 +31,7 @@ export default function BuyerHeader() {
             Profile
           </Link>
 
-          <Link
-            href="/buyer/cart"
-            className="relative text-slate-700 hover:text-teal-700"
-          >
-            <FiShoppingCart size={21} />
-            <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-              3
-            </span>
-          </Link>
+          <CartBadge />
         </div>
       </div>
     </header>

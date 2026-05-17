@@ -58,6 +58,8 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/profile") ||
     pathname.startsWith("/seller") ||
     pathname.startsWith("/api/seller") ||
+    pathname.startsWith("/buyer/cart") ||
+    pathname.startsWith("/api/cart") ||
     pathname === "/api/product" || //can comment out here to check api
     pathname.startsWith("/api/product/"); //can comment out here to check api
 
