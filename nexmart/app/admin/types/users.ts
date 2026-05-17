@@ -13,7 +13,6 @@ type UserRole = {
     roleID: number;
     userUuid: string;
     role?: Role;
-
 };
 
 type User = {
@@ -25,7 +24,7 @@ type User = {
     userImage: string | null;
     gender: "Male" | "Female" | "Other" | null;
     dateOfBirth: string | null;
-    userRole?: UserRole][];
+    userRole?: UserRole[];
     address?: Address[];
 };
 
