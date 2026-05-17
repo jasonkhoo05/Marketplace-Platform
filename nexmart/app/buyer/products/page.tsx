@@ -9,12 +9,12 @@ import {
   FiUser,
 } from "react-icons/fi";
 import { useEffect, useState } from "react";
-import ProductFilters from "@/app/buyer/prod_components/products/ProductFilters";
-import ProductPagination from "@/app/buyer/prod_components/products/ProductPagination";
-import ProductGrid from "@/app/buyer/prod_components/products/ProductGrid";
+import ProductFilters from "@/components/buyer/products/ProductFilters";
+import ProductPagination from "@/components/buyer/products/ProductPagination";
+import ProductGrid from "@/components/buyer/products/ProductGrid";
 import ProductToolbar, {
   type SortOption,
-} from "@/app/buyer/prod_components/products/ProductToolbar";
+} from "@/components/buyer/products/ProductToolbar";
 import { type ProductView } from "@/lib/products";
 
 
