@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+import "./verity-otp.css"
+
 export default function VerifyOtpPage() {
     const [otp, setOtp] = useState("");
     const [error, setError] = useState("");

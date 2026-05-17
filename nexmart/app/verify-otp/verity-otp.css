@@ -1,13 +1,36 @@
-/* Full Page */
+
 .otp-container {
     min-height: 100vh;
     width: 100%;
-    background: #f4f7f5;
+    background: #0a1a12;
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 20px;
-    font-family: Arial, Helvetica, sans-serif;
+    align-items: center
+}
+
+.otp-container::before {
+    content: '';
+    position: fixed;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(52, 160, 90, 0.15) 0%, transparent 70%);
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.otp-container::after {
+    content: '';
+    position: fixed;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(52, 160, 90, 0.08) 0%, transparent 70%);
+    bottom: -80px;
+    right: 10%;
+    pointer-events: none;
 }
 
 .otp-panel {
@@ -15,63 +38,82 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .formBox {
     width: 100%;
     max-width: 420px;
-    background: white;
-    padding: 40px 35px;
-    border-radius: 24px;
-    box-shadow:
-        0 10px 25px rgba(0, 0, 0, 0.08),
-        0 4px 10px rgba(0, 0, 0, 0.03);
+    background: #0f2318;
+    padding: 40px 36px 36px;
+    border-radius: 20px;
+    border: 1px solid rgba(52, 160, 90, 0.22);
+}
+
+.formBox::before {
+    content: '';
+    display: block;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(79, 199, 121, 0.12);
+    border: 1.5px solid rgba(52, 160, 90, 0.35);
+    margin: 0 auto 20px;
 }
 
 .formBox h2 {
     text-align: center;
-    font-size: 32px;
-    color: #1f2937;
-    margin-bottom: 10px;
-    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: #e8f5ec;
+    margin-bottom: 8px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
 }
 
 .subtitle {
     text-align: center;
-    color: #6b7280;
-    font-size: 15px;
-    margin-bottom: 30px;
-    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 13.5px;
+    margin-bottom: 28px;
+    line-height: 1.6;
 }
 
 form label {
     display: block;
-    margin-bottom: 10px;
-    color: #374151;
-    font-size: 14px;
-    font-weight: 600;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
 }
 
 form input {
     width: 100%;
-    height: 55px;
-    border: 1.5px solid #d1d5db;
-    border-radius: 14px;
+    height: 52px;
+    border: 1.5px solid rgba(45, 206, 101, 0.22);
+    border-radius: 12px;
     padding: 0 16px;
-    font-size: 16px;
-    transition: all 0.25s ease;
+    font-size: 15px;
+    font-family: 'DM Sans', Arial, sans-serif;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
     outline: none;
-    background: #ffffff;
-    color: #111827;
-}
-
-form input:focus {
-    border-color: #6BCB77;
-    box-shadow: 0 0 0 4px rgba(107, 203, 119, 0.15);
+    background: #0a1a12;
+    color: #e8f5ec;
+    box-sizing: border-box;
 }
 
 form input::placeholder {
-    color: #9ca3af;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+form input:focus {
+    border-color: #5ecb7a;
+    box-shadow: 0 0 0 3px rgba(94, 203, 122, 0.15);
+    transform: translateY(-1px);
 }
 
 .errorMessage {
@@ -82,23 +124,31 @@ form input::placeholder {
 
 .submitButton {
     width: 100%;
-    height: 55px;
-    margin-top: 25px;
+    height: 52px;
+    margin-top: 24px;
     border: none;
     border-radius: 14px;
-    background: #6BCB77;
+    background: linear-gradient(135deg, #2d8c50, #34a05a);
     color: white;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
+    font-family: 'DM Sans', Arial, sans-serif;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    letter-spacing: 0.3px;
 }
 
 .submitButton:hover {
-    background: #57b865;
+    opacity: 0.9;
     transform: translateY(-1px);
 }
 
 .submitButton:active {
     transform: scale(0.98);
+}
+
+.submitButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
 }
