@@ -66,8 +66,8 @@ export async function GET(
             return NextResponse.json({ error: "User not found" }, { status: 404});
         }
 
-        console.log("data.address:", data.address);
-        console.log("full data:", JSON.stringify(data, null, 2));
+        // console.log("data.address:", data.address);
+        // console.log("full data:", JSON.stringify(data, null, 2));
 
         const resultUser = {
             user_uuid: data.user_uuid,

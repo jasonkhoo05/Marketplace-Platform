@@ -19,7 +19,23 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data, error, count } = await supabase
+  //
+  const { data: adminRoles } = await supabase
+  .from("role")
+  .select("role_id")
+  .eq("role_name", "admin")
+  .single();
+
+  const adminRoleId = adminRoles?.role_id;
+
+  const { data: adminData } = await supabase
+    .from("user_role")
+    .select("user_uuid")
+    .eq("role_id", adminRoleId);
+
+  const adminUuids = adminData?.map((r: any) => r.user_uuid) || [];
+
+  let query =  supabase
     .from("user")
     .select(
       `
@@ -43,8 +59,14 @@ export async function GET(request: Request) {
         )
       )
     `,
-      { count: "exact" }
+    { count: "exact" }
     );
+
+    if (adminUuids.length > 0) {
+      query = query.not("user_uuid", "in", `(${adminUuids.join(",")})`);
+    }
+
+    const { data, error, count } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
