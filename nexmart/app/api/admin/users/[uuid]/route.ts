@@ -30,6 +30,8 @@ export async function GET(
         const resolvedParams =  await params;
         const userUuid = resolvedParams.uuid;
 
+        const { data: authData } = await supabaseAdmin.auth.admin.getUserById(userUuid);
+
         const { data, error } = await supabaseAdmin
             .from("user")
             .select(
@@ -64,24 +66,37 @@ export async function GET(
             return NextResponse.json({ error: "User not found" }, { status: 404});
         }
 
+        console.log("data.address:", data.address);
+        console.log("full data:", JSON.stringify(data, null, 2));
+
         const resultUser = {
-            userUuid: data.user_uuid,
+            user_uuid: data.user_uuid,
             username: data.username,
             email: data.email,
             phone: data.phone,
-            lastActiveRole: data.last_active_role,
-            userImage: data.user_image,
+            last_active_role: data.last_active_role,
+            user_image: data.user_image,
             gender: data.gender,
-            dateOfBirth: data.date_of_birth,
-            userRole: data.user_role?.map((r: any) =>
+            date_of_birth: data.date_of_birth,
+            last_sign_in_at: authData?.user?.last_sign_in_at ?? null,
+            roles: data.user_role?.map((r: any) =>
                 r.role?.role_name).filter(Boolean) || [],
+            address: data.address
+            ? [{
+                address_line: (data.address as any).address_line,
+                city: (data.address as any).city,
+                postcode: (data.address as any).postcode,
+                is_default: (data.address as any).is_default,
+            }]
+            : [],
 
-            address: data.address?.map((a: any) => ({
-                addressLine: a.address_line,
-                cityLine: a.city,
-                postcode: a.postcode,
-                isDefault: a.is_default,
-            })) || [],
+
+            // address: data.address?.map((a: any) => ({
+            //     address_line: a.address_line,
+            //     city: a.city,
+            //     postcode: a.postcode,
+            //     is_default: a.is_default,
+            // })) || [],
 
         };
 

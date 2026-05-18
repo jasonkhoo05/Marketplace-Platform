@@ -270,7 +270,7 @@ export function SectionCard({
 
   const viewAllHref: Record<ModerationType, string> = {
     product: "/admin/approval",
-    user: "#",    // /admin/users
+    user: "/admin/moderation/usermanagement",    // /admin/users
     report: "#",  // /admin/reportcontent
   };
 
