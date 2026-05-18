@@ -105,44 +105,45 @@ body{
   padding: 20px;
 }
 
-.formBox{
-  flex-direction:column;
-  gap:10px;
+.page-login .formBox {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.formBox h2 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 10px;
+.page-login .formBox h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
 }
 
-.subtitle{
-  color:#6b7280;
-  font-size:16px;
-  margin-bottom:30px;
+.page-login .subtitle {
+    color: #6b7280;
+    font-size: 16px;
+    margin-bottom: 30px;
 }
 
-form{
-  display:flex;
-  flex-direction:column;
+.page-login form {
+    display: flex;
+    flex-direction: column;
 }
 
-label{
-  font-size:15px;
-  color:#374151;
-  margin-bottom:8px;
+.page-login label {
+    font-size: 15px;
+    color: #374151;
+    margin-bottom: 8px;
 }
 
-input{
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  margin-bottom: 15px;
+.page-login input {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 15px;
 }
 
-input:focus{
-  border-color:#006d66;
-  outline: none;
+.page-login input:focus {
+    border-color: #006d66;
+    outline: none;
 }
 
 .passwordTop{

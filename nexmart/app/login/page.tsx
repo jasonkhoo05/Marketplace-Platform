@@ -86,6 +86,7 @@ export default function LoginPage() {
             setToast(true);
 
             setTimeout(() => {
+                setToast(false);
                 router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
             }, 1200);                                           
         }
