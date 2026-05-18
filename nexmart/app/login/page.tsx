@@ -41,25 +41,12 @@ export default function LoginPage() {
 
             const data = await response.json();
 
-            if (response.status === 404) {
-                router.push("/signup");
-                return;
-            }
-
             if (!response.ok) {
                 setError(data.error || "Login failed");
                 return;
             }
 
-            const userRole = data.user?.last_active_role;
-
-            if (userRole === "seller") {
-                router.push("/seller/dashboard");
-            } else {
-                router.push("/products");
-            }
-
-            // router.push("/admin/dashboard");
+            router.push(data.redirectTo);
 
         } catch {
             setError("Something went wrong. Please try again.");
