@@ -19,6 +19,7 @@ export async function POST(request: Request) {
   });
 
   if (error) {
+    console.error("[login] signInWithPassword error:", error.message, error.status);
     const { data: existingUser } = await supabase
       .from("user")
       .select("user_uuid")

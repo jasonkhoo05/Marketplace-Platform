@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import UserProfileCard from "@/components/ui/UserProfileCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -15,13 +16,15 @@ const MONTHS = ["January","February","March","April","May","June","July","August
 
 interface FormState {
   username: string; full_name: string; email: string; phone: string;
-  address: string; gender: string; dob_day: string; dob_month: string;
+  address: string; city: string; postcode: string; is_default: boolean;
+  gender: string; dob_day: string; dob_month: string;
   dob_year: string; user_image: string;
 }
 
 const DEFAULT_FORM: FormState = {
   username: "", full_name: "", email: "", phone: "",
-  address: "", gender: "", dob_day: "", dob_month: "", dob_year: "", user_image: "",
+  address: "", city: "", postcode: "", is_default: false,
+  gender: "", dob_day: "", dob_month: "", dob_year: "", user_image: "",
 };
 
 const sidebarItems = [
@@ -58,6 +61,9 @@ export default function ProfilePage() {
           email: data.email || "",
           phone: data.phone || "",
           address: data.address || "",
+          city: data.city || "",
+          postcode: data.postcode || "",
+          is_default: data.is_default ?? false,
           gender: data.gender || "",
           dob_day: data.dob_day || "",
           dob_month: data.dob_month || "",
@@ -154,15 +160,8 @@ export default function ProfilePage() {
         </nav>
 
         <div className="border-t border-slate-100 p-4">
-          <div className="mb-3 flex items-center gap-3">
-            {avatarPreview
-              ? <img src={avatarPreview} alt="avatar" className="h-10 w-10 rounded-full object-cover" />
-              : <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-slate-400"><FiUser size={18} /></div>
-            }
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-900 truncate">{form.username || "Username"}</p>
-              <p className="text-xs text-slate-500 truncate">{form.email || "your@email.com"}</p>
-            </div>
+          <div className="mb-3">
+            <UserProfileCard username={form.username} email={form.email} avatarUrl={avatarPreview} />
           </div>
           <Link href="/products" className="flex items-center justify-center text-sm text-slate-500 hover:text-teal-700 transition-colors">
             Back to Store
@@ -216,7 +215,26 @@ export default function ProfilePage() {
                     </Row>
 
                     <Row label="Address">
-                      <Input className="text-[15px] h-10 focus-visible:ring-teal-700" placeholder="123 Jalan Jingga, Selangor" value={form.address} onChange={set("address")} />
+                      <Input className="text-[15px] h-10 focus-visible:ring-teal-700" placeholder="e.g. 123 Jalan Jingga" value={form.address} onChange={set("address")} />
+                    </Row>
+
+                    <Row label="City">
+                      <Input className="text-[15px] h-10 focus-visible:ring-teal-700" placeholder="e.g. Petaling Jaya" value={form.city} onChange={set("city")} />
+                    </Row>
+
+                    <Row label="Postcode">
+                      <Input className="text-[15px] h-10 focus-visible:ring-teal-700" placeholder="e.g. 47810" value={form.postcode} onChange={set("postcode")} />
+                    </Row>
+
+                    <Row label="Default Address">
+                      <div className="flex h-9 items-center">
+                        <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
+                          <input type="checkbox" checked={form.is_default}
+                            onChange={(e) => setForm((prev) => ({ ...prev, is_default: e.target.checked }))}
+                            className="accent-teal-700 w-4 h-4" />
+                          Set as default address
+                        </label>
+                      </div>
                     </Row>
 
                     <Row label="Gender">
