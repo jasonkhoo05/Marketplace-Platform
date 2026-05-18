@@ -355,7 +355,7 @@ export function SectionCard({
   const viewAllHref: Record<ModerationType, string> = {
     product: "/admin/approval",
     user: "#",    // /admin/users
-    review: "#",  // /admin/reviews
+    review: "/admin/reviews",
     report: "#",  // /admin/reportcontent
   };
 

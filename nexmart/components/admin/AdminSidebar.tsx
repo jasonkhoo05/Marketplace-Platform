@@ -16,7 +16,7 @@ import { LogoutButton } from "../logout-button";
 
 const menuItems = [
     { label: "Dashboard", href: "#", icon: FiGrid, disabled: false, activePaths: [] },
-    { label: "Moderation", href: "/admin/moderation", icon: FiShield, disabled: false, activePaths: ["/admin/moderation", "/admin/approval", "/admin/usermanagement"] },
+    { label: "Moderation", href: "/admin/moderation", icon: FiShield, disabled: false, activePaths: ["/admin/moderation", "/admin/approval", "/admin/reviews", "/admin/usermanagement"] },
     { label: "Settings", href: "#", icon: FiSettings, disabled: false, activePaths: [] },
 ];
 
