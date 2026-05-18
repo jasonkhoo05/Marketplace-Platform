@@ -6,12 +6,26 @@ export async function GET(req: Request){
         const supabase = await createClient();
 
         const { searchParams } = new URL(req.url);
-        const limit = Number(searchParams.get("limit") || 10);
+        const limit = Number(searchParams.get("limit") || 5);
 
-        const {data, error} = await supabase
-            .from("product_review")
-            .select("*")
-            .limit(limit);
+        const { data, error } = await supabase
+        .from("product_review")
+        .select(`
+            prod_id,
+            user_uuid,
+            review,
+            flag,
+            product:product (
+            prod_name,
+            prod_image
+            ),
+            user:user (
+            username
+            )
+        `)
+        .eq("flag", "f")
+        .order("prod_id", { ascending: false })
+        .limit(limit);
 
         if (error){
             return NextResponse.json(

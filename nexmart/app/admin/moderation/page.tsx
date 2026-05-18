@@ -18,9 +18,10 @@ export default function ModerationDashboard() {
     try {
       setErrorMessage(null);
       setIsLoading(true);
-      const [modRes, userRes] = await Promise.all([
+      const [modRes, userRes, reviewRes] = await Promise.all([
         fetch("/api/admin/products?limit=15"),
         fetch("/api/admin/users?limit=5"),
+        fetch("/api/admin/reviews?limit=5"),
       ]);
 
       let modData: any[] = [];
@@ -55,6 +56,27 @@ export default function ModerationDashboard() {
         const userResData = await userRes.json();
         userData = userResData.users || [];
         setUserCount(userResData.totalCount || 0);
+      }
+
+      let reviewData: ModerationRequest[] = [];
+      if (!reviewRes.ok) {
+        console.warn("reviewRes failed:", await reviewRes.text());
+      } else {
+        const reviewRows = await reviewRes.json();
+        reviewData = (reviewRows ?? []).map((review: any) => ({
+          id: `${review.prod_id}-${review.user_uuid}`,
+          type: "review" as const,
+          status: "pending" as const,
+          created_at: new Date().toISOString(),
+          details: {
+            prodId: review.prod_id,
+            userId: review.user_uuid,
+            productName: review.product?.prod_name || "Unknown product",
+            productImage: review.product?.prod_image || null,
+            username: review.user?.username || "Unknown user",
+            review: review.review || "No review text",
+          },
+        }));
       }
 
       const mappedUsers = userData.map((u: any) => {
@@ -98,7 +120,7 @@ export default function ModerationDashboard() {
         );
       }
 
-      setRequests([...finalModData, ...finalUserData]);
+      setRequests([...finalModData, ...finalUserData, ...reviewData]);
     } catch (err: any) {
       console.error(err);
       setErrorMessage("Failed to load moderation data.");
@@ -114,7 +136,7 @@ export default function ModerationDashboard() {
 
   const products = requests.filter((r) => r.type === "product").slice(0, 5);
   const users = requests.filter((r) => r.type === "user").slice(0, 5);
-  const reports = requests.filter((r) => r.type === "report").slice(0, 5);
+  const reviews = requests.filter((r) => r.type === "review").slice(0, 5);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -143,10 +165,10 @@ export default function ModerationDashboard() {
           totalCount={userCount}
         />
         <SectionCard
-          title="Reported Contents"
+          title="Flagged Reviews"
           icon={FlagTriangleRight}
-          items={reports}
-          type="report"
+          items={reviews}
+          type="review"
           onAction={handleAction}
           isLoading={isLoading}
         />
