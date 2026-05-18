@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import UserProfileCard from "@/components/ui/UserProfileCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -43,8 +45,6 @@ export default function ProfilePage() {
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [isSaving, setIsSaving]= useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -72,7 +72,7 @@ export default function ProfilePage() {
         });
         setAvatarPreview(data.user_image ?? "");
       } catch (err: any) {
-        setError(err.message);
+        toast.error(err.message);
       }
     };
 
@@ -95,8 +95,6 @@ export default function ProfilePage() {
   const handleSave = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
-    setSuccess(null);
-    setError(null);
 
     try {
       const res = await fetch("/api/profile", {
@@ -108,16 +106,13 @@ export default function ProfilePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to update profile.");
 
-      setSuccess("Profile saved successfully!");
+      toast.success("Profile saved successfully!");
 
-      // If they are a new user completing onboarding, push them straight to the store!
       if (isNewUser) {
-        setTimeout(() => {
-          router.push("/products");
-        }, 1000);
+        setTimeout(() => router.push("/products"), 1000);
       }
     } catch (err: any) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setIsSaving(false);
     }
@@ -137,6 +132,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-slate-100">
+      <Toaster position="top-right" richColors />
 
       {/* Sidebar - matches SellerSidebar */}
       <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-slate-200 bg-white z-30">
@@ -224,7 +220,7 @@ export default function ProfilePage() {
                         <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                           <input type="checkbox" checked={form.is_default}
                             onChange={(e) => setForm((prev) => ({ ...prev, is_default: e.target.checked }))}
-                            className="accent-teal-700 w-4 h-4" />
+                            className="accent-teal-700 w-4 h-4 align-middle" />
                           Set as default address
                         </label>
                       </div>
@@ -237,7 +233,7 @@ export default function ProfilePage() {
                             <input type="radio" name="gender" value={g}
                               checked={form.gender === g}
                               onChange={() => setForm((prev) => ({ ...prev, gender: g }))}
-                              className="accent-teal-700 w-4 h-4" />
+                              className="accent-teal-700 w-4 h-4 align-middle" />
                             {g}
                           </label>
                         ))}
@@ -261,9 +257,7 @@ export default function ProfilePage() {
                       </div>
                     </Row>
 
-                    <div className="flex items-center justify-center gap-3 pt-2">
-                      {success && <p className="text-sm text-teal-700">{success}</p>}
-                      {error && <p className="text-sm text-red-600 font-medium">{error}</p>} {/* Added this line */}
+                    <div className="flex justify-center pt-2">
                       <Button type="submit" disabled={isSaving} className="bg-teal-700 hover:bg-teal-800 text-white px-8">
                         {isSaving ? "Saving..." : "Save"}
                       </Button>
