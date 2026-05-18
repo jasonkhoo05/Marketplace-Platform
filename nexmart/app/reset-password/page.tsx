@@ -45,58 +45,60 @@ export default function ResetPasswordPage() {
     };
 
     return (
-        <div className="reset-container">
-            <div className="reset-panel">
+        <div className="page-reset">
+            <div className="reset-container">
+                <div className="reset-panel">
 
-                <div className="formBox">
-                    <h2>Reset Password</h2>
-                    <p className="subtitle">Create a new secure password</p>
+                    <div className="reset-box">
+                        <h2>Reset Password</h2>
+                        <p className="reset-subtitle">Create a new secure password</p>
 
-                    <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmit}>
 
-                        <label>New Password</label>
-                        <input
+                            <label>New Password</label>
+                            <input
 
-                            type="password"
-                            placeholder="Enter new password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            minLength={6}
-                        />
-                        <label>Confirm Password</label>
-                        <input
-                            type="password"
-                            placeholder="Confirm password"
-                            value={confirm}
-                            onChange={(e) => setConfirm(e.target.value)}
-                            required
-                        />
-                        
-                        {error && (
-                            <p className="errorMessage">
-                                {error}
-                            </p>
-                        )}
+                                type="password"
+                                placeholder="Enter new password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                minLength={6}
+                            />
+                            <label>Confirm Password</label>
+                            <input
+                                type="password"
+                                placeholder="Confirm password"
+                                value={confirm}
+                                onChange={(e) => setConfirm(e.target.value)}
+                                required
+                            />
+                            
+                            {error && (
+                                <p className="errorMessage">
+                                    {error}
+                                </p>
+                            )}
 
-                        <button
-                            type="submit"
-                            className="submitButton"
-                            disabled={isLoading}
-                        >
-                            {isLoading
-                                ? "Updating..."
-                                : "Reset Password"}
-                        </button>
+                            <button
+                                type="submit"
+                                className="reset-submit"
+                                disabled={isLoading}
+                            >
+                                {isLoading
+                                    ? "Updating..."
+                                    : "Reset Password"}
+                            </button>
 
-                    </form>
+                        </form>
 
-                    <div className="links">
-                        <Link href="/login">
-                            Back to Login
-                        </Link>
+                        <div className="links">
+                            <Link href="/login">
+                                Back to Login
+                            </Link>
+                        </div>
+
                     </div>
-
                 </div>
             </div>
         </div>

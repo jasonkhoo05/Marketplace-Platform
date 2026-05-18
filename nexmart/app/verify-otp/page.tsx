@@ -48,11 +48,11 @@ export default function VerifyOtpPage() {
     return (
         <div className="otp-container">
             <div className="otp-panel">
-                <div className="formBox">
+                <div className="otp-box">
 
                     <h2>Verify OTP</h2>
 
-                    <p className="subtitle">
+                    <p className="otp-subtitle">
                         Enter the OTP sent to your email
                     </p>
 
@@ -75,7 +75,7 @@ export default function VerifyOtpPage() {
 
                         <button
                             type="submit"
-                            className="submitButton"
+                            className="otp-submit"
                         >
                             Verify OTP
                         </button>
