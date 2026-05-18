@@ -46,7 +46,6 @@ export async function GET(request: Request) {
       user_uuid: user.id,
       username,
       email: user.email,
-      password: null,
       phone: null,
       user_image: null,
       last_active_role: "buyer",
