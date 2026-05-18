@@ -1,5 +1,6 @@
-import ProductPurchasePanel from "@/app/buyer/prod_components/products/ProductPurchasePanel";
-import BuyerHeader from "@/app/buyer/prod_components/layout/BuyerHeader";
+import ProductPurchasePanel from "@/components/buyer/products/ProductPurchasePanel";
+import BuyerHeader from "@/components/buyer/layout/BuyerHeader";
+import ProductReviews from "@/components/buyer/ProductReviews";
 import { RatingStars } from "@/components/rating-star";
 import { createClient } from "@/lib/supabase/server";
 import { productFromRow, type ProductRow } from "@/lib/products";
@@ -88,7 +89,7 @@ async function ProductDetailContent({ params }: Props) {
             href="/buyer/products"
             className="inline-flex text-sm font-medium text-teal-700 hover:underline"
           >
-            ← Back to products
+             Back to products
           </Link>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -177,6 +178,8 @@ async function ProductDetailContent({ params }: Props) {
               {product.description || "No description provided."}
             </p>
           </div>
+
+          <ProductReviews productRating={product.rating} />
         </div>
       </main>
     </>

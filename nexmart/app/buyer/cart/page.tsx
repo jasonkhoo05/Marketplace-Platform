@@ -1,6 +1,6 @@
 "use client";
 
-import BuyerHeader from "@/app/buyer/prod_components/layout/BuyerHeader";
+import BuyerHeader from "@/components/buyer/layout/BuyerHeader";
 import Link from "next/link";
 import { FiTrash2, FiTag, FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
