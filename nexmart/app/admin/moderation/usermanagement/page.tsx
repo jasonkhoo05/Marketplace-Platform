@@ -1,11 +1,13 @@
 "use client";
 
+// export const dynamic = "force-dynamic";
+
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Search } from "lucide-react";
 import { Address, User, UserDetails } from "../../types/users";
 import { AiFillSwitcher } from "react-icons/ai";
-
+import Link from "next/link";
 
 export default function AdminUserManagementDashboard() {
     const router = useRouter();
@@ -18,14 +20,14 @@ export default function AdminUserManagementDashboard() {
 
     useEffect(() => {
         fetchUsers();
-    });
+    }, []);
 
     const fetchUsers = async () => {
         try {
             setIsLoading(true);
             setErrorMessage(null);
 
-            const res = await fetch("api/admin/users");
+            const res = await fetch("/api/admin/users");
             if (!res.ok) {
                 throw new Error ("Failed to fetch users.");
             }
@@ -49,7 +51,7 @@ export default function AdminUserManagementDashboard() {
 
         try {
             const res = await fetch(
-                `api/admin/users/${userUuid}`,
+                `/api/admin/users/${userUuid}`,
                 { method: "DELETE"}
             );
 
@@ -79,18 +81,25 @@ export default function AdminUserManagementDashboard() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-3">
+            <Link
+                href="/admin/moderation"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-100"
+            >
+                Back to Moderation
+            </Link>
             <p className="text-sm text-gray-600">
-            Total Users: <span className="font-medium">{totalCount}</span>
+                Total Users: <span className="font-medium">{totalCount}</span>
             </p>
-
+            </div>
             <div className="relative w-full md:w-[320px]">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
-            <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search username / email / uuid..."
-                className="w-full rounded-2xl border px-10 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-200"
-            />
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />
+                <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search username / email / uuid..."
+                    className="w-full rounded-2xl border px-10 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-200"
+                />
             </div>
         </div>
 
@@ -121,7 +130,7 @@ export default function AdminUserManagementDashboard() {
                     <tr
                     key={u.user_uuid}
                     className="border-t hover:bg-gray-50 cursor-pointer"
-                    onClick={() => router.push(`/admin/usermanagement/${u.user_uuid}`)}
+                    onClick={() => router.push(`/admin/moderation/usermanagement/${u.user_uuid}`)}
                     >
                     <td className="px-5 py-4 font-medium">{u.username}</td>
                     <td className="px-5 py-4 text-gray-700">{u.email}</td>
