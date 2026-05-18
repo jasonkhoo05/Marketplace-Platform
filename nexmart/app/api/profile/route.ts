@@ -68,9 +68,9 @@ export async function GET() {
       dob_day = String(parseInt(day, 10));
     }
 
-    // Flattens the joined address array into the fields the form expects.
-    const joinedAddressArray = profile.address as any[];
-    const addressRow = joinedAddressArray?.[0];
+    // Supabase returns address as object (unique FK) or array — handle both.
+    const addressData = profile.address as any;
+    const addressRow = Array.isArray(addressData) ? addressData[0] : addressData;
 
     // Construct the formatted response object expected by FormState
     const formattedProfile = {
