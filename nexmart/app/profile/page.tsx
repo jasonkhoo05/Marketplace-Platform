@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import UserProfileCard from "@/components/ui/UserProfileCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -159,15 +160,8 @@ export default function ProfilePage() {
         </nav>
 
         <div className="border-t border-slate-100 p-4">
-          <div className="mb-3 flex items-center gap-3">
-            {avatarPreview
-              ? <img src={avatarPreview} alt="avatar" className="h-10 w-10 rounded-full object-cover" />
-              : <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-slate-400"><FiUser size={18} /></div>
-            }
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-slate-900 truncate">{form.username || "Username"}</p>
-              <p className="text-xs text-slate-500 truncate">{form.email || "your@email.com"}</p>
-            </div>
+          <div className="mb-3">
+            <UserProfileCard username={form.username} email={form.email} avatarUrl={avatarPreview} />
           </div>
           <Link href="/products" className="flex items-center justify-center text-sm text-slate-500 hover:text-teal-700 transition-colors">
             Back to Store

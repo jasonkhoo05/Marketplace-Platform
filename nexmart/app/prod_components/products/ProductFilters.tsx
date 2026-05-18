@@ -23,7 +23,7 @@ export default function ProductFilters({
   onClearFilters,
 }: ProductFiltersProps) {
   return (
-    <aside className="h-fit rounded-2xl border bg-white p-6">
+    <div className="rounded-2xl border bg-white p-6">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-xl font-bold">Filters</h2>
         <button
@@ -84,6 +84,6 @@ export default function ProductFilters({
           In stock only
         </label>
       </div>
-    </aside>
+    </div>
   );
 }
