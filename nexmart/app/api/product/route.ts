@@ -50,7 +50,11 @@ export async function POST(req: Request) {
             prod_image,
             prod_rating: 0,
             prod_sold_qty: 0,
-            }
+
+            // PRODUCT APPROVAL
+            prod_status: "pending",
+            prod_rejection_reason: "",
+            },
         ]).select().single();
 
 

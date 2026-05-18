@@ -39,6 +39,11 @@ export default function SellerDashboardPage() {
                     categoryId: product.prod_cat_link?.[0]?.prod_cat_id ?? 0,
                     imageUrls: [product.prod_image],
                     sales: product.prod_sold_qty || 0,
+
+                    // approval
+                    status: product.prod_status ?? "pending",
+                    rejectionReason: product.prod_rejection_reason ?? "",
+
                     createdAt: product.created_at,
                 }));
 
@@ -58,6 +63,11 @@ export default function SellerDashboardPage() {
     }
 
     function openEditForm(product: Product) {
+        if (product.status === "hidden") {
+        alert("Invalid action: rejected listings cannot be edited.");
+        return;
+        }
+        
         setEditingProduct(product);
         setIsFormOpen(true);
     }
@@ -69,6 +79,11 @@ export default function SellerDashboardPage() {
 
     async function handleSaveProduct(product: Product) {
         try {
+
+            if (editingProduct?.status === "hidden"){
+                alert("Invalid action: rejected listings cannot be edited.");
+                return;
+            }
             const isEditing = editingProduct;
             const res = await fetch(
                 isEditing? `/api/product/${editingProduct.id}`: "/api/product", {
@@ -88,11 +103,18 @@ export default function SellerDashboardPage() {
 
 
             if (!res.ok) {
-                const text = await res.text();
-                console.log("res status", res.status, "body", text);
-                // const errorData = await res.json();
-                // throw new Error(errorData.error || 'Failed to create product');
-                throw new Error(text || 'Failed to create product');
+                let errorMessage = "Failed to save product. Please try again.";
+
+                try {
+                    const errorData = await res.json();
+                    errorMessage = errorData.error || errorMessage;
+                } catch {
+                    // Keep default error message if response is not JSON
+                    alert("Failed to save product. Please try again.");
+                }
+
+                alert(errorMessage);
+                return;
             }
 
             // const data = await res.json();

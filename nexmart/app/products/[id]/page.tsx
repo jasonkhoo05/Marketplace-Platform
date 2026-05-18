@@ -39,6 +39,7 @@ async function ProductDetailContent({ params }: Props) {
       user!product_seller_uuid_fkey(username)
     `)
     .eq("prod_id", numericId)
+    .eq("prod_status", "approved")
     .maybeSingle();
 
   if (error || !row) {
