@@ -1,6 +1,7 @@
 "use client";
 
 import { FiUser } from "react-icons/fi";
+import Link from "next/link";
 
 interface UserProfileCardProps {
   username?: string;
@@ -10,7 +11,7 @@ interface UserProfileCardProps {
 
 export default function UserProfileCard({ username, email, avatarUrl }: UserProfileCardProps) {
   return (
-    <div className="flex items-center gap-3">
+    <Link href="/profile" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
       {avatarUrl
         ? <img src={avatarUrl} alt="avatar" className="h-10 w-10 rounded-full object-cover" />
         : <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 border border-slate-200 text-slate-400">
@@ -21,6 +22,6 @@ export default function UserProfileCard({ username, email, avatarUrl }: UserProf
         <p className="text-sm font-semibold text-slate-900 truncate">{username || "Username"}</p>
         <p className="text-xs text-slate-500 truncate">{email || "your@email.com"}</p>
       </div>
-    </div>
+    </Link>
   );
 }
