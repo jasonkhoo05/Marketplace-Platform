@@ -49,6 +49,7 @@ export async function GET(request: Request) {
       phone: null,
       user_image: null,
       last_active_role: "buyer",
+      is_new_user: true,
     });
 
     if (userError) {
@@ -66,7 +67,9 @@ export async function GET(request: Request) {
     if (roleError) {
       console.error("Insert role error:", roleError.message);
     }
+
+    return NextResponse.redirect(`${origin}/profile?new=true`);
   }
-  
+
   return NextResponse.redirect(`${origin}/products`);
 }

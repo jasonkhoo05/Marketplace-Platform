@@ -160,12 +160,7 @@ export default function ProfilePage() {
         </nav>
 
         <div className="border-t border-slate-100 p-4">
-          <div className="mb-3">
-            <UserProfileCard username={form.username} email={form.email} avatarUrl={avatarPreview} />
-          </div>
-          <Link href="/products" className="flex items-center justify-center text-sm text-slate-500 hover:text-teal-700 transition-colors">
-            Back to Store
-          </Link>
+          <UserProfileCard username={form.username} email={form.email} avatarUrl={avatarPreview} />
         </div>
       </aside>
 
@@ -174,11 +169,9 @@ export default function ProfilePage() {
 
         {/* Header */}
         <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white px-6">
-          {!isNewUser && (
-            <Button variant="ghost" onClick={() => router.back()} className="ml-auto text-teal-700 hover:bg-teal-50 hover:text-teal-800 gap-1.5 font-medium text-[15px] px-4 py-2 h-auto">
-              Back <IoExitOutline size={18} />
-            </Button>
-          )}
+          <Button variant="ghost" onClick={() => isNewUser ? router.push("/products") : router.back()} className="ml-auto text-teal-700 hover:bg-teal-50 hover:text-teal-800 gap-1.5 font-medium text-[15px] px-4 py-2 h-auto">
+            Back <IoExitOutline size={18} />
+          </Button>
         </header>
 
         <div className="flex-1 p-6">
