@@ -49,9 +49,9 @@ export default function ResetPasswordPage() {
             <div className="reset-container">
                 <div className="reset-panel">
 
-                    <div className="formBox">
+                    <div className="reset-box">
                         <h2>Reset Password</h2>
-                        <p className="subtitle">Create a new secure password</p>
+                        <p className="reset-subtitle">Create a new secure password</p>
 
                         <form onSubmit={handleSubmit}>
 
@@ -82,7 +82,7 @@ export default function ResetPasswordPage() {
 
                             <button
                                 type="submit"
-                                className="submitButton"
+                                className="reset-submit"
                                 disabled={isLoading}
                             >
                                 {isLoading
