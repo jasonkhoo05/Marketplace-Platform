@@ -25,6 +25,7 @@ export type User = {
 export type UserDetails = User & {
     roles: string[];
     address: Address[];
+    last_sign_in_at: string | null;
 };
 
 // export type UserRole = {
