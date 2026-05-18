@@ -12,6 +12,7 @@ export default function UserDetailPage() {
   const uuid = params.uuid as string;
 
   const [user, setUser] = useState<UserDetails | null>(null);
+  const[showImage, setShowImage] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -39,7 +40,7 @@ export default function UserDetailPage() {
     try {
       const res = await fetch(`/api/admin/users/${uuid}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete user.");
-      router.push("/admin/usermanagement");
+      router.push("/admin/moderation/usermanagement");
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to delete user.");
     }
@@ -85,14 +86,37 @@ export default function UserDetailPage() {
 
       <div className="rounded-3xl border bg-white p-6 shadow-sm space-y-6">
         <div className="flex items-center gap-4">
-          <div className="h-14 w-14 rounded-full bg-gray-100 flex items-center justify-center">
-            <UserIcon className="w-6 h-6 text-gray-500" />
+          <div
+            className="h-14 w-14 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer"
+            onClick={() => user.user_image && setShowImage(true)}
+          >
+            {user.user_image ? (
+                <img src={user.user_image} className="h-14 w-14 rounded-full object-cover" />
+            ) : (
+                <UserIcon className="w-6 h-6 text-gray-500" />
+            )}
           </div>
+
+          {showImage && user.user_image && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+              onClick={() => setShowImage(false)}
+              >
+                <img
+                  src={user.user_image}
+                  className="max-h-[80vh] max-w-[80vw] rounded-2xl object-contain"
+                />
+            </div>
+          )
+
+          }
           <div>
             <h2 className="text-xl font-semibold">{user.username}</h2>
             <p className="text-sm text-gray-600">{user.email}</p>
           </div>
         </div>
+
+
 
         <div className="grid gap-4 md:grid-cols-2 text-sm">
           <DetailRow label="User UUID" value={user.user_uuid} />
@@ -100,13 +124,19 @@ export default function UserDetailPage() {
           <DetailRow label="Gender" value={user.gender || "Not Provided"} />
           <DetailRow label="Date of Birth" value={user.date_of_birth || "Not Provided"} />
           <DetailRow label="Last Active Role" value={user.last_active_role || "Unknown"} />
+          <DetailRow
+              label="Last Sign In"
+              value={user.last_sign_in_at
+                  ? new Date(user.last_sign_in_at).toLocaleString("en-MY")
+                  : "Never"}
+          />
         </div>
 
         <div>
           <h3 className="font-semibold text-base mb-2">Roles</h3>
           <div className="flex flex-wrap gap-2">
-            {user.roles.length > 0 ? (
-              user.roles.map((role) => (
+          {(user.roles ?? []).length > 0 ? (
+            (user.roles ?? []).map((role) => (
                 <span
                   key={role}
                   className="rounded-full bg-teal-50 px-3 py-1 text-xs text-teal-700"
@@ -121,7 +151,7 @@ export default function UserDetailPage() {
         </div>
 
         <div>
-          <h3 className="font-semibold text-base mb-2">Addresses</h3>
+          <h3 className="font-semibold text-base mb-2">Address</h3>
           {user.address.length > 0 ? (
             <div className="space-y-3">
               {user.address.map((a, i) => (
