@@ -68,9 +68,90 @@ export async function PATCH
         return NextResponse.json(
             {message: flag == 'y'? "Review approved for deletion": "Review reject", review: data},
             {status: 200}
-
         );
 
+    } catch (err){
+        return NextResponse.json(
+            { error: "Server Error" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function DELETE
+(
+    req: Request, 
+    { params }: { params: Promise<{ prodId: string, userId: string }> }
+)
+{
+    try{
+        const authSupabase = await createClient();
+        const { data: { user },
+                error: authError,} = await authSupabase.auth.getUser();
+        
+        if (!user || authError) {
+            return NextResponse.json(
+                { error: "Authentication required" },
+                {status: 401}
+            )
+        }
+        const admin = await isAdmin(user.id);
+
+        if (!admin){
+            return NextResponse.json(
+                { error: "Unauthorized required" },
+                {status: 404}
+            )   
+        }
+
+        const {prodId, userId} = await params;
+        const supabase = createAdminClient();
+
+        const { data : review, error: fetchError } = await supabase
+            .from("product_review")
+            .select("flag")
+            .eq("prod_id", Number(prodId))
+            .eq("user_uuid", userId)
+            .select()
+            .maybeSingle();
+        
+        if (fetchError) {
+            return NextResponse.json(
+                { error: fetchError.message },
+                { status: 500 },
+            );
+        }
+
+        if (!review){
+            return NextResponse.json(
+                { error: "Review not found" },
+                { status: 404 },
+            ); 
+        }
+
+        if (review.flag !== 'y'){
+            return NextResponse.json(
+                { error: "Flag must be y" },
+                { status: 400 },
+            ); 
+        }
+        const {error: deleteError} = await supabase
+            .from("product_review")
+            .delete()
+            .eq("prod_id", Number(prodId))
+            .eq("user_uuid", userId);
+
+        if (deleteError){
+            return NextResponse.json(
+                { error: deleteError.message },
+                { status: 500 },
+            );
+        }
+
+        return NextResponse.json(
+            {message: "Review delete successfully"},
+            {status: 200}
+        );
     } catch (err){
         return NextResponse.json(
             { error: "Server Error" },
