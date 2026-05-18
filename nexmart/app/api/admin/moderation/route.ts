@@ -46,7 +46,7 @@ export async function GET(request: Request) {
             image: product.prod_image || null,
             seller: Array.isArray(product.user)
                 ? product.user[0]?.username ?? "Unknown seller"
-                : product.user?.username ?? "Unknown seller",
+                : (product.user as any)?.username ?? "Unknown seller",
             price: product.prod_price,
             stock: product.prod_stock_qty,
         },

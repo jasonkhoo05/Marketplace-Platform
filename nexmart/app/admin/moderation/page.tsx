@@ -58,8 +58,9 @@ export default function ModerationDashboard() {
       }
 
       const mappedUsers = userData.map((u: any) => {
-        const defaultAddress =
-          u.address?.find((a: any) => a.is_default) || u.address?.[0] || null;
+        const defaultAddress = Array.isArray(u.address) 
+        ? u.address?.find((a: any) => a.is_default) || u.address?.[0] || null 
+        : u.address || null;
 
         const roles =
           u.user_role
