@@ -15,7 +15,7 @@ export async function GET() {
     // Fetch user row matching the authenticated id and join the address table
     const { data: profile, error: dbError } = await supabase
       .from("user")
-      .select("username, full_name, email, phone, address(address_line, city, postcode), gender, date_of_birth, user_image, last_active_role")
+      .select("username, full_name, email, phone, address(address_line, city, postcode, is_default), gender, date_of_birth, user_image, last_active_role")
       .eq("user_uuid", user.id)
       .maybeSingle() // Handles empty rows gracefully without throwing hard exceptions
 
@@ -68,23 +68,26 @@ export async function GET() {
       dob_day = String(parseInt(day, 10));
     }
 
-    // Flattens the joined address array into the single string your Input box expects.
+    // Flattens the joined address array into the fields the form expects.
     const joinedAddressArray = profile.address as any[];
-    const formattedAddressString = joinedAddressArray?.[0]?.address_line || "";
+    const addressRow = joinedAddressArray?.[0];
 
     // Construct the formatted response object expected by FormState
     const formattedProfile = {
       username: profile.username || "",
       full_name: profile.full_name || "",
-      email: profile.email || user.email || "", 
+      email: profile.email || user.email || "",
       phone: profile.phone || "",
-      address: formattedAddressString,
+      address: addressRow?.address_line || "",
+      city: addressRow?.city || "",
+      postcode: addressRow?.postcode || "",
+      is_default: addressRow?.is_default ?? false,
       gender: profile.gender || "",
       user_image: profile.user_image || "",
       dob_day,
       dob_month,
       dob_year,
-      last_active_role: profile.last_active_role ||"buyer"
+      last_active_role: profile.last_active_role || "buyer"
     }
 
     return NextResponse.json(formattedProfile)
@@ -107,7 +110,7 @@ export async function PUT(request: Request) {
     const body = await request.json()
 
     // Extract expected properties safely
-    const { username, full_name, phone, address, gender, dob_day, dob_month, dob_year, user_image } = body
+    const { username, full_name, phone, address, city, postcode, is_default, gender, dob_day, dob_month, dob_year, user_image } = body
 
     if (!username) {
       return NextResponse.json({ error: "Username is required" }, { status: 400 })
@@ -155,11 +158,11 @@ export async function PUT(request: Request) {
     const { error: addressUpdateError } = await supabase
       .from("address")
       .upsert({
-        user_uuid: user.id,            // Foreign Key link back to user
-        address_line: address || "",   // Mapping form input to address_line column
-        city: "",
-        postcode: "",
-        //updated_at: new Date().toISOString(),
+        user_uuid: user.id,
+        address_line: address || "",
+        city: city || "",
+        postcode: postcode || "",
+        is_default: is_default ?? false,
       }, { onConflict: "user_uuid" })  // Overwrites older addresses seamlessly on change
 
     if (addressUpdateError) {
