@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const STORAGE_KEY = "nexmart_profile";
 
 interface FormState {
   username: string; full_name: string; email: string; phone: string;
@@ -42,14 +41,36 @@ export default function ProfilePage() {
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [isSaving, setIsSaving]= useState(false);
   const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed: FormState = JSON.parse(saved);
-      setForm(parsed);
-      setAvatarPreview(parsed.user_image ?? "");
-    }
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        if (!res.ok) throw new Error("Failed to load profile data.");
+        
+        const data = await res.json();
+        
+        // Fallback fields safely if null in database
+        setForm({
+          username: data.username || "",
+          full_name: data.full_name || "",
+          email: data.email || "",
+          phone: data.phone || "",
+          address: data.address || "",
+          gender: data.gender || "",
+          dob_day: data.dob_day || "",
+          dob_month: data.dob_month || "",
+          dob_year: data.dob_year || "",
+          user_image: data.user_image || "",
+        });
+        setAvatarPreview(data.user_image ?? "");
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
+
+    fetchProfile();
   }, []);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,12 +85,36 @@ export default function ProfilePage() {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = (e: React.SyntheticEvent<HTMLFormElement>) => {
+  // 2. SAVE PROFILE DATA TO BACKEND ON SUBMIT
+  const handleSave = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
     setSuccess(null);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
-    setTimeout(() => { setSuccess("Profile saved!"); setIsSaving(false); }, 500);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update profile.");
+
+      setSuccess("Profile saved successfully!");
+
+      // If they are a new user completing onboarding, push them straight to the store!
+      if (isNewUser) {
+        setTimeout(() => {
+          router.push("/products");
+        }, 1000);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const set = (key: keyof FormState) =>
@@ -80,13 +125,7 @@ export default function ProfilePage() {
   const years = Array.from({ length: 80 }, (_, i) => currentYear - 18 - i);
   const days  = Array.from({ length: 31 }, (_, i) => i + 1);
 
-  /* Reusable row: label on the left (fixed 160px, right-aligned), content fills right */
-  const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div className="flex items-center gap-0">
-      <Label className="w-40 shrink-0 text-right pr-5 text-slate-500 text-[15px] font-normal">{label}</Label>
-      <div className="flex-1">{children}</div>
-    </div>
-  );
+  
 
   const selectCls = "h-10 rounded-md border border-input bg-transparent px-3 py-1 text-[15px] shadow-sm outline-none focus:ring-1 focus:ring-teal-700 focus:border-teal-700";
 
@@ -169,7 +208,7 @@ export default function ProfilePage() {
                     </Row>
 
                     <Row label="Email">
-                      <Input className="text-[15px] h-10 focus-visible:ring-teal-700" type="email" placeholder="you@gmail.com" value={form.email} onChange={set("email")} />
+                      <Input className="text-[15px] h-10 bg-slate-50 cursor-not-allowed text-slate-500" type="email" value={form.email} disabled />
                     </Row>
 
                     <Row label="Phone Number">
@@ -213,6 +252,7 @@ export default function ProfilePage() {
 
                     <div className="flex items-center justify-center gap-3 pt-2">
                       {success && <p className="text-sm text-teal-700">{success}</p>}
+                      {error && <p className="text-sm text-red-600 font-medium">{error}</p>} {/* Added this line */}
                       <Button type="submit" disabled={isSaving} className="bg-teal-700 hover:bg-teal-800 text-white px-8">
                         {isSaving ? "Saving..." : "Save"}
                       </Button>
@@ -251,3 +291,12 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+/* Reusable row: label on the left (fixed 160px, right-aligned), content fills right */
+  const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
+    <div className="flex items-center gap-0">
+      <Label className="w-40 shrink-0 text-right pr-5 text-slate-500 text-[15px] font-normal">{label}</Label>
+      <div className="flex-1">{children}</div>
+    </div>
+  );
+
