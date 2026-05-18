@@ -51,14 +51,16 @@ export default function LoginPage() {
                 return;
             }
 
-            if (data.redirectTo) {
-                router.push(data.redirectTo);
+            const userRole = data.user?.last_active_role;
+
+            if (userRole === "seller") {
+                router.push("/seller/dashboard");
             } else {
-                router.push("/products"); // Fallback safety
+                router.push("/products");
             }
+
             // router.push("/admin/dashboard");
 
-            // router.push("seller/dashboard");
         } catch {
             setError("Something went wrong. Please try again.");
         } finally {
