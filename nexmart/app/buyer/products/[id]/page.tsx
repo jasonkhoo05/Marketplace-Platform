@@ -179,7 +179,7 @@ async function ProductDetailContent({ params }: Props) {
             </p>
           </div>
 
-          <ProductReviews productRating={product.rating} />
+          <ProductReviews productId={product.id} productRating={product.rating} />
         </div>
       </main>
     </>
