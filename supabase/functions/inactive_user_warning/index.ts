@@ -8,8 +8,8 @@ Deno.serve(async () => {
   );
 
   const sevenDaysAgo = new Date();
-  sevenDaysAgo.setMinutes(sevenDaysAgo.getMinutes() - 10);
-  // sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  // sevenDaysAgo.setMinutes(sevenDaysAgo.getMinutes() - 10);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
   const { data: { users }, error: authError } = await supabase.auth.admin.listUsers();
 
