@@ -49,7 +49,11 @@ export default function LoginPage() {
                 return;
             }
 
-            router.push("/products");
+            if (data.redirectTo) {
+                router.push(data.redirectTo);
+            } else {
+                router.push("/products"); // Fallback safety
+            }
             // router.push("/admin/dashboard");
 
             // router.push("seller/dashboard");
