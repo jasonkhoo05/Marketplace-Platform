@@ -13,6 +13,7 @@ import {
   Phone,
   MapPin,
   Calendar,
+  FlagTriangleRight,
   VenusAndMars,
   Package,
   Tag,
@@ -22,7 +23,7 @@ import {
 } from "lucide-react";
 
 export type ModerationStatus = "pending" | "approved" | "rejected";
-export type ModerationType = "product" | "user" | "report";
+export type ModerationType = "product" | "user" | "review" | "report";
 
 export interface ModerationRequest {
   id: string;
@@ -240,6 +241,93 @@ function ProductDetailModal({
   );
 }
 
+function ReviewDetailModal({
+  review,
+  onClose,
+  onApprove,
+  onReject,
+}: {
+  review: ModerationRequest;
+  onClose: () => void;
+  onApprove: () => void;
+  onReject: () => void;
+}) {
+  const d = review.details;
+  const [isActing, setIsActing] = useState(false);
+
+  const handleApprove = async () => {
+    setIsActing(true);
+    await onApprove();
+    setIsActing(false);
+    onClose();
+  };
+
+  const handleReject = async () => {
+    setIsActing(true);
+    await onReject();
+    setIsActing(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4" onClick={onClose}>
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Review Details</h2>
+            <p className="mt-1 text-sm text-slate-500">Approve to delete this flagged review, or reject to keep it.</p>
+          </div>
+          <button onClick={onClose} className="rounded-full p-2 text-slate-500 hover:bg-slate-100 transition" aria-label="Close">
+            <X size={22} />
+          </button>
+        </div>
+
+        <div className="mb-6 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50">
+          {d.productImage ? (
+            <img src={d.productImage} alt={d.productName || "Product"} className="h-48 w-full object-cover" />
+          ) : (
+            <div className="flex h-48 items-center justify-center text-slate-300">
+              <FlagTriangleRight className="h-16 w-16" />
+            </div>
+          )}
+        </div>
+
+        <div className="mb-4 flex items-center gap-2">
+          <span className="rounded-full bg-rose-100 px-3 py-0.5 text-xs font-semibold text-rose-700">Flagged Review</span>
+        </div>
+
+        <div className="space-y-4">
+          <InfoRow icon={Package} label="Product" value={d.productName || "Unknown product"} />
+          <InfoRow icon={User} label="Reviewer" value={d.username || "Unknown user"} />
+          <InfoRow icon={FlagTriangleRight} label="Review" value={d.review || "No review text"} />
+        </div>
+
+        <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-5">
+          <button onClick={onClose} className="rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+            Cancel
+          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleReject}
+              disabled={isActing}
+              className="rounded-xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-semibold text-rose-700 hover:bg-rose-100 transition disabled:opacity-50"
+            >
+              {isActing ? "Rejecting..." : "Reject"}
+            </button>
+            <button
+              onClick={handleApprove}
+              disabled={isActing}
+              className="rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white hover:bg-teal-800 transition disabled:opacity-50"
+            >
+              {isActing ? "Approving..." : "Approve"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function SectionCard({
   title,
   icon: Icon,
@@ -252,10 +340,12 @@ export function SectionCard({
   const router = useRouter();
   const [selectedUser, setSelectedUser] = useState<ModerationRequest | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<ModerationRequest | null>(null);
+  const [selectedReview, setSelectedReview] = useState<ModerationRequest | null>(null);
 
   const colorMap = {
     product: { icon: "text-teal-700", badgeBg: "bg-teal-50", badgeText: "text-teal-700", footerHover: "hover:bg-teal-50", footerText: "text-teal-700", borderTop: "border-t-teal-500" },
     user: { icon: "text-blue-600", badgeBg: "bg-blue-50", badgeText: "text-blue-600", footerHover: "hover:bg-blue-50", footerText: "text-blue-600", borderTop: "border-t-blue-500" },
+    review: { icon: "text-rose-600", badgeBg: "bg-rose-50", badgeText: "text-rose-600", footerHover: "hover:bg-rose-50", footerText: "text-rose-600", borderTop: "border-t-rose-500" },
     report: { icon: "text-rose-600", badgeBg: "bg-rose-50", badgeText: "text-rose-600", footerHover: "hover:bg-rose-50", footerText: "text-rose-600", borderTop: "border-t-rose-500" },
   };
 
@@ -265,6 +355,7 @@ export function SectionCard({
   const viewAllHref: Record<ModerationType, string> = {
     product: "/admin/approval",
     user: "#",    // /admin/users
+    review: "/admin/reviews",
     report: "#",  // /admin/reportcontent
   };
 
@@ -302,6 +393,58 @@ export function SectionCard({
     }
   };
 
+  const handleDeleteReview = async (item: ModerationRequest) => {
+    const { prodId, userId } = item.details;
+
+    try {
+      const reviewUrl = `/api/admin/reviews/${prodId}/${encodeURIComponent(userId)}`;
+      const approveRes = await fetch(reviewUrl, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ flag: "y" }),
+      });
+
+      if (!approveRes.ok) {
+        console.error("Review delete approval failed:", await approveRes.text());
+        return;
+      }
+
+      const deleteRes = await fetch(reviewUrl, { method: "DELETE" });
+      if (deleteRes.ok) {
+        onAction(item.id, "approved");
+        router.refresh();
+      } else {
+        console.error("Review delete failed:", await deleteRes.text());
+      }
+    } catch (e) {
+      console.error("Review delete error:", e);
+    }
+  };
+
+  const handleKeepReview = async (item: ModerationRequest) => {
+    const { prodId, userId } = item.details;
+
+    try {
+      const res = await fetch(
+        `/api/admin/reviews/${prodId}/${encodeURIComponent(userId)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ flag: "n" }),
+        },
+      );
+
+      if (res.ok) {
+        onAction(item.id, "rejected");
+        router.refresh();
+      } else {
+        console.error("Review keep failed:", await res.text());
+      }
+    } catch (e) {
+      console.error("Review keep error:", e);
+    }
+  };
+
   return (
     <>
       {selectedUser && <UserDetailModal user={selectedUser} onClose={() => setSelectedUser(null)} />}
@@ -311,6 +454,14 @@ export function SectionCard({
           onClose={() => setSelectedProduct(null)}
           onApprove={() => handleApprove(selectedProduct.id)}
           onReject={(reason) => handleReject(selectedProduct.id, reason)}
+        />
+      )}
+      {selectedReview && (
+        <ReviewDetailModal
+          review={selectedReview}
+          onClose={() => setSelectedReview(null)}
+          onApprove={() => handleDeleteReview(selectedReview)}
+          onReject={() => handleKeepReview(selectedReview)}
         />
       )}
 
@@ -370,6 +521,7 @@ export function SectionCard({
                         <p className="text-sm font-medium leading-none truncate">
                           {type === "product" && item.details.title}
                           {type === "user" && item.details.username}
+                          {type === "review" && `${item.details.username} on ${item.details.productName}`}
                           {type === "report" && item.details.report_reason}
                         </p>
 
@@ -380,9 +532,16 @@ export function SectionCard({
                           </>
                         ) : (
                           <p className="text-sm text-slate-500 line-clamp-1">
-                            {type === "user"
-                              ? item.details.email || "No email"
-                              : item.details.description || item.details.reason || item.details.reported_by || "No details provided"}
+                            {type === "user" ? (
+                              item.details.email || "No email"
+                            ) : type === "review" ? (
+                              item.details.review || "No review text"
+                            ) : (
+                              item.details.description ||
+                              item.details.reason ||
+                              item.details.reported_by ||
+                              "No details provided"
+                            )}
                           </p>
                         )}
                       </div>
@@ -393,6 +552,7 @@ export function SectionCard({
                         onClick={() => {
                           if (type === "user") setSelectedUser(item);
                           else if (type === "product") setSelectedProduct(item);
+                          else if (type === "review") setSelectedReview(item);
                         }}
                         className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 w-8"
                         title="View Details"
