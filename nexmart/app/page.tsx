@@ -50,7 +50,7 @@ async function TrendingPreview() {
         trending.map((item) => (
           <Link
             key={item.id}
-            href={`/products/${item.id}`}
+            href={`/buyer/products/${item.id}`}
             className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition block"
           >
             <img
