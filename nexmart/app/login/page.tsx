@@ -46,14 +46,7 @@ export default function LoginPage() {
                 return;
             }
             
-            const userRole = data.user?.last_active_role;
-
-            if (userRole === "seller") {
-                router.push("/seller/dashboard");
-            } else {
-                router.push("/buyer/products");
-            }
-            // router.push("/admin/dashboard");
+            router.push(data.redirectTo);
 
         } catch {
             setError("Something went wrong. Please try again.");
