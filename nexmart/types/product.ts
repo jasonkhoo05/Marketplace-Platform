@@ -16,6 +16,9 @@ export interface Product {
     imageUrls: string[];
     sales: number;
     // createdAt: string;
+
+    status: "pending" | "approved" | "hidden";
+    rejectionReason: string;
 }
 export interface ProductFormData {
     name: string;

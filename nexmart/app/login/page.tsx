@@ -22,7 +22,7 @@ export default function LoginPage() {
 
     useEffect(() => {
         const supabase = createClient();
-        supabase.auth.signOut().catch(() => {});
+        supabase.auth.signOut().catch(() => { });
     }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -48,6 +48,22 @@ export default function LoginPage() {
             
             router.push(data.redirectTo);
 
+            const userRole = data.user?.last_active_role;
+
+            if (userRole === "admin") {
+                router.push("/admin/moderation");
+            } else if (userRole === "seller") {
+                router.push("/seller/dashboard");
+            } else if (userRole === "buyer") {
+                router.push("/products");
+            } else {
+                router.push("/");
+            }
+
+            // router.push("/buyer/dashboard");
+            // router.push("/admin/dashboard");
+
+            // router.push("seller/dashboard");
         } catch {
             setError("Something went wrong. Please try again.");
         } finally {

@@ -142,7 +142,9 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    let query = supabase.from("product").select(`
+    let query = supabase
+    .from("product")
+    .select(`
         prod_id,
         prod_name,
         prod_desc,
@@ -156,7 +158,8 @@ export async function GET(request: NextRequest) {
           product_category_type!prod_cat_link_prod_cat_fk(
             prod_cat_name)),
         user!product_seller_uuid_fkey(username)
-      `);
+      `)
+      .eq("prod_status", "approved");
 
     const category = searchParams.get("category");
     const search = searchParams.get("search");
