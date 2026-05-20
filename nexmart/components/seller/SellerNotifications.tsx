@@ -14,20 +14,9 @@ type Notification = {
 };
 
 export default function SellerNotifications() {
-    const [notifications, setNotifications] = useState<Notification[]>([
-    {
-        notification_id: 1,
-        seller_id: "1",
-        order_id: 101,
-        noti_title: "New order received",
-        noti_message:
-            "Order #101 placed by John Doe for Wireless Headphones, quantity 2",
-        created_at: new Date().toISOString(),
-        is_read: false,
-    },
-    ]);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
     const [open, setOpen] = useState(false);
-    /*
+    
     useEffect(() => {   
         fetchNotifications();
 
@@ -35,7 +24,7 @@ export default function SellerNotifications() {
 
         return () => clearInterval(interval);
     }, []);
-    */
+    
     async function fetchNotifications() {
         try {
             const response = await fetch("/api/seller/notifications");
