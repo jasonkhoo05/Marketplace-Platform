@@ -57,6 +57,10 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/profile") ||
     pathname.startsWith("/seller") ||
+    // pathname.startsWith("/api");
+
+    // pathname.startsWith("/api/admin") ;
+    // pathname.startsWith("/api/admin") ||
     pathname.startsWith("/api/seller") ||
     pathname === "/api/product" || //can comment out here to check api
     pathname.startsWith("/api/product/"); //can comment out here to check api

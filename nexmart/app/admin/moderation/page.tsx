@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { PackageSearch, UserPlus, FlagTriangleRight } from "lucide-react";
 import { SectionCard, ModerationRequest } from "@/components/admin/SectionCard";
 
+
 export default function ModerationDashboard() {
+
   const [requests, setRequests] = useState<ModerationRequest[]>([]);
   const [userCount, setUserCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -80,14 +82,25 @@ export default function ModerationDashboard() {
       }
 
       const mappedUsers = userData.map((u: any) => {
+<<<<<<< HEAD
         const defaultAddress = Array.isArray(u.address) 
         ? u.address?.find((a: any) => a.is_default) || u.address?.[0] || null 
         : u.address || null;
+=======
+>>>>>>> 14ed6090b4dc80407f351f7b16480e629cdfee8c
 
-        const roles =
-          u.user_role
-            ?.map((item: any) => item.role?.role_name)
-            .filter(Boolean) || [];
+        const addressList = Array.isArray(u.address) ? u.address : [];
+        const defaultAddress = addressList.find((a:any) => a.is_default) || addressList[0] || null;
+
+        const roles = Array.isArray(u.user_role?.role_name)
+                      ? u.user_role.role_name
+                      : [u.last_active_role || "buyer"];
+        // const defaultAddress =
+          // u.address?.find((a: any) => a.is_default) || u.address?.[0] || null;
+
+        // const roles = u.user_role;
+            // ?.map((item: any) => item.role?.role_name)
+            // .filter(Boolean) || [];
 
         return {
           id: u.user_uuid,
@@ -137,6 +150,8 @@ export default function ModerationDashboard() {
   const products = requests.filter((r) => r.type === "product").slice(0, 5);
   const users = requests.filter((r) => r.type === "user").slice(0, 5);
   const reviews = requests.filter((r) => r.type === "review").slice(0, 5);
+
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
