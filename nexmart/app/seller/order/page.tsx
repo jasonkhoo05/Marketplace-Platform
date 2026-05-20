@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import SellerSidebar from "@/components/seller/SellerSidebar";
 import { Order, OrderStatus } from "@/types/order";
 import { FiEye, FiChevronDown,FiCheck,FiMapPin } from "react-icons/fi";
+import SellerNotifications from "@/components/seller/SellerNotifications";
 /*
 const MOCK_ORDERS: Order[] = [
     {
@@ -154,6 +155,8 @@ async function fetchOrders() {
             <SellerSidebar />
             <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white px-6">
                 <h1 className="text-xl font-bold text-slate-900">Orders</h1>
+
+                <SellerNotifications />
             </header>
 
             <div className="p-6">
@@ -194,7 +197,7 @@ async function fetchOrders() {
                                         <div className="flex items-center gap-3">
                                             <img src={order.productImage} alt="" className="h-10 w-10 rounded-lg object-cover bg-slate-100" />
                                             <span className="max-w-[150px] truncate">{order.productName}</span>
-                                        </div>
+                                        </div> 
                                     </td>
                                     <td className="px-6 py-4 text-center">{order.quantity}</td>
                                     <td className="px-6 py-4 font-bold">${order.totalPrice.toFixed(2)}</td>
