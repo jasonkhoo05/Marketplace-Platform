@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { productFromRow, type ProductRow } from "@/lib/products";
 import { hasEnvVars } from "@/lib/utils";
 import { Suspense } from "react";
+import Image from "next/image";
 
 async function TrendingPreview() {
   let trending: { id: number; name: string; price: number; image: string }[] = [];
@@ -120,8 +121,17 @@ export default function Home() {
         </div>
 
         <div className="hidden md:flex items-center justify-center py-10 px-8">
-          <div style={{ position: "relative", width: 255, height: 295 }}>
-
+          <div className="hero-logo-wrap">
+            <div className="hero-logo-card">
+              <Image
+                src="/nexmart-logo.png"
+                alt="NexMart Logo"
+                width={500}
+                height={500}
+                className="hero-logo-img"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -280,7 +290,6 @@ export default function Home() {
         <Link href="/signup" className="btn-white">Join NexMart — it&apos;s free</Link>
       </section>
 
-      {/* FOOTER */}
       <footer className="text-center py-6 border-t text-sm" style={{ color: "#4a7060" }}>
         © 2026 NexMart. All rights reserved.
       </footer>
