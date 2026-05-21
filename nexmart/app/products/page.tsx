@@ -2,14 +2,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "@/app/prod_components/layout/Header";
-import Navbar from "@/app/prod_components/layout/Navbar";
+import Header from "@/components/buyer/layout/Header";
+import Navbar from "@/components/buyer/layout/Navbar";
 import ProductFilters from "@/app/prod_components/products/ProductFilters";
-import ProductGrid from "@/app/prod_components/products/ProductGrid";
+import ProductGrid from "@/components/buyer/products/ProductGrid";
 import UserProfileCard from "@/components/ui/UserProfileCard";
 import ProductToolbar, {
   type SortOption,
-} from "@/app/prod_components/products/ProductToolbar";
+} from "@/components/buyer/products/ProductToolbar";
 import { type ProductView } from "@/lib/products";
 
 type ProductsApiResponse = {
