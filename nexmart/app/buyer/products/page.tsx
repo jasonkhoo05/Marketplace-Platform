@@ -1,22 +1,14 @@
 // app/products/page.tsx
 "use client";
 
-import Link from "next/link";
-import {
-  FiBox,
-  FiHome,
-  FiShoppingCart,
-  FiUser,
-} from "react-icons/fi";
 import { useEffect, useState } from "react";
-import ProductFilters from "@/components/buyer/products/ProductFilters";
 import ProductPagination from "@/components/buyer/products/ProductPagination";
+import BuyerSidebar from "@/components/buyer/layout/BuyerSidebar";
 import ProductGrid from "@/components/buyer/products/ProductGrid";
 import ProductToolbar, {
   type SortOption,
 } from "@/components/buyer/products/ProductToolbar";
 import { type ProductView } from "@/lib/products";
-import RoleSwitchButton from "@/components/RoleSwitchButton";
 
 
 type ProductsApiResponse = {
@@ -138,81 +130,18 @@ export default function ProductsPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 pl-60">
-      <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-slate-200 bg-white">
-        <div className="flex h-16 items-center gap-3 border-b border-slate-100 px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-700 text-white">
-            <FiBox size={18} />
-          </div>
-          <span className="text-lg font-bold text-slate-900">NexMart</span>
-        </div>
-
-        <nav className="space-y-2 px-3 py-5">
-          <Link
-            href="/buyer/products"
-            className="flex items-center gap-3 rounded-xl bg-teal-700 px-4 py-3 text-sm font-medium text-white"
-          >
-            <FiBox size={18} />
-            Products
-          </Link>
-
-          <Link
-            href="/buyer/cart"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
-          >
-            <FiShoppingCart size={18} />
-            Cart
-          </Link>
-
-          <Link
-            href="#"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-100"
-          >
-            <FiShoppingCart size={18} />
-            Orders
-          </Link>
-        </nav>
-
-        <div className="flex-1 overflow-y-auto px-3 pb-5">
-          <ProductFilters
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            minRating={minRating}
-            inStockOnly={inStockOnly}
-            onMinPriceChange={setMinPrice}
-            onMaxPriceChange={setMaxPrice}
-            onMinRatingChange={setMinRating}
-            onInStockOnlyChange={setInStockOnly}
-            onClearFilters={clearFilters}
-          />
-        </div>
-
-        <div className="border-t border-slate-100 p-4">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-50 text-teal-700">
-              <FiUser size={18} />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-900">Buyer Name</p>
-              <p className="text-xs text-slate-500">buyer@shop.com</p>
-            </div>
-          </div>
-
-          <RoleSwitchButton
-            targetRole="seller"
-            href="/seller/dashboard"
-            label="Switch to Seller"
-          />
-
-          <Link
-            href="/"
-            className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-teal-700"
-          >
-            <FiHome size={15} />
-            Back to Store
-          </Link>
-        </div>
-      </aside>
-  
+      <BuyerSidebar
+      minPrice={minPrice}
+      maxPrice={maxPrice}
+      minRating={minRating}
+      inStockOnly={inStockOnly}
+      onMinPriceChange={setMinPrice}
+      onMaxPriceChange={setMaxPrice}
+      onMinRatingChange={setMinRating}
+      onInStockOnlyChange={setInStockOnly}
+      onClearFilters={clearFilters}
+    />
+    
       <header className="sticky top-0 z-20 border-b border-slate-200 bg-white px-6 py-4">
         <div className="flex items-center justify-between gap-6">
           <div>
