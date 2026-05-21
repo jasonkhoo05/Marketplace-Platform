@@ -2,13 +2,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "@/app/prod_components/layout/Header";
-import Navbar from "@/app/prod_components/layout/Navbar";
+import Header from "@/components/buyer/layout/Header";
+import Navbar from "@/components/buyer/layout/Navbar";
 import ProductFilters from "@/app/prod_components/products/ProductFilters";
-import ProductGrid from "@/app/prod_components/products/ProductGrid";
+import ProductGrid from "@/components/buyer/products/ProductGrid";
+import UserProfileCard from "@/components/ui/UserProfileCard";
 import ProductToolbar, {
   type SortOption,
-} from "@/app/prod_components/products/ProductToolbar";
+} from "@/components/buyer/products/ProductToolbar";
 import { type ProductView } from "@/lib/products";
 
 type ProductsApiResponse = {
@@ -33,6 +34,21 @@ export default function ProductsPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [profileUsername, setProfileUsername] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data) => {
+        setProfileUsername(data.username || "");
+        setProfileEmail(data.email || "");
+        setProfileAvatar(data.user_image || null);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -131,17 +147,22 @@ export default function ProductsPage() {
       <Navbar categories={categories} onSelect={setCategory} />
 
       <section className="grid grid-cols-[260px_1fr] gap-8 px-16 py-8">
-        <ProductFilters
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          minRating={minRating}
-          inStockOnly={inStockOnly}
-          onMinPriceChange={setMinPrice}
-          onMaxPriceChange={setMaxPrice}
-          onMinRatingChange={setMinRating}
-          onInStockOnlyChange={setInStockOnly}
-          onClearFilters={clearFilters}
-        />
+        <div className="flex flex-col gap-4">
+          <ProductFilters
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            minRating={minRating}
+            inStockOnly={inStockOnly}
+            onMinPriceChange={setMinPrice}
+            onMaxPriceChange={setMaxPrice}
+            onMinRatingChange={setMinRating}
+            onInStockOnlyChange={setInStockOnly}
+            onClearFilters={clearFilters}
+          />
+          <div className="rounded-2xl border bg-white p-4">
+            <UserProfileCard username={profileUsername} email={profileEmail} avatarUrl={profileAvatar} />
+          </div>
+        </div>
 
         <div>
           <ProductToolbar

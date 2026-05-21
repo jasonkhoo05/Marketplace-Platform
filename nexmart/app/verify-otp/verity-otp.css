@@ -1,0 +1,156 @@
+
+.otp-container {
+    min-height: 100vh;
+    width: 100%;
+    background: #fbf5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center
+}
+
+.otp-container::before {
+    content: '';
+    position: fixed;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(52, 160, 90, 0.15) 0%, transparent 70%);
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.otp-container::after {
+    display: none;
+    content: '';
+    position: fixed;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(52, 160, 90, 0.08) 0%, transparent 70%);
+    bottom: -80px;
+    right: 10%;
+    pointer-events: none;
+}
+
+.otp-panel {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.otp-box {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    padding: 40px 36px 36px;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+}
+
+.otp-box::before {
+    content: '';
+    display: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(79, 199, 121, 0.12);
+    border: 1.5px solid rgba(52, 160, 90, 0.35);
+    margin: 0 auto 20px;
+}
+
+.otp-box h2 {
+    text-align: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 26px;
+    color: #111827;
+    margin-bottom: 8px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+}
+
+.otp-subtitle {
+    text-align: center;
+    color: #6b7280;
+    font-size: 13.5px;
+    margin-bottom: 28px;
+    line-height: 1.6;
+}
+
+form label {
+    display: block;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+form input {
+    width: 100%;
+    height: 52px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0 16px;
+    font-size: 15px;
+    font-family: 'DM Sans', Arial, sans-serif;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+    outline: none;
+    background: white;
+    color: #111827;
+    box-sizing: border-box;
+}
+
+form input::placeholder {
+    color: #9ca3af;
+}
+
+form input:focus {
+    border-color: #006d66;
+    box-shadow: 0 0 0 3px rgba(94, 203, 122, 0.15);
+    transform: translateY(-1px);
+}
+
+.errorMessage {
+    color: #ef4444;
+    font-size: 13px;
+    margin-top: 12px;
+}
+
+.otp-submit {
+    width: 100%;
+    height: 52px;
+    margin-top: 24px;
+    border: none;
+    border-radius: 14px;
+    background: #0f766e;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'DM Sans', Arial, sans-serif;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    letter-spacing: 0.3px;
+}
+
+.otp-submit:hover {
+    opacity: 0.9;
+    background: #115e59;
+    transform: translateY(-1px);
+}
+
+.otp-submit:active {
+    transform: scale(0.98);
+}
+
+.otp-submit:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}

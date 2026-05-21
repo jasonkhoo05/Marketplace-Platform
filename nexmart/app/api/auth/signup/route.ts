@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       email,
       user_image: null,
       last_active_role: "buyer",
+      is_new_user: true,
     });
 
   if (userError) {

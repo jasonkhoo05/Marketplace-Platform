@@ -19,6 +19,7 @@ export async function POST(request: Request) {
   });
 
   if (error) {
+    console.error("[login] signInWithPassword error:", error.message, error.status);
     const { data: existingUser } = await supabase
       .from("user")
       .select("user_uuid")
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
 
   const { data: userData, error: userError } = await supabase
     .from("user")
-    .select("user_uuid, username, email, last_active_role")
+    .select("user_uuid, username, email, last_active_role, is_new_user")
     .eq("user_uuid", data.user.id)
     .maybeSingle();
 
@@ -47,5 +48,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Account not found. Please sign up first." }, { status: 404 });
   }
 
-  return NextResponse.json({ success: true, user: userData }, { status: 200 });
+  // DETERMINISTIC ROUTING LOGIC
+  let redirectTo = "/products"; // Default destination for existing users
+
+  if (userData.is_new_user) {
+  // First time logging in? Force them to the profile onboarding page
+    redirectTo = "/profile?new=true";
+  } 
+
+  return NextResponse.json({ success: true, user: userData, redirectTo }, { status: 200 });
 }

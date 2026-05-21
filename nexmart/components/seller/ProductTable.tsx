@@ -17,7 +17,7 @@ export default function ProductTable({
     return (
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="overflow-x-auto">
-                <table className="w-full min-w-[850px] border-collapse">
+                <table className="w-full min-w-[950px] border-collapse">
                     <thead>
                         <tr className="border-b border-slate-100 text-left text-xs font-bold uppercase tracking-wide text-slate-500">
                             <th className="px-3 py-4">Product</th>
@@ -27,42 +27,61 @@ export default function ProductTable({
                             <th className="px-3 py-4">Sales</th>
                             <th className="px-3 py-4">Buyer Status</th>
                             <th className="px-3 py-4">Actions</th>
+                            <th className="px-3 py-4">Product Status</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         {products.map((product) => {
                             const isOutOfStock = product.quantity === 0;
+                            const isHidden = product.status === "hidden";
+                            const isPending = product.status === "pending";
+                            const isApproved = product.status === "approved";
 
                             return (
                                 <tr
                                     key={product.id}
-                                    className={`border-b border-slate-100 transition hover:bg-slate-50 ${isOutOfStock ? "bg-red-50/40" : ""
-                                        }`}
+                                    className={`border-b border-slate-100 transition ${
+                                        isHidden
+                                            ? "bg-slate-100 opacity-60"
+                                            : isOutOfStock
+                                                ? "bg-red-50/40 hover:bg-red-50"
+                                                : "hover:bg-slate-50"
+                                    }`}
                                 >
                                     <td className="px-3 py-4">
                                         <div className="flex items-center gap-3">
                                             <img
                                                 src={product.imageUrls[0]}
                                                 alt={product.name}
-                                                className="h-12 w-12 rounded-xl object-cover"
+                                                className={`h-12 w-12 rounded-xl object-cover ${
+                                                    isHidden ? "grayscale" : ""
+                                                }`}
                                             />
+
                                             <div>
-                                                <p className="font-semibold text-slate-900">{product.name}</p>
+                                                <p className="font-semibold text-slate-900">
+                                                    {product.name}
+                                                </p>
+
                                                 <p className="text-xs text-slate-500">
                                                     {product.imageUrls.length} image
                                                     {product.imageUrls.length > 1 ? "s" : ""}
                                                 </p>
+
+                                                {isHidden && (
+                                                    <p className="mt-1 text-xs text-red-600">
+                                                        Rejection reason: {product.rejectionReason}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     </td>
 
-
-
-
-{/* ////////////////////////////////////////CHECK IF NEED CHANGE ////////////////////////////////////////////////////////////// */}
                                     <td className="px-3 py-4 text-sm text-slate-700">
-                                        {product.category?? "uncategorised"}
+                                        {product.category.length
+                                            ? product.category.join(", ")
+                                            : "Uncategorised"}
                                     </td>
 
                                     <td className="px-3 py-4 text-sm font-bold text-slate-900">
@@ -70,8 +89,9 @@ export default function ProductTable({
                                     </td>
 
                                     <td
-                                        className={`px-3 py-4 text-sm font-medium ${isOutOfStock ? "text-red-500" : "text-slate-700"
-                                            }`}
+                                        className={`px-3 py-4 text-sm font-medium ${
+                                            isOutOfStock ? "text-red-500" : "text-slate-700"
+                                        }`}
                                     >
                                         {product.quantity}
                                     </td>
@@ -82,10 +102,11 @@ export default function ProductTable({
 
                                     <td className="px-3 py-4">
                                         <span
-                                            className={`rounded-full px-3 py-1 text-xs font-semibold ${isOutOfStock
+                                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                                isOutOfStock
                                                     ? "bg-red-100 text-red-600"
                                                     : "bg-green-100 text-green-700"
-                                                }`}
+                                            }`}
                                         >
                                             {isOutOfStock ? "Out of Stock" : "Available"}
                                         </span>
@@ -96,8 +117,18 @@ export default function ProductTable({
                                             <button
                                                 type="button"
                                                 onClick={() => onEdit(product)}
-                                                className="text-slate-600 hover:text-teal-700"
+                                                disabled={isHidden}
+                                                className={`${
+                                                    isHidden
+                                                        ? "cursor-not-allowed text-slate-300"
+                                                        : "text-slate-600 hover:text-teal-700"
+                                                }`}
                                                 aria-label={`Edit ${product.name}`}
+                                                title={
+                                                    isHidden
+                                                        ? "Invalid action: rejected listings cannot be edited."
+                                                        : `Edit ${product.name}`
+                                                }
                                             >
                                                 <FiEdit2 size={16} />
                                             </button>
@@ -111,6 +142,24 @@ export default function ProductTable({
                                                 <FiTrash2 size={16} />
                                             </button>
                                         </div>
+                                    </td>
+
+                                    <td className="px-3 py-4">
+                                        <span
+                                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                                isApproved
+                                                    ? "bg-green-100 text-green-700"
+                                                    : isPending
+                                                        ? "bg-yellow-100 text-yellow-700"
+                                                        : "bg-slate-200 text-slate-700"
+                                            }`}
+                                        >
+                                            {isApproved
+                                                ? "Approved"
+                                                : isPending
+                                                    ? "Pending"
+                                                    : "Hidden"}
+                                        </span>
                                     </td>
                                 </tr>
                             );
