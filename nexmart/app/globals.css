@@ -4,13 +4,13 @@
 
 @layer base {
   :root {
-    --background: 180 30% 98%;   
+    --background: 180 30% 98%;
     --foreground: 180 20% 10%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 172 66% 35%;      
+    --primary: 172 66% 35%;
     --primary-foreground: 0 0% 100%;
     --secondary: 172 30% 92%;
     --secondary-foreground: 0 0% 9%;
@@ -30,6 +30,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -62,14 +63,272 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @layer base {
+
   html,
   body {
     @apply h-full w-full m-0;
+  }
+}
+
+@layer components {
+  .grad {
+    background: linear-gradient(135deg, #185fa5 0%, #1d9e75 100%);
+  }
+
+  .grad-text {
+    background: linear-gradient(135deg, #185fa5 0%, #1d9e75 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 9999px;
+    padding: 4px 14px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 18px;
+    width: fit-content;
+  }
+
+  .hero-tag {
+    padding: 4px 13px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .hero-tag-active {
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f6e56;
+  }
+
+  .btn-white {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    background: white;
+    color: #0f6e56;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.14);
+    transition: transform 0.15s;
+  }
+
+  .btn-white:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-outline-white {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    display: inline-block;
+    transition: background 0.2s;
+  }
+
+  .btn-outline-white:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .stat-item {
+    padding: 20px 40px;
+    text-align: center;
+    border-right: 1px solid rgba(29, 158, 117, 0.15);
+  }
+
+  .hero-logo-wrap {
+    position: relative;
+    width: 420px;
+    height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-logo-img {
+    width: 88%;
+    height: 88%;
+    object-fit: contain;
+    position: relative;
+    z-index: 2;
+    filter:
+      drop-shadow(0 18px 35px rgba(0, 0, 0, 0.2));
+    animation: floatLogo 5s ease-in-out infinite;
+  }
+
+  .why-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 52px 48px;
+  }
+
+  .why-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 44px 40px;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #185fa5 0%, #1d9e75 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+
+  .mock-wrap {
+    position: relative;
+    width: 215px;
+    height: 195px;
+  }
+
+  .mock-card {
+    position: absolute;
+    border-radius: 13px;
+    background: white;
+    border: 1px solid rgba(29, 158, 117, 0.15);
+    box-shadow: 0 4px 18px rgba(29, 158, 117, 0.1);
+    padding: 13px;
+  }
+
+  .mock-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #185fa5 0%, #1d9e75 100%);
+  }
+
+  .mock-icon svg {
+    width: 17px;
+    height: 17px;
+    stroke: white;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .mock-bar {
+    height: 4px;
+    border-radius: 3px;
+    margin-top: 7px;
+    background: linear-gradient(90deg, #185fa5, #1d9e75);
+  }
+
+  .step-num {
+    width: 46px;
+    height: 46px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #185fa5 0%, #1d9e75 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    margin: 0 auto 12px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-line {
+    position: absolute;
+    top: 23px;
+    left: calc(50% + 23px);
+    right: calc(-50% + 23px);
+    height: 1.5px;
+    background: linear-gradient(90deg, #185fa5, #1d9e75);
+    z-index: 0;
+  }
+
+  .prod-card {
+    border-radius: 13px;
+    background: white;
+    border: 1px solid rgba(29, 158, 117, 0.15);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: block;
+  }
+
+  .prod-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 24px rgba(29, 158, 117, 0.12);
+  }
+
+  .prod-img {
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e6f1fb, #e1f5ee);
+    position: relative;
+  }
+
+  .prod-badge {
+    position: absolute;
+    top: 7px;
+    left: 7px;
+    font-size: 10px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #185fa5, #1d9e75);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 5px;
+  }
+
+  .rev-card {
+    border-radius: 14px;
+    border: 1px solid rgba(29, 158, 117, 0.15);
+    padding: 22px 20px;
+    background: white;
+    transition: box-shadow 0.2s;
+  }
+
+  .rev-card:hover {
+    box-shadow: 0 4px 24px rgba(29, 158, 117, 0.1);
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #185fa5, #1d9e75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
   }
 }
