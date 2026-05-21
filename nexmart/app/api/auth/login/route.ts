@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isAdmin } from "@/lib/isAdmin";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -48,13 +49,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Account not found. Please sign up first." }, { status: 404 });
   }
 
-  // DETERMINISTIC ROUTING LOGIC
-  let redirectTo = "/products"; // Default destination for existing users
+  let redirectTo = "/buyer/products";
 
-  if (userData.is_new_user) {
-  // First time logging in? Force them to the profile onboarding page
+  if (await isAdmin(data.user.id)) {
+    redirectTo = "/admin/moderation";
+  } else if (userData.is_new_user) {
     redirectTo = "/profile?new=true";
-  } 
+  }
 
   return NextResponse.json({ success: true, user: userData, redirectTo }, { status: 200 });
 }

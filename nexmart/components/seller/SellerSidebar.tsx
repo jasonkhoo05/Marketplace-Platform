@@ -11,6 +11,7 @@ import {
 import { usePathname } from "next/navigation";
 import { LogoutButton } from "../logout-button";
 import UserProfileCard from "@/components/ui/UserProfileCard";
+import RoleSwitchButton from "@/components/RoleSwitchButton";
 
 const menuItems = [
     { label: "Dashboard", href: "/seller/dashboard", icon: FiGrid },
@@ -71,6 +72,12 @@ export default function SellerSidebar() {
                 <div className="mb-4">
                     <UserProfileCard username={username} email={email} avatarUrl={avatarUrl} />
                 </div>
+
+                <RoleSwitchButton
+                    targetRole="buyer"
+                    href="/buyer/products"
+                    label="Switch to Buyer"
+                />
 
 {/* <button
                 type="button"

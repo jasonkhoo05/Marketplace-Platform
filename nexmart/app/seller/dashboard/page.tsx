@@ -64,17 +64,31 @@ export default function SellerDashboardPage() {
             if (!response.ok) throw new Error('Failed to fetch sales summary');
             const data = await response.json();
 
-            // Expected payload structure: { totalOrders: number, revenue: number, recentOrders: [...] }
-            setTotalOrdersCount(data.totalOrders || 0);
-            setTotalRevenue(data.revenue || 0);
-            
-            // Limit explicitly to the top 5 latest orders
-            const formattedOrders = (data.recentOrders || []).slice(0, 5).map((order: any) => ({
-                id: order.order_id || `ORD-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
-                customerName: order.customer_name || "Guest Buyer",
-                totalAmount: order.total_amount || 0,
-                status: order.status || "Pending",
-                createdAt: order.created_at ? new Date(order.created_at).toLocaleDateString() : "Today",
+            const orders = data.orders ?? data.recentOrders ?? [];
+            setTotalOrdersCount(data.totalOrders ?? orders.length);
+            setTotalRevenue(
+                data.revenue ??
+                    orders.reduce(
+                        (sum: number, order: { total_price?: number }) =>
+                            sum + Number(order.total_price ?? 0),
+                        0,
+                    ),
+            );
+
+            const formattedOrders = orders.slice(0, 5).map((order: {
+                order_id?: number | string;
+                buyer_name?: string;
+                total_price?: number;
+                status?: string;
+                order_date?: string;
+            }) => ({
+                id: String(order.order_id ?? `ORD-${Math.random().toString(36).slice(2, 7).toUpperCase()}`),
+                customerName: order.buyer_name ?? "Guest Buyer",
+                totalAmount: Number(order.total_price ?? 0),
+                status: order.status ?? "Pending",
+                createdAt: order.order_date
+                    ? new Date(order.order_date).toLocaleDateString()
+                    : "Today",
             }));
             setRecentOrders(formattedOrders);
         } catch (error) {

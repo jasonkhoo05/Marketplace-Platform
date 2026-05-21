@@ -16,6 +16,7 @@ import ProductToolbar, {
   type SortOption,
 } from "@/components/buyer/products/ProductToolbar";
 import { type ProductView } from "@/lib/products";
+import RoleSwitchButton from "@/components/RoleSwitchButton";
 
 
 type ProductsApiResponse = {
@@ -195,6 +196,12 @@ export default function ProductsPage() {
               <p className="text-xs text-slate-500">buyer@shop.com</p>
             </div>
           </div>
+
+          <RoleSwitchButton
+            targetRole="seller"
+            href="/seller/dashboard"
+            label="Switch to Seller"
+          />
 
           <Link
             href="/"
