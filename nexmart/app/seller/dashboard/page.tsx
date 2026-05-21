@@ -20,6 +20,8 @@ export default function SellerDashboardPage() {
     const [totalOrdersCount, setTotalOrdersCount] = useState(0);
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
     useEffect(() => {
         // Run parallel data aggregation
@@ -90,6 +92,144 @@ export default function SellerDashboardPage() {
     const outOfStockCount = products.filter(p => p.quantity === 0).length;
     // Low stock flag threshold set to 5 units or below remaining
     const lowStockCount = products.filter(p => p.quantity > 0 && p.quantity <= 5).length;
+
+    function openCreateForm() {
+        setEditingProduct(null);
+        setIsFormOpen(true);
+    }
+
+    function openEditForm(product: Product) {
+        if (product.status === "hidden") {
+        alert("Invalid action: rejected listings cannot be edited.");
+        return;
+        }
+        
+        setEditingProduct(product);
+        setIsFormOpen(true);
+    }
+
+    function closeForm() {
+        setEditingProduct(null);
+        setIsFormOpen(false);
+    }
+
+    async function handleSaveProduct(product: Product) {
+        try {
+
+            if (editingProduct?.status === "hidden"){
+                alert("Invalid action: rejected listings cannot be edited.");
+                return;
+            }
+            const isEditing = editingProduct;
+            const res = await fetch(
+                isEditing? `/api/product/${editingProduct.id}`: "/api/product", {
+                method: isEditing? "PUT": "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    prod_name: product.name,
+                    prod_desc: product.description,
+                    prod_price: product.price,
+                    prod_stock_qty: product.quantity,
+                    prod_cat_id: product.categoryId,
+                    prod_image: product.imageUrls[0] || "/products/placeholder.jpg"
+                })
+            });
+
+
+            if (!res.ok) {
+                let errorMessage = "Failed to save product. Please try again.";
+
+                try {
+                    const errorData = await res.json();
+                    errorMessage = errorData.error || errorMessage;
+                } catch {
+                    // Keep default error message if response is not JSON
+                    alert("Failed to save product. Please try again.");
+                }
+
+                alert(errorMessage);
+                return;
+            }
+
+            // const data = await res.json();
+
+
+            // Refresh products list after creation
+            // const refreshResponse = await fetch('/api/seller/products');
+            // if (refreshResponse.ok) {
+            //     const refreshData = await refreshResponse.json();
+            //     const transformedProducts = refreshData.products.map((product: any) => ({
+            //         id: product.prod_id.toString(),
+            //         name: product.prod_name,
+            //         description: product.prod_desc,
+            //         price: product.prod_price,
+            //         quantity: product.prod_stock_qty,
+            //         category: product.product_category_type,
+            //         // categoryId: product.prod_cat_id,
+            //         imageUrls: [product.prod_image],
+            //         sales: product.prod_sold_qty || 0,
+            //         createdAt: product.created_at,
+            //     }));
+            //     setProducts(transformedProducts);
+            // }
+
+            // add to prod_cat_id
+            // if (!isEditing) {
+            //     const newProdId = data.product.prod_id;
+
+            //     console.log(data);
+            //     await fetch("/api/product/category", {
+            //         method: "POST",
+            //         headers: {
+            //             "Content-Type": "application/json",
+            //         },
+            //         body: JSON.stringify({
+            //             prod_id: newProdId,
+            //             prod_cat_id: product.categoryId,
+            //         })
+            //     });
+
+            // }
+
+            await fetchProducts();
+
+            closeForm();
+        } catch (error) {
+            console.error('Error creating product:', error);
+            alert('Failed to create product. Please try again.');
+        }
+    }
+
+    async function handleDeleteProduct(productId: number) {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this product listing?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+            const res = await fetch(`/api/seller/products/${productId}`,
+                { method: "DELETE"});
+
+            if (!res.ok) {
+                const body = await res.json();
+                console.log("server error", body)
+                throw new Error("Failed to delete product");
+
+            }
+            setProducts(curr => curr.filter(prod => prod.id !== productId));
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            alert("Failed to delete product. Please try again.")
+        }
+
+
+        // setProducts((currentProducts) =>
+        //     currentProducts.filter((product) => product.id !== productId)
+        // );
+    }
 
     return (
         <main className="min-h-screen bg-slate-50 pl-60">
