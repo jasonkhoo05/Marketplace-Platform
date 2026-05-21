@@ -37,54 +37,35 @@ async function TrendingPreview() {
       }) ?? [];
   }
 
-  const placeholders = [
-    { name: "Wireless Headphones", price: "89.00", badge: "Hot" },
-    { name: "Mechanical Keyboard", price: "129.00", badge: "Top" },
-    { name: "Running Shoes", price: "64.00", badge: null },
-    { name: "Vintage Camera", price: "210.00", badge: null },
-  ];
-
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {trending.length === 0 ? (
-        placeholders.map((item) => (
-          <div key={item.name} className="prod-card">
-            <div className="prod-img">
-              <div style={{ 
-                width: 40, 
-                height: 40, 
-                borderRadius: 9, 
-                opacity: 0.2 
-              }} />
-              {item.badge && <span className="prod-badge">{item.badge}</span>}
-            </div>
-            <div className="p-3">
-              <p className="text-sm font-semibold" style={{ 
-                color: "#0d2b22" }}>{item.name}
-                </p>
-              <p className="text-xs" style={{ 
-                color: "#4a7060" }}>${item.price}
-                </p>
-            </div>
+      {trending.map((item) => (
+        <div key={item.id} className="prod-card">
+          <div className="prod-img">
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-full h-full object-cover"
+            />
           </div>
-        ))
-      ) : (
-        trending.map((item) => (
-          <Link key={item.id} href={`/buyer/products/${item.id}`} className="prod-card">
-            <div className="prod-img">
-              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-            </div>
-            <div className="p-3">
-              <p className="text-sm font-semibold" style={{ 
-                color: "#0d2b22" }}>{item.name}
-                </p>
-              <p className="text-xs" style={{ 
-                color: "#4a7060" }}>${item.price}
-                </p>
-            </div>
-          </Link>
-        ))
-      )}
+
+          <div className="p-3">
+            <p
+              className="text-sm font-semibold"
+              style={{ color: "#0d2b22" }}
+            >
+              {item.name}
+            </p>
+
+            <p
+              className="text-xs"
+              style={{ color: "#4a7060" }}
+            >
+              ${item.price}
+            </p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -95,21 +76,24 @@ export default function Home() {
       background: "#f5faf8" 
       }}>
 
-      <nav className="flex justify-between items-center px-8 py-4 border-b sticky top-0 z-50" style={{ background: "rgba(255,255,255,0.96)" }}>
-        <div className="flex items-center gap-2">
-          <div className="grad" style={{ 
-            width: 32, 
-            height: 32, 
-            borderRadius: 8, 
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "center", 
-            fontWeight: 800, 
-            fontSize: 15, 
-            color: "white" 
-            }}>
-            N
-          </div>
+      <nav className="flex justify-between items-center px-8 py-4 border-b sticky top-0 z-50" 
+        style={{ 
+          background: "rgba(255,255,255,0.96)" }}
+          >
+          <div className="flex items-center gap-2">
+            <div className="grad" style={{ 
+              width: 32, 
+              height: 32, 
+              borderRadius: 8, 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center", 
+              fontWeight: 800, 
+              fontSize: 15, 
+              color: "white" 
+              }}>
+              N
+            </div>
           <h1 className="grad-text text-lg font-bold leading-none">NexMart</h1>
         </div>
         <div className="flex gap-2 items-center">
@@ -121,7 +105,8 @@ export default function Home() {
           </Link>
           <Link href="/signup" className="grad px-4 py-2 flex items-center justify-center text-white rounded-lg text-sm font-semibold" 
             style={{ 
-              boxShadow: "0 2px 10px rgba(29,158,117,0.25)" }}>
+              boxShadow: "0 2px 10px rgba(29,158,117,0.25)" }}
+              >
                 Sign Up
           </Link>
         </div>
