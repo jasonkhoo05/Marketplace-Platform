@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { FiBox, FiHome, FiShoppingCart } from "react-icons/fi";
 import { usePathname } from "next/navigation";
+import { FiBox, FiShoppingCart } from "react-icons/fi";
 import ProductFilters from "@/components/buyer/products/ProductFilters";
 import RoleSwitchButton from "@/components/RoleSwitchButton";
 import UserProfileCard from "@/components/ui/UserProfileCard";
@@ -114,14 +114,6 @@ export default function BuyerSidebar({
           href="/seller/dashboard"
           label="Switch to Seller"
         />
-
-        <Link
-          href="/"
-          className="mb-3 flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-teal-700"
-        >
-          <FiHome size={15} />
-          Back to Store
-        </Link>
 
         <LogoutButton />
       </div>
