@@ -124,7 +124,7 @@ export default function Home() {
           <div className="hero-logo-wrap">
             <div className="hero-logo-card">
               <Image
-                src="/nexmart-logo.png"
+                src="/nexmart-logo.jpg"
                 alt="NexMart Logo"
                 width={500}
                 height={500}
