@@ -113,6 +113,14 @@ export function AdminSidebar() {
                 </div>
 
                 <Link
+                    href="/profile"
+                    className="mb-2 flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-teal-700"
+                >
+                    <FiUser size={15} />
+                    My Profile
+                </Link>
+
+                <Link
                     href="/"
                     className="mb-3 flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-teal-700"
                 >

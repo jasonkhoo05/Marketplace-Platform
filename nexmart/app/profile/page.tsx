@@ -11,8 +11,6 @@ import { Button } from "@/components/ui/button";
 import UserProfileCard from "@/components/ui/UserProfileCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -45,15 +43,17 @@ export default function ProfilePage() {
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [isSaving, setIsSaving]= useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await fetch("/api/profile");
         if (!res.ok) throw new Error("Failed to load profile data.");
-        
+
         const data = await res.json();
-        
+
         // Fallback fields safely if null in database
         setForm({
           username: data.username || "",
@@ -72,7 +72,7 @@ export default function ProfilePage() {
         });
         setAvatarPreview(data.user_image ?? "");
       } catch (err: any) {
-        toast.error(err.message);
+        setError(err.message);
       }
     };
 
@@ -95,6 +95,8 @@ export default function ProfilePage() {
   const handleSave = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSaving(true);
+    setSuccess(null);
+    setError(null);
 
     try {
       const res = await fetch("/api/profile", {
@@ -106,13 +108,16 @@ export default function ProfilePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to update profile.");
 
-      toast.success("Profile saved successfully!");
+      setSuccess("Profile saved successfully!");
 
+      // If they are a new user completing onboarding, push them straight to the store!
       if (isNewUser) {
-        setTimeout(() => router.push("/products"), 1000);
+        setTimeout(() => {
+          router.push("/products");
+        }, 1000);
       }
     } catch (err: any) {
-      toast.error(err.message);
+      setError(err.message);
     } finally {
       setIsSaving(false);
     }
@@ -126,13 +131,12 @@ export default function ProfilePage() {
   const years = Array.from({ length: 80 }, (_, i) => currentYear - 18 - i);
   const days  = Array.from({ length: 31 }, (_, i) => i + 1);
 
-  
+
 
   const selectCls = "h-10 rounded-md border border-input bg-transparent px-3 py-1 text-[15px] shadow-sm outline-none focus:ring-1 focus:ring-teal-700 focus:border-teal-700";
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <Toaster position="top-right" richColors />
 
       {/* Sidebar - matches SellerSidebar */}
       <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-slate-200 bg-white z-30">
@@ -156,7 +160,12 @@ export default function ProfilePage() {
         </nav>
 
         <div className="border-t border-slate-100 p-4">
-          <UserProfileCard username={form.username} email={form.email} avatarUrl={avatarPreview} />
+          <div className="mb-3">
+            <UserProfileCard username={form.username} email={form.email} avatarUrl={avatarPreview} />
+          </div>
+          <Link href="/products" className="flex items-center justify-center text-sm text-slate-500 hover:text-teal-700 transition-colors">
+            Back to Store
+          </Link>
         </div>
       </aside>
 
@@ -165,9 +174,11 @@ export default function ProfilePage() {
 
         {/* Header */}
         <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white px-6">
-          <Button variant="ghost" onClick={() => isNewUser ? router.push("/products") : router.back()} className="ml-auto text-teal-700 hover:bg-teal-50 hover:text-teal-800 gap-1.5 font-medium text-[15px] px-4 py-2 h-auto">
-            Back <IoExitOutline size={18} />
-          </Button>
+          {!isNewUser && (
+            <Button variant="ghost" onClick={() => router.back()} className="ml-auto text-teal-700 hover:bg-teal-50 hover:text-teal-800 gap-1.5 font-medium text-[15px] px-4 py-2 h-auto">
+              Back <IoExitOutline size={18} />
+            </Button>
+          )}
         </header>
 
         <div className="flex-1 p-6">
@@ -220,7 +231,7 @@ export default function ProfilePage() {
                         <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                           <input type="checkbox" checked={form.is_default}
                             onChange={(e) => setForm((prev) => ({ ...prev, is_default: e.target.checked }))}
-                            className="accent-teal-700 w-4 h-4 align-middle" />
+                            className="accent-teal-700 w-4 h-4" />
                           Set as default address
                         </label>
                       </div>
@@ -233,7 +244,7 @@ export default function ProfilePage() {
                             <input type="radio" name="gender" value={g}
                               checked={form.gender === g}
                               onChange={() => setForm((prev) => ({ ...prev, gender: g }))}
-                              className="accent-teal-700 w-4 h-4 align-middle" />
+                              className="accent-teal-700 w-4 h-4" />
                             {g}
                           </label>
                         ))}
@@ -257,7 +268,9 @@ export default function ProfilePage() {
                       </div>
                     </Row>
 
-                    <div className="flex justify-center pt-2">
+                    <div className="flex items-center justify-center gap-3 pt-2">
+                      {success && <p className="text-sm text-teal-700">{success}</p>}
+                      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
                       <Button type="submit" disabled={isSaving} className="bg-teal-700 hover:bg-teal-800 text-white px-8">
                         {isSaving ? "Saving..." : "Save"}
                       </Button>
@@ -304,4 +317,3 @@ export default function ProfilePage() {
       <div className="flex-1">{children}</div>
     </div>
   );
-

@@ -4,11 +4,11 @@
 import Link from "next/link";
 import {
   FiBox,
-  FiHome,
   FiShoppingCart,
-  FiUser,
 } from "react-icons/fi";
 import { useEffect, useState } from "react";
+import UserProfileCard from "@/components/ui/UserProfileCard";
+import { LogoutButton } from "@/components/logout-button";
 import ProductFilters from "@/components/buyer/products/ProductFilters";
 import ProductPagination from "@/components/buyer/products/ProductPagination";
 import ProductGrid from "@/components/buyer/products/ProductGrid";
@@ -26,6 +26,9 @@ type ProductsApiResponse = {
 };
 
 export default function ProductsPage() {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [products, setProducts] = useState<ProductView[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [categories, setCategories] = useState<string[]>(["All"]);
@@ -123,6 +126,17 @@ export default function ProductsPage() {
     };
   }, [category, search, minPrice, maxPrice, minRating, inStockOnly, sort]);
 
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data) => {
+        setUsername(data.username || "");
+        setEmail(data.email || "");
+        setAvatarUrl(data.user_image || null);
+      })
+      .catch(() => {});
+  }, []);
+
   function clearFilters() {
     setCategory("All");
     setSearch("");
@@ -186,23 +200,11 @@ export default function ProductsPage() {
         </div>
 
         <div className="border-t border-slate-100 p-4">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-50 text-teal-700">
-              <FiUser size={18} />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-slate-900">Buyer Name</p>
-              <p className="text-xs text-slate-500">buyer@shop.com</p>
-            </div>
+          <div className="mb-4">
+            <UserProfileCard username={username} email={email} avatarUrl={avatarUrl} />
           </div>
 
-          <Link
-            href="/"
-            className="flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-teal-700"
-          >
-            <FiHome size={15} />
-            Back to Store
-          </Link>
+          <LogoutButton />
         </div>
       </aside>
   

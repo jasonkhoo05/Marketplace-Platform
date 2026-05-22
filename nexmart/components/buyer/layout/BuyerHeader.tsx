@@ -24,7 +24,7 @@ export default function BuyerHeader() {
 
         <div className="flex w-60 items-center justify-end gap-5">
           <Link
-            href="/buyer/profile"
+            href="/profile"
             className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-teal-700"
           >
             <FiUser size={18} />
