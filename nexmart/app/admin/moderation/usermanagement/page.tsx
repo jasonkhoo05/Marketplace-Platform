@@ -4,9 +4,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Search } from "lucide-react";
-import { Address, User, UserDetails } from "../../types/users";
-import { AiFillSwitcher } from "react-icons/ai";
+import { User } from "../../types/users";
 import Link from "next/link";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 export default function AdminUserManagementDashboard() {
     const router = useRouter();
@@ -119,6 +124,19 @@ export default function AdminUserManagementDashboard() {
                 />
             </div>
         </div>
+
+        <Tabs defaultValue="all" onValueChange={(val) => setRoleFilter(val)} className="w-full">
+            <TabsList>
+                <TabsTrigger value="all">All</TabsTrigger>
+                {uniqueRoles
+                    .filter((r) => r !== "all")
+                    .map((role) => (
+                        <TabsTrigger key={role} value={role} className="capitalize">
+                            {role}
+                        </TabsTrigger>
+                    ))}
+            </TabsList>
+        </Tabs>
 
         {errorMessage && (
             <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
