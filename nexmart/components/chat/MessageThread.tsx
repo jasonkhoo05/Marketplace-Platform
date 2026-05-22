@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 type Props = {
   conversation: Conversation;
   currentUserId: string;
+  onBack?: () => void; 
 };
 
 const MOCK_MESSAGES: Record<string, Message[]> = {
