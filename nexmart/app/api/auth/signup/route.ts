@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabaseServer";
 
 export async function POST(request: Request) {
-  const { username, email, phone, password } = await request.json();
+  const { username, email, password } = await request.json();
 
   if (!username || !email || !password) {
     return NextResponse.json(
@@ -29,10 +29,9 @@ export async function POST(request: Request) {
       user_uuid: authData.user.id,
       username,
       email,
-      phone: phone || null,
-      password,
       user_image: null,
       last_active_role: "buyer",
+      is_new_user: true,
     });
 
   if (userError) {

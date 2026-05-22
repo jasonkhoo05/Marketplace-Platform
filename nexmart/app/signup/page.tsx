@@ -12,14 +12,27 @@ export default function SignupPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
+    const validatePassword = (pwd: string) => {
+        if (pwd.length < 8) return "Password must be at least 8 characters.";
+        if (!/[A-Z]/.test(pwd)) return "Password must contain at least one uppercase letter.";
+        if (!/[a-z]/.test(pwd)) return "Password must contain at least one lowercase letter.";
+        return null;
+    };
+
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const pwdError = validatePassword(password);
+        if (pwdError) {
+            setError(pwdError);
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
 
@@ -27,7 +40,7 @@ export default function SignupPage() {
             const response = await fetch("/api/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, email, phone, password }),
+                body: JSON.stringify({ username, email, password }),
             });
 
             const data = await response.json();
@@ -96,14 +109,6 @@ export default function SignupPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                        />
-
-                        <label>Phone number</label>
-                        <input
-                            type="tel"
-                            placeholder="01XXXXXXXXX"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
                         />
 
                         <div className="passwordTop">

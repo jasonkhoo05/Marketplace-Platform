@@ -53,6 +53,8 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isProtectedPath =
+    pathname.startsWith("/product") ||
+    pathname.startsWith("/order") ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/profile") ||
@@ -62,6 +64,8 @@ export async function updateSession(request: NextRequest) {
     // pathname.startsWith("/api/admin") ;
     // pathname.startsWith("/api/admin") ||
     pathname.startsWith("/api/seller") ||
+    pathname.startsWith("/buyer/cart") ||
+    pathname.startsWith("/api/cart") ||
     pathname === "/api/product" || //can comment out here to check api
     pathname.startsWith("/api/product/"); //can comment out here to check api
 
