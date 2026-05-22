@@ -96,9 +96,16 @@ export default function ChatWidget() {
                 </button>
               )}
               <MessageCircle size={18} className="text-white" />
-              <span className="text-sm font-semibold text-white">
-                {selectedConv ? selectedConv.other_user_name : "Messages"}
-              </span>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-white leading-tight">
+                  {selectedConv ? selectedConv.other_user_name : "Messages"}
+                </span>
+                {selectedConv?.product_name && (
+                  <span className="text-[11px] text-white/70 leading-tight truncate max-w-[180px]">
+                    {selectedConv.product_name}
+                  </span>
+                )}
+              </div>
             </div>
             <button
               onClick={() => { setOpen(false); setSelectedConv(null); }}
@@ -114,7 +121,6 @@ export default function ChatWidget() {
               <MessageThread
                 conversation={selectedConv}
                 currentUserId={MOCK_USER_ID}
-                onBack={() => setSelectedConv(null)}
               />
             ) : (
               <ConversationList
