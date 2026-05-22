@@ -10,7 +10,7 @@ interface OrderSummary {
     id: string;
     customerName: string;
     totalAmount: number;
-    status: "Pending" |"Processing"| "Completed" | "Shipped" | "Cancelled"|"Refunded";  
+    status: "Pending" |"Processing"| "Completed" | "Shipped" | "Cancelled"|"Refunded";
     createdAt: string;
 }
 
@@ -60,14 +60,14 @@ export default function SellerDashboardPage() {
     async function fetchDashboardMetrics() {
         try {
             // Replace with your distinct dashboard analytical endpoint if available
-            const response = await fetch('/api/seller/orders'); 
+            const response = await fetch('/api/seller/orders');
             if (!response.ok) throw new Error('Failed to fetch sales summary');
             const data = await response.json();
 
             // Expected payload structure: { totalOrders: number, revenue: number, recentOrders: [...] }
             setTotalOrdersCount(data.totalOrders || 0);
             setTotalRevenue(data.revenue || 0);
-            
+
             // Limit explicitly to the top 5 latest orders
             const formattedOrders = (data.recentOrders || []).slice(0, 5).map((order: any) => ({
                 id: order.order_id || `ORD-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
@@ -103,7 +103,7 @@ export default function SellerDashboardPage() {
         alert("Invalid action: rejected listings cannot be edited.");
         return;
         }
-        
+
         setEditingProduct(product);
         setIsFormOpen(true);
     }
