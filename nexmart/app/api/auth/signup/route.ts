@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
   if (roleError) {
     console.error("Insert role error:", roleError.message);
-    // Don't fail signup over role insert — user record exists
+    // Don't fail signup over role insert user record exists
   }
 
   return NextResponse.json({ success: true }, { status: 201 });

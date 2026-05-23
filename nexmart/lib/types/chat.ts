@@ -1,25 +1,28 @@
-export type Conversation = {
-  id: string;
-  buyer_uuid: string;
-  seller_uuid: string;
-  product_id: string | null;
-  product_name: string | null;
-  product_image: string | null;
+export type chat = {
+  // Exact Database Columns
+  chat_id: number;          // primary key (int8)
+  buyer_id: string;         // foreign key to auth.users (uuid)
+  seller_id: string;        // foreign key to auth.users (uuid)
+  prod_id: number;          // foreign key to products (int8)
+  
+  // Custom Frontend/UI Extensions (joined via API or mapped manually)
+  product_name?: string;
+  product_image?: string | null;
   other_user_name: string;
-  other_user_image: string | null;
-  last_message: string | null;
+  other_user_image?: string | null;
+  last_message: string;
   last_message_at: string | null;
   unread_count: number;
-  created_at: string;
 };
 
-export type Message = {
-  id: string;
-  conversation_id: string;
-  sender_uuid: string;
-  content: string;
-  is_read: boolean;
-  created_at: string;
+export type chat_message = {
+  // Exact Database Columns
+  message_id: string;       // primary key (uuid or int8 auto-generated)
+  chat_id: number;          // foreign key linking to conversation (int8)
+  sender_id: string;        // foreign key pointing to the sender (uuid)
+  message: string;          // the actual text content (text)
+  read: boolean;            // read status flag (bool)
+  created_at: string;       // message timestamp (timestamptz)
 };
 
 export type SendMessagePayload = {

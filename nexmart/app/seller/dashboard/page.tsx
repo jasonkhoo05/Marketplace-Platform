@@ -58,34 +58,47 @@ export default function SellerDashboardPage() {
     }
 
     async function fetchDashboardMetrics() {
-        try {
-            // Replace with your distinct dashboard analytical endpoint if available
-            const response = await fetch('/api/seller/orders'); 
-            if (!response.ok) throw new Error('Failed to fetch sales summary');
-            const data = await response.json();
+    try {
+        const response = await fetch('/api/seller/orders'); 
+        if (!response.ok) throw new Error('Failed to fetch sales summary');
+        const data = await response.json();
 
-            // Expected payload structure: { totalOrders: number, revenue: number, recentOrders: [...] }
-            setTotalOrdersCount(data.totalOrders || 0);
-            setTotalRevenue(data.revenue || 0);
-            
-            // Limit explicitly to the top 5 latest orders
-            const formattedOrders = (data.recentOrders || []).slice(0, 5).map((order: any) => ({
-                id: order.order_id || `ORD-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
-                customerName: order.customer_name || "Guest Buyer",
-                totalAmount: order.total_amount || 0,
-                status: order.status || "Pending",
-                createdAt: order.created_at ? new Date(order.created_at).toLocaleDateString() : "Today",
-            }));
-            setRecentOrders(formattedOrders);
-        } catch (error) {
-            console.error('Failed to fetch revenue metric points:', error);
-            // Fallback placeholder mock records if the backend endpoint is still pending setup
-            setRecentOrders([
-                { id: "ORD-9281", customerName: "Alex Mercer", totalAmount: 125.00, status: "Completed", createdAt: "14/05/2026" },
-                { id: "ORD-7742", customerName: "Sarah Connor", totalAmount: 45.50, status: "Pending", createdAt: "14/05/2026" },
-            ]);
-        }
+        // 1. Get the actual orders array returned by your API
+        const orderList = data.orders || [];
+
+        // 2. Dynamically count total orders on the client
+        setTotalOrdersCount(orderList.length);
+
+        // 3. Calculate total revenue from the order list
+        const computedRevenue = orderList.reduce((acc: number, order: any) => {
+            // Optional: Skip cancelled or refunded metrics if desired
+            if (order.status === "Cancelled" || order.status === "Refunded") return acc;
+            return acc + (Number(order.total_price) || 0);
+        }, 0);
+        setTotalRevenue(computedRevenue);
+        
+        // 4. Map properties using the exact key names coming from your database query
+        const formattedOrders = orderList.slice(0, 5).map((order: any) => ({
+            id: order.order_id ? `#${order.order_id}` : `ORD-UNK`,
+            customerName: order.buyer_name || "Guest Buyer",
+            totalAmount: Number(order.total_price) || 0,
+            status: order.status || "Pending",
+            createdAt: order.order_date 
+                ? new Date(order.order_date).toLocaleDateString() 
+                : "Today",
+        }));
+
+        setRecentOrders(formattedOrders);
+
+    } catch (error) {
+        console.error('Failed to fetch revenue metric points:', error);
+        // Fallback placeholder mock records only if the API request itself fails completely
+        setRecentOrders([
+            { id: "ORD-9281", customerName: "Alex Mercer", totalAmount: 125.00, status: "Completed", createdAt: "14/05/2026" },
+            { id: "ORD-7742", customerName: "Sarah Connor", totalAmount: 45.50, status: "Pending", createdAt: "14/05/2026" },
+        ]);
     }
+}
 
     // Inventory status derivations
     const totalProducts = products.length;

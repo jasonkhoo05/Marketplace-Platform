@@ -1,87 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Message, Conversation } from "@/lib/types/chat";
+import { chat_message,chat } from "@/lib/types/chat";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 type Props = {
-  conversation: Conversation;
+  conversation: chat;
+  messages: chat_message[]; // Passed down from parent component to utilize real database arrays
   currentUserId: string;
-};
-
-const MOCK_MESSAGES: Record<string, Message[]> = {
-  "conv-1": [
-    {
-      id: "m1",
-      conversation_id: "conv-1",
-      sender_uuid: "seller-1",
-      content: "Hi! Thanks for your interest in the headphones.",
-      is_read: true,
-      created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "m2",
-      conversation_id: "conv-1",
-      sender_uuid: "mock-me-123",
-      content: "Does it come with a warranty?",
-      is_read: true,
-      created_at: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "m3",
-      conversation_id: "conv-1",
-      sender_uuid: "mock-me-123",
-      content: "Also, is it compatible with both iOS and Android?",
-      is_read: true,
-      created_at: new Date(Date.now() - 24 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "m4",
-      conversation_id: "conv-1",
-      sender_uuid: "seller-1",
-      content: "Yes, it comes with a 1-year warranty!",
-      is_read: false,
-      created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-    },
-    {
-      id: "m5",
-      conversation_id: "conv-1",
-      sender_uuid: "seller-1",
-      content: "And yes, fully compatible with iOS and Android via Bluetooth 5.3.",
-      is_read: false,
-      created_at: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
-    },
-  ],
-  "conv-2": [
-    {
-      id: "m6",
-      conversation_id: "conv-2",
-      sender_uuid: "mock-me-123",
-      content: "Hi, how long does shipping usually take?",
-      is_read: true,
-      created_at: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
-    },
-    {
-      id: "m7",
-      conversation_id: "conv-2",
-      sender_uuid: "seller-2",
-      content: "We can ship tomorrow if you order before 3pm.",
-      is_read: true,
-      created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-    },
-  ],
-  "conv-3": [
-    {
-      id: "m8",
-      conversation_id: "conv-3",
-      sender_uuid: "mock-me-123",
-      content: "Hi, is this still available?",
-      is_read: false,
-      created_at: new Date(Date.now() - 1 * 86400 * 1000).toISOString(),
-    },
-  ],
+  onSendMessage: (content: string) => void; // Trigger callback function to execute backend row insertions
 };
 
 function formatTime(iso: string) {
@@ -98,38 +27,25 @@ function formatDate(iso: string) {
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
-export default function MessageThread({ conversation, currentUserId, onBack }: Props) {
-  const [messages, setMessages] = useState<Message[]>(
-    MOCK_MESSAGES[conversation.id] ?? []
-  );
+export default function MessageThread({ conversation, messages, currentUserId, onSendMessage }: Props) {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setMessages(MOCK_MESSAGES[conversation.id] ?? []);
-  }, [conversation.id]);
-
+  // Auto scroll to bottom when a brand new message lands
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  function handleSend() {
+  function handleSend(e: React.FormEvent) {
+    e.preventDefault();
     const content = input.trim();
     if (!content) return;
+    onSendMessage(content);
     setInput("");
-    const newMsg: Message = {
-      id: `temp-${Date.now()}`,
-      conversation_id: conversation.id,
-      sender_uuid: currentUserId,
-      content,
-      is_read: false,
-      created_at: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, newMsg]);
   }
 
   // Group by date
-  const grouped: { date: string; messages: Message[] }[] = [];
+  const grouped: { date: string; messages: chat_message[] }[] = [];
   for (const msg of messages) {
     const date = formatDate(msg.created_at);
     const last = grouped[grouped.length - 1];
@@ -156,13 +72,14 @@ export default function MessageThread({ conversation, currentUserId, onBack }: P
               </div>
               <div className="flex flex-col gap-1">
                 {dayMsgs.map((msg, idx) => {
-                  const isMine = msg.sender_uuid === currentUserId;
+                  // Mapped against exact Supabase column: sender_id
+                  const isMine = msg.sender_id === currentUserId;
                   const isLast =
                     idx === dayMsgs.length - 1 ||
-                    dayMsgs[idx + 1].sender_uuid !== msg.sender_uuid;
+                    dayMsgs[idx + 1].sender_id !== msg.sender_id;
 
                   return (
-                    <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
+                    <div key={msg.message_id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
                       <div className={`max-w-[70%] ${isLast ? "mb-1" : ""}`}>
                         <div
                           className={`px-3 py-2 text-sm leading-relaxed ${
@@ -171,7 +88,8 @@ export default function MessageThread({ conversation, currentUserId, onBack }: P
                               : "rounded-2xl rounded-bl-sm bg-slate-100 text-slate-800"
                           }`}
                         >
-                          {msg.content}
+                          {/* Mapped against exact Supabase column: message */}
+                          {msg.message}
                         </div>
                         {isLast && (
                           <p className={`mt-0.5 text-[10px] text-slate-400 ${isMine ? "text-right" : "text-left"}`}>
@@ -191,10 +109,7 @@ export default function MessageThread({ conversation, currentUserId, onBack }: P
 
       {/* Input */}
       <div className="border-t border-slate-100 px-3 py-3">
-        <form
-          onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-          className="flex items-center gap-2"
-        >
+        <form onSubmit={handleSend} className="flex items-center gap-2">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
