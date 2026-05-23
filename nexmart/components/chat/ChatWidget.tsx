@@ -5,6 +5,7 @@ import { chat, chat_message } from "@/lib/types/chat";
 import { MessageCircle, X, ChevronLeft } from "lucide-react";
 import ConversationList from "./ConversationList";
 import MessageThread from "./MessageThread";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -17,6 +18,12 @@ export default function ChatWidget() {
   const [currentUserId, setCurrentUserId] = useState<string>("");
 
   const totalUnread = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+
+  const activeChatIdRef = useRef<number | null>(null);
+  useEffect(() => {
+    activeChatIdRef.current = selectedConv ? selectedConv.chat_id : null;
+  }, [selectedConv]);
+
 
   // 1. Fetch conversations AND act as your authentication guard
   useEffect(() => {
@@ -84,7 +91,7 @@ export default function ChatWidget() {
   }, []);
 
   // Fetch individual thread messages
-  useEffect(() => {
+ useEffect(() => {
     if (!selectedConv) return;
     const chatId = selectedConv.chat_id;
 
@@ -99,8 +106,66 @@ export default function ChatWidget() {
         console.error("Error pulling history timeline logs:", err);
       }
     }
+    
     loadMessages();
-  }, [selectedConv]);
+  }, [selectedConv?.chat_id]); // Only runs when chat_id itself changes
+
+  // 4.  PERMANENT REALTIME CHANNEL: Connects ONCE and stays open seamlessly
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const supabaseClient = createClient();
+    
+    const channel = supabaseClient
+      .channel("global-chat-listener")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_message",
+        },
+        (payload) => {
+          console.log("REALTIME PAYLOAD RECEIVED:", payload);
+          const newMessage = payload.new as chat_message;
+          const targetChatId = Number(newMessage.chat_id);          
+          // 1. Append live stream payload data instantly
+          setMessagesMap((prev) => {
+            const currentRoomMessages = prev[targetChatId] || [];
+            const alreadyExists = currentRoomMessages.some((m) => Number(m.message_id) === Number(newMessage.message_id));
+            if (alreadyExists) return prev;
+
+            return {
+              ...prev,
+              [targetChatId]: [...currentRoomMessages, newMessage],
+            };
+          });
+
+          // 2. Refresh the overall chat sidebar feed list immediately
+          setConversations((prevConvs) => {
+            return prevConvs.map((conv) => {
+              if (conv.chat_id === targetChatId) {
+                const isCurrentlyViewing = activeChatIdRef.current === targetChatId;
+                return {
+                  ...conv,
+                  last_message: newMessage.message,
+                  last_message_at: newMessage.created_at,
+                  unread_count: isCurrentlyViewing ? 0 : (conv.unread_count || 0) + 1,
+                };
+              }
+              return conv;
+            });
+          });
+        }
+      )
+      .subscribe((status) => {
+        console.log("Persistent Realtime Channel Status:", status);
+      });
+
+    return () => {
+      supabaseClient.removeChannel(channel);
+    };
+  }, [isVisible]);
 
   const handleSendMessage = async (content: string) => {
     if (!selectedConv) return;
