@@ -101,6 +101,8 @@ export default function ProductForm({
 
         if (formData.imageUrls.length === 0) {
             newErrors.imageUrls = "At least one product image is required.";
+        } else if (formData.imageUrls.some((url) => url.startsWith("blob:"))) {
+            newErrors.imageUrls = "Images are still uploading. Please wait before submitting.";
         }
 
         setErrors(newErrors);
