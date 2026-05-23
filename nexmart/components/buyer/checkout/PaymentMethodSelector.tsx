@@ -19,37 +19,13 @@ export default function PaymentMethodSelector({
 
       <div className="space-y-4">
         <PaymentOption
-          label="Credit / Debit Card"
-          description="Pay securely using card payment"
-          value="card"
-          paymentMethod={paymentMethod}
-          onPaymentMethodChange={onPaymentMethodChange}
-        />
-
-        <PaymentOption
-          label="PayPal"
-          description="Pay using your PayPal account"
-          value="paypal"
-          paymentMethod={paymentMethod}
-          onPaymentMethodChange={onPaymentMethodChange}
-        />
-
-        <PaymentOption
-          label="Cash on Delivery"
-          description="Pay when your order arrives"
-          value="cash"
-          paymentMethod={paymentMethod}
-          onPaymentMethodChange={onPaymentMethodChange}
-        />
-
-        <PaymentOption
           label="Google Pay"
           description="Pay using your google account"
           value="google"
           paymentMethod={paymentMethod}
           onPaymentMethodChange={onPaymentMethodChange}
         />
-        
+
       </div>
     </div>
   );
