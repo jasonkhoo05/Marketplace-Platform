@@ -93,8 +93,6 @@ function Info({ label, value }: { label: string; value: string }) {
 }
 
 function formatPaymentMethod(value: string) {
-  if (value === "card") return "Credit / Debit Card";
-  if (value === "paypal") return "PayPal";
-  if (value === "cash") return "Cash on Delivery";
+  if (value === "google_pay") return "Google Pay";
   return value;
 }

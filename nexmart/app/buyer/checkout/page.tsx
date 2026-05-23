@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import BuyerHeader from "@/components/buyer/layout/BuyerHeader";
@@ -12,9 +12,29 @@ import CheckoutSuccessModal from "@/components/buyer/checkout/CheckoutSuccessMod
 import type {
   BuyerProfile,
   CheckoutCartItem,
+  CheckoutResponse,
   MockOrder,
   PaymentMethod,
 } from "@/types/checkout";
+
+type CartApiItem = {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  seller: string;
+  quantity: number;
+  stockQuantity: number;
+};
+
+type CartApiResponse = {
+  items?: CartApiItem[];
+  error?: string;
+};
+
+type CheckoutApiError = {
+  error?: string;
+};
 
 const mockProfile: BuyerProfile = {
   username: "Demo Buyer",
@@ -27,45 +47,70 @@ const mockProfile: BuyerProfile = {
   country: "Malaysia",
 };
 
-const mockCartItems: CheckoutCartItem[] = [
-  {
-    id: 1,
-    name: "Wireless Headphones",
-    price: 49.99,
-    quantity: 8,
-    imageUrls: ["/placeholder.png"],
-    seller: "NexMart Audio",
-    cartQuantity: 1,
-  },
-  {
-    id: 2,
-    name: "Smart Watch",
-    price: 89.99,
-    quantity: 5,
-    imageUrls: ["/placeholder.png"],
-    seller: "NexMart Tech",
-    cartQuantity: 2,
-  },
-];
-
 export default function CheckoutPage() {
   const router = useRouter();
 
   const [profile] = useState<BuyerProfile>(mockProfile);
-  const [items, setItems] = useState<CheckoutCartItem[]>(mockCartItems);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+  const [items, setItems] = useState<CheckoutCartItem[]>([]);
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethod>("google_pay");
 
+  const [isLoadingCart, setIsLoadingCart] = useState(true);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [orderId, setOrderId] = useState("");
 
+  useEffect(() => {
+    async function loadCartItems() {
+      setIsLoadingCart(true);
+      setErrorMessage("");
+
+      try {
+        const response = await fetch("/api/cart", {
+          cache: "no-store",
+        });
+        const data = (await response.json()) as CartApiResponse;
+
+        if (response.status === 401) {
+          router.push("/login");
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(data.error ?? "Failed to load cart items.");
+        }
+
+        const checkoutItems: CheckoutCartItem[] = (data.items ?? []).map(
+          (item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            image: item.image,
+            seller: item.seller,
+            quantity: item.quantity,
+            stockQuantity: item.stockQuantity,
+          }),
+        );
+
+        setItems(checkoutItems);
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to load cart items.";
+
+        setErrorMessage(message);
+      } finally {
+        setIsLoadingCart(false);
+      }
+    }
+
+    loadCartItems();
+  }, [router]);
+
   const subtotal = useMemo(() => {
-    return items.reduce(
-      (sum, item) => sum + item.price * item.cartQuantity,
-      0
-    );
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   }, [items]);
 
   const tax = subtotal * 0.08;
@@ -80,12 +125,35 @@ export default function CheckoutPage() {
         profile.city &&
         profile.state &&
         profile.postalCode &&
-        profile.country
+        profile.country,
     );
+  }
+
+  function saveMockOrderToBrowser(order: MockOrder) {
+    const existingOrders = JSON.parse(
+      sessionStorage.getItem("mockOrders") || "[]",
+    ) as MockOrder[];
+
+    sessionStorage.setItem(
+      "mockOrders",
+      JSON.stringify([order, ...existingOrders]),
+    );
+  }
+
+  async function clearCartAfterSuccessfulMockOrder() {
+    try {
+      await fetch("/api/cart", {
+        method: "DELETE",
+      });
+    } catch {
+      // Order placement already succeeded.
+      // If cart clearing fails, do not undo the mock order.
+    }
   }
 
   async function placeOrder() {
     setErrorMessage("");
+    setSuccessMessage("");
 
     if (items.length === 0) {
       setErrorMessage("Your cart is empty.");
@@ -94,7 +162,7 @@ export default function CheckoutPage() {
 
     if (!hasCompleteShippingInfo()) {
       setErrorMessage(
-        "Please complete your shipping information before placing the order."
+        "Please complete your shipping information before placing the order.",
       );
       return;
     }
@@ -102,38 +170,41 @@ export default function CheckoutPage() {
     setIsPlacingOrder(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("/api/buyer/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          profile,
+          items,
+          paymentMethod,
+        }),
+      });
 
-      const newOrderId = `ORD-${Date.now()}`;
+      const data = (await response.json()) as CheckoutResponse &
+        CheckoutApiError;
 
-      const newOrder: MockOrder = {
-        id: newOrderId,
-        buyerName: profile.username,
-        buyerEmail: profile.email,
-        buyerAddress: `${profile.address}, ${profile.city}, ${profile.state}, ${profile.postalCode}, ${profile.country}`,
-        productName: items.map((item) => item.name).join(", "),
-        productImage: items[0]?.imageUrls[0] ?? "",
-        quantity: items.reduce((sum, item) => sum + item.cartQuantity, 0),
-        totalPrice: total,
-        orderDate: new Date().toISOString(),
-        status: "Pending",
-        paymentMethod,
-      };
+      if (!response.ok) {
+        throw new Error(data.error ?? "Checkout failed. Please try again.");
+      }
 
-      const existingOrders = JSON.parse(
-        sessionStorage.getItem("mockOrders") || "[]"
-      ) as MockOrder[];
+      saveMockOrderToBrowser(data.order);
+      await clearCartAfterSuccessfulMockOrder();
 
-      sessionStorage.setItem(
-        "mockOrders",
-        JSON.stringify([newOrder, ...existingOrders])
+      setSuccessMessage(
+        `${data.emailMessage} ${data.sellerNotificationMessage} ${data.stockUpdateMessage}`,
       );
-
-      setOrderId(newOrderId);
+      setOrderId(data.order.id);
       setItems([]);
       setShowSuccessModal(true);
-    } catch {
-      setErrorMessage("Checkout failed. Please try again.");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Checkout failed. Please try again.";
+
+      setErrorMessage(message);
     } finally {
       setIsPlacingOrder(false);
     }
@@ -148,7 +219,7 @@ export default function CheckoutPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900">Checkout</h1>
             <p className="mt-2 text-sm text-slate-500">
-              Review your shipping information, payment method, and order
+              Review your shipping information, Google Pay method, and order
               summary before placing your order.
             </p>
           </div>
@@ -159,26 +230,38 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
-            <section className="space-y-6">
-              <ShippingInformation profile={profile} />
+          {successMessage && (
+            <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+              {successMessage}
+            </div>
+          )}
 
-              <PaymentMethodSelector
-                paymentMethod={paymentMethod}
-                onPaymentMethodChange={setPaymentMethod}
+          {isLoadingCart ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">
+              Loading checkout details...
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
+              <section className="space-y-6">
+                <ShippingInformation profile={profile} />
+
+                <PaymentMethodSelector
+                  paymentMethod={paymentMethod}
+                  onPaymentMethodChange={setPaymentMethod}
+                />
+              </section>
+
+              <OrderSummary
+                items={items}
+                subtotal={subtotal}
+                tax={tax}
+                total={total}
+                isPlacingOrder={isPlacingOrder}
+                canPlaceOrder={items.length > 0 && hasCompleteShippingInfo()}
+                onPlaceOrder={placeOrder}
               />
-            </section>
-
-            <OrderSummary
-              items={items}
-              subtotal={subtotal}
-              tax={tax}
-              total={total}
-              isPlacingOrder={isPlacingOrder}
-              canPlaceOrder={items.length > 0 && hasCompleteShippingInfo()}
-              onPlaceOrder={placeOrder}
-            />
-          </div>
+            </div>
+          )}
 
           {showSuccessModal && (
             <CheckoutSuccessModal

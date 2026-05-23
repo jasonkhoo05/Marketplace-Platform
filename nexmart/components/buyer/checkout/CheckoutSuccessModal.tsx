@@ -23,8 +23,8 @@ export default function CheckoutSuccessModal({
         </h2>
 
         <p className="mt-3 text-sm leading-6 text-slate-500">
-          Thank you for your purchase. Your order has been placed successfully.
-          This is a frontend-only simulation.
+          Thank you for your purchase. Your order has been placed successfully using
+          the mock Google Pay checkout backend.
         </p>
 
         <p className="mt-3 text-sm font-medium text-slate-700">
