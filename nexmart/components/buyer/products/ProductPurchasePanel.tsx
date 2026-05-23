@@ -1,6 +1,7 @@
 "use client";
 
 import type { ProductView } from "@/lib/products";
+import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -154,6 +155,14 @@ export default function ProductPurchasePanel({ product }: Props) {
           Buy Now
         </button>
       </div>
+
+      <button
+        type="button"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
+      >
+        <MessageCircle size={17} />
+        Chat with Seller
+      </button>
 
       {message && (
         <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">

@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Message, Conversation } from "@/lib/types/chat";
-import { ArrowLeft, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 type Props = {
   conversation: Conversation;
   currentUserId: string;
-  onBack: () => void;
 };
 
 const MOCK_MESSAGES: Record<string, Message[]> = {
@@ -140,27 +139,6 @@ export default function MessageThread({ conversation, currentUserId, onBack }: P
 
   return (
     <div className="flex h-full flex-col">
-      {/* Thread header */}
-      <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
-        <button
-          onClick={onBack}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 transition-colors"
-        >
-          <ArrowLeft size={16} />
-        </button>
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#185fa5] to-[#1d9e75] text-xs font-bold text-white">
-          {conversation.other_user_name.charAt(0).toUpperCase()}
-        </div>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-slate-900">
-            {conversation.other_user_name}
-          </p>
-          {conversation.product_name && (
-            <p className="truncate text-[11px] text-teal-600">{conversation.product_name}</p>
-          )}
-        </div>
-      </div>
-
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-3">
         {messages.length === 0 ? (
