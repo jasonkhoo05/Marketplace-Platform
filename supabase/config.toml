@@ -9,3 +9,9 @@ entrypoint = "./functions/inactive-user-warning/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/inactive-user-warning/*.html" ]
+
+[functions.order_confirmation]
+enabled = true
+verify_jwt = false
+import_map = "./functions/order_confirmation/deno.json"
+entrypoint = "./functions/order_confirmation/index.ts"
