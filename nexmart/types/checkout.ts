@@ -25,9 +25,11 @@ export type BuyerProfile = {
   phone: string;
   address: string;
   city: string;
-  state: string;
+  /** Optional (address table uses postcode only). */
+  state?: string;
+  /** Maps to address.postcode when loading from profile. */
   postalCode: string;
-  country: string;
+  country?: string;
 };
 
 export type MockOrderStatus =
@@ -52,6 +54,10 @@ export type MockOrderItem = {
 
 export type MockOrder = {
   id: string;
+  /** Groups DB rows from one checkout (payment_transaction_id). */
+  groupKey?: string;
+  /** Underlying order_id values for cancel/delete APIs. */
+  orderIds?: number[];
   buyerName: string;
   buyerEmail: string;
   buyerAddress: string;
@@ -73,8 +79,6 @@ export type MockOrder = {
 };
 
 export type CheckoutRequestBody = {
-  profile: BuyerProfile;
-  items: CheckoutCartItem[];
   paymentMethod: PaymentMethod;
 };
 
