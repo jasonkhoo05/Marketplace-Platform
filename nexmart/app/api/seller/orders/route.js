@@ -50,7 +50,7 @@ export async function GET() {
         order_status,
         order_price,
         order_buyer_address,
-        user!order_user_uuid_fkey (
+        user!order_buyer_id_fkey (
           username,
           email,
           phone

@@ -8,7 +8,7 @@ export async function PATCH(request, { params }) {
 
     const { data, error } = await supabase
         .from("order")
-        .update({ status })
+        .update({ order_status: status })
         .eq("order_id", params.orderId)
         .select()
         .single();
