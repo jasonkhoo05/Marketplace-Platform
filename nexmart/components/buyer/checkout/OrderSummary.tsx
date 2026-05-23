@@ -36,12 +36,12 @@ export default function OrderSummary({
                   Seller: {item.seller}
                 </p>
                 <p className="mt-1 text-xs text-slate-400">
-                  Qty: {item.cartQuantity}
+                  Qty: {item.quantity}
                 </p>
               </div>
 
               <span className="font-semibold text-slate-900">
-                ${(item.price * item.cartQuantity).toFixed(2)}
+                ${(item.price * item.quantity).toFixed(2)}
               </span>
             </div>
           ))
