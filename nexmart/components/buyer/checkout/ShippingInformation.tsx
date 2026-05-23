@@ -19,21 +19,18 @@ export default function ShippingInformation({ profile }: Props) {
         <Info label="Full Name" value={profile.username} />
         <Info label="Email" value={profile.email} />
         <Info label="Phone Number" value={profile.phone} />
-        <Info label="Country" value={profile.country} />
 
         <div className="md:col-span-2">
           <Info label="Address" value={profile.address} />
         </div>
 
         <Info label="City" value={profile.city} />
-        <Info label="State / Province" value={profile.state} />
-        <Info label="ZIP / Postal Code" value={profile.postalCode} />
+        <Info label="Postcode" value={profile.postalCode} />
       </div>
 
       <p className="mt-6 rounded-xl bg-slate-50 p-4 text-xs text-slate-500">
-        This is a frontend-only checkout demo. In real backend integration,
-        buyer shipping information should be retrieved from the logged-in user
-        profile.
+        Delivery address is loaded from your profile. Update it on the profile
+        page if anything is missing.
       </p>
     </div>
   );

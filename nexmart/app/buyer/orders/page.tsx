@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import BuyerHeader from "@/components/buyer/layout/BuyerHeader";
 import OrderCard from "@/components/buyer/orders/OrderCard";
@@ -11,24 +11,43 @@ import type { MockOrder } from "@/types/checkout";
 export default function BuyerOrdersPage() {
   const [orders, setOrders] = useState<MockOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const [deleteOrderId, setDeleteOrderId] = useState<string | null>(null);
+  const [deleteGroupKey, setDeleteGroupKey] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<"All" | MockOrder["status"]>(
-    "All"
+    "All",
   );
 
-  useEffect(() => {
-    const storedOrders = sessionStorage.getItem("mockOrders");
+  const loadOrders = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage("");
 
-    if (storedOrders) {
-      try {
-        setOrders(JSON.parse(storedOrders) as MockOrder[]);
-      } catch {
-        setOrders([]);
+    try {
+      const response = await fetch("/api/buyer/orders", { cache: "no-store" });
+      const data = (await response.json()) as {
+        orders?: MockOrder[];
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Failed to load orders.");
       }
-    }
 
-    setIsLoading(false);
+      setOrders(data.orders ?? []);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to load orders.";
+
+      setErrorMessage(message);
+      setOrders([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
 
   const filteredOrders = useMemo(() => {
     if (statusFilter === "All") return orders;
@@ -40,26 +59,46 @@ export default function BuyerOrdersPage() {
   }, [orders]);
 
   const pendingCount = orders.filter((order) => order.status === "Pending").length;
-  const completedCount = orders.filter(
-    (order) => order.status === "Completed"
-  ).length;
 
-  function requestDeleteOrder(orderId: string) {
-    setDeleteOrderId(orderId);
+  function requestDeleteOrder(order: MockOrder) {
+    setDeleteOrderId(order.id);
+    setDeleteGroupKey(order.groupKey ?? null);
   }
 
   function cancelDeleteOrder() {
     setDeleteOrderId(null);
+    setDeleteGroupKey(null);
   }
 
-  function confirmDeleteOrder() {
+  async function confirmDeleteOrder() {
     if (!deleteOrderId) return;
 
-    const updatedOrders = orders.filter((order) => order.id !== deleteOrderId);
+    try {
+      const params = new URLSearchParams({ orderId: deleteOrderId });
+      if (deleteGroupKey) {
+        params.set("groupKey", deleteGroupKey);
+      }
 
-    setOrders(updatedOrders);
-    sessionStorage.setItem("mockOrders", JSON.stringify(updatedOrders));
-    setDeleteOrderId(null);
+      const response = await fetch(`/api/buyer/orders?${params.toString()}`, {
+        method: "DELETE",
+      });
+
+      const data = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Failed to cancel order.");
+      }
+
+      await loadOrders();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to cancel order.";
+
+      setErrorMessage(message);
+    } finally {
+      setDeleteOrderId(null);
+      setDeleteGroupKey(null);
+    }
   }
 
   return (
@@ -72,8 +111,7 @@ export default function BuyerOrdersPage() {
             <div>
               <h1 className="text-3xl font-bold text-slate-900">My Orders</h1>
               <p className="mt-2 text-sm text-slate-500">
-                Track your purchases, view order details, and manage your order
-                history.
+                Track your purchases and order history from the database.
               </p>
             </div>
 
@@ -84,6 +122,12 @@ export default function BuyerOrdersPage() {
               Continue Shopping
             </Link>
           </div>
+
+          {errorMessage && (
+            <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
 
           <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
             <SummaryCard label="Total Orders" value={String(orders.length)} />
@@ -96,24 +140,29 @@ export default function BuyerOrdersPage() {
           </div>
 
           <div className="mb-6 flex flex-wrap gap-3">
-            {["All", "Pending", "Processing", "Shipped", "Completed", "Cancelled"].map(
-              (status) => (
-                <button
-                  key={status}
-                  type="button"
-                  onClick={() =>
-                    setStatusFilter(status as "All" | MockOrder["status"])
-                  }
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                    statusFilter === status
-                      ? "bg-teal-700 text-white"
-                      : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  {status}
-                </button>
-              )
-            )}
+            {[
+              "All",
+              "Pending",
+              "Processing",
+              "Shipped",
+              "Completed",
+              "Cancelled",
+            ].map((status) => (
+              <button
+                key={status}
+                type="button"
+                onClick={() =>
+                  setStatusFilter(status as "All" | MockOrder["status"])
+                }
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  statusFilter === status
+                    ? "bg-teal-700 text-white"
+                    : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                {status}
+              </button>
+            ))}
           </div>
 
           {isLoading ? (
@@ -132,7 +181,7 @@ export default function BuyerOrdersPage() {
                 <OrderCard
                   key={order.id}
                   order={order}
-                  onDelete={requestDeleteOrder}
+                  onDelete={() => requestDeleteOrder(order)}
                 />
               ))}
             </div>

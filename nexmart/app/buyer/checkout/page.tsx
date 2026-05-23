@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import BuyerHeader from "@/components/buyer/layout/BuyerHeader";
 import ShippingInformation from "@/components/buyer/checkout/ShippingInformation";
@@ -13,7 +14,6 @@ import type {
   BuyerProfile,
   CheckoutCartItem,
   CheckoutResponse,
-  MockOrder,
   PaymentMethod,
 } from "@/types/checkout";
 
@@ -32,25 +32,34 @@ type CartApiResponse = {
   error?: string;
 };
 
+type ProfileApiResponse = {
+  username?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postcode?: string;
+  error?: string;
+};
+
 type CheckoutApiError = {
   error?: string;
 };
 
-const mockProfile: BuyerProfile = {
-  username: "Demo Buyer",
-  email: "buyer@example.com",
-  phone: "+60 123456789",
-  address: "123 Demo Street",
-  city: "Kuala Lumpur",
-  state: "Selangor",
-  postalCode: "50000",
-  country: "Malaysia",
+const emptyProfile: BuyerProfile = {
+  username: "",
+  email: "",
+  phone: "",
+  address: "",
+  city: "",
+  postalCode: "",
 };
 
 export default function CheckoutPage() {
   const router = useRouter();
 
-  const [profile] = useState<BuyerProfile>(mockProfile);
+  const [profile, setProfile] = useState<BuyerProfile>(emptyProfile);
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const [items, setItems] = useState<CheckoutCartItem[]>([]);
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("google_pay");
@@ -64,27 +73,44 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState("");
 
   useEffect(() => {
-    async function loadCartItems() {
+    async function loadCheckoutData() {
       setIsLoadingCart(true);
       setErrorMessage("");
 
       try {
-        const response = await fetch("/api/cart", {
-          cache: "no-store",
-        });
-        const data = (await response.json()) as CartApiResponse;
+        const [profileRes, cartRes] = await Promise.all([
+          fetch("/api/profile", { cache: "no-store" }),
+          fetch("/api/cart", { cache: "no-store" }),
+        ]);
 
-        if (response.status === 401) {
+        if (profileRes.status === 401 || cartRes.status === 401) {
           router.push("/login");
           return;
         }
 
-        if (!response.ok) {
-          throw new Error(data.error ?? "Failed to load cart items.");
+        const profileData = (await profileRes.json()) as ProfileApiResponse;
+        const cartData = (await cartRes.json()) as CartApiResponse;
+
+        if (!profileRes.ok) {
+          throw new Error(profileData.error ?? "Failed to load profile.");
         }
 
-        const checkoutItems: CheckoutCartItem[] = (data.items ?? []).map(
-          (item) => ({
+        if (!cartRes.ok) {
+          throw new Error(cartData.error ?? "Failed to load cart items.");
+        }
+
+        setProfile({
+          username: profileData.username ?? "",
+          email: profileData.email ?? "",
+          phone: profileData.phone ?? "",
+          address: profileData.address ?? "",
+          city: profileData.city ?? "",
+          postalCode: profileData.postcode ?? "",
+        });
+        setProfileLoaded(true);
+
+        setItems(
+          (cartData.items ?? []).map((item) => ({
             id: item.id,
             name: item.name,
             price: item.price,
@@ -92,13 +118,11 @@ export default function CheckoutPage() {
             seller: item.seller,
             quantity: item.quantity,
             stockQuantity: item.stockQuantity,
-          }),
+          })),
         );
-
-        setItems(checkoutItems);
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : "Failed to load cart items.";
+          error instanceof Error ? error.message : "Failed to load checkout.";
 
         setErrorMessage(message);
       } finally {
@@ -106,7 +130,7 @@ export default function CheckoutPage() {
       }
     }
 
-    loadCartItems();
+    loadCheckoutData();
   }, [router]);
 
   const subtotal = useMemo(() => {
@@ -123,31 +147,15 @@ export default function CheckoutPage() {
         profile.phone &&
         profile.address &&
         profile.city &&
-        profile.state &&
-        profile.postalCode &&
-        profile.country,
+        profile.postalCode,
     );
   }
 
-  function saveMockOrderToBrowser(order: MockOrder) {
-    const existingOrders = JSON.parse(
-      sessionStorage.getItem("mockOrders") || "[]",
-    ) as MockOrder[];
-
-    sessionStorage.setItem(
-      "mockOrders",
-      JSON.stringify([order, ...existingOrders]),
-    );
-  }
-
-  async function clearCartAfterSuccessfulMockOrder() {
+  async function clearCartAfterSuccessfulOrder() {
     try {
-      await fetch("/api/cart", {
-        method: "DELETE",
-      });
+      await fetch("/api/cart", { method: "DELETE" });
     } catch {
-      // Order placement already succeeded.
-      // If cart clearing fails, do not undo the mock order.
+      // Order already placed in the database.
     }
   }
 
@@ -162,7 +170,7 @@ export default function CheckoutPage() {
 
     if (!hasCompleteShippingInfo()) {
       setErrorMessage(
-        "Please complete your shipping information before placing the order.",
+        "Please complete your shipping address on your profile before placing the order.",
       );
       return;
     }
@@ -176,21 +184,17 @@ export default function CheckoutPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          profile,
-          items,
           paymentMethod,
         }),
       });
 
-      const data = (await response.json()) as CheckoutResponse &
-        CheckoutApiError;
+      const data = (await response.json()) as CheckoutResponse & CheckoutApiError;
 
       if (!response.ok) {
         throw new Error(data.error ?? "Checkout failed. Please try again.");
       }
 
-      saveMockOrderToBrowser(data.order);
-      await clearCartAfterSuccessfulMockOrder();
+      await clearCartAfterSuccessfulOrder();
 
       setSuccessMessage(
         `${data.emailMessage} ${data.sellerNotificationMessage} ${data.stockUpdateMessage}`,
@@ -219,8 +223,7 @@ export default function CheckoutPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900">Checkout</h1>
             <p className="mt-2 text-sm text-slate-500">
-              Review your shipping information, Google Pay method, and order
-              summary before placing your order.
+              Review your delivery address, payment method, and order summary.
             </p>
           </div>
 
@@ -233,6 +236,16 @@ export default function CheckoutPage() {
           {successMessage && (
             <div className="mb-6 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
               {successMessage}
+            </div>
+          )}
+
+          {profileLoaded && !hasCompleteShippingInfo() && (
+            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              Your profile is missing delivery details. Please update your{" "}
+              <Link href="/profile" className="font-semibold underline">
+                profile
+              </Link>{" "}
+              before checkout.
             </div>
           )}
 
