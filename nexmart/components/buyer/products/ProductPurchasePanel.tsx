@@ -21,6 +21,7 @@ export default function ProductPurchasePanel({ product }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [isInitializingChat, setIsInitializingChat] = useState(false);
 
   const outOfStock = product.stockQuantity === 0;
 
@@ -33,6 +34,62 @@ export default function ProductPurchasePanel({ product }: Props) {
       Math.min(product.stockQuantity, current + 1)
     );
   }
+  async function handleChatWithSeller() {
+  setIsInitializingChat(true);
+  setMessage("");
+
+  // Determine the seller ID properly outside the body stringify call
+  const cleanSellerId = typeof product.seller === "object" && product.seller !== null
+    ? (product.seller as any).id
+    : product.seller ?? (product as any).seller_id;
+
+  try {
+    // 1. Point this to the endpoint that actually logs/creates the chat channel rows
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sellerId: cleanSellerId,
+        productId: product.id,
+        message: "Hi, I'm interested in this item!" // Pass an initial seeding message string if needed
+      }),
+    });
+
+    if (response.status === 401) {
+      router.push("/login");
+      return;
+    }
+
+    const chatData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(chatData.error ?? "Could not initialize thread.");
+    }
+
+    // 2. SAFETY GUARD: If backend structure didn't return a chat_id property, reconstruct it from fallbacks
+    const structuredPayload = {
+      ...chatData,
+      chat_id: chatData.chat_id ?? chatData.id, 
+      buyer_id: chatData.buyer_id,
+      seller_id: cleanSellerId,
+      prod_id: product.id
+    };
+
+    if (!structuredPayload.chat_id) {
+      throw new Error("Initialization failed: Missing chat identification parameters.");
+    }
+
+    // 3. Dispatch the custom synthetic window event safely
+    window.dispatchEvent(
+      new CustomEvent("open_chat_thread", { detail: structuredPayload })
+    );
+
+  } catch (err: any) {
+    setMessage(err.message || "Failed to setup conversation channel.");
+  } finally {
+    setIsInitializingChat(false);
+  }
+}
 
   async function addToCart() {
     if (outOfStock) {
@@ -158,10 +215,12 @@ export default function ProductPurchasePanel({ product }: Props) {
 
       <button
         type="button"
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
+        onClick={handleChatWithSeller}
+        disabled={isInitializingChat}
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
       >
         <MessageCircle size={17} />
-        Chat with Seller
+        {isInitializingChat ? "Opening Chat..." : "Chat with Seller"}
       </button>
 
       {message && (
