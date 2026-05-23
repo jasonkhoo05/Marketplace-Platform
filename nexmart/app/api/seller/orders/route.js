@@ -7,7 +7,7 @@ export async function GET() {
     const { data, error } = await supabase
         .from("order")
         .select(
-            
+
             `
             order_id,
                 order_quantity,
@@ -27,7 +27,7 @@ export async function GET() {
                     prod_image
                 )
         `
-        
+
     )
         .order("order_date", { ascending: false });
 
@@ -57,9 +57,17 @@ export async function GET() {
             buyer_address: order.order_buyer_address,
     }));
 
+
+    const totalOrders = transformedOrders.length;
+    const revenue = transformedOrders.reduce(
+        (sum, order) => sum + (order.total_price ?? 0),
+        0
+    );
+    const recentOrders = transformedOrders.slice(0, 5);
+
     return NextResponse.json(
-        { orders: transformedOrders },
+        { orders: transformedOrders, totalOrders, revenue, recentOrders },
         { status: 200 }
     );
-    
+
 }
