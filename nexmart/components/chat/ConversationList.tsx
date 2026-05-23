@@ -1,13 +1,13 @@
 "use client";
 
-import { Conversation } from "@/lib/types/chat";
+import { chat } from "@/lib/types/chat";
 import { MessageCircle } from "lucide-react";
 
 type Props = {
-  conversations: Conversation[];
-  selectedId: string | null;
+  conversations: chat[];
+  selectedId: number | null; // Changed from string | null to match database int8
   currentUserId: string;
-  onSelect: (conv: Conversation) => void;
+  onSelect: (conv: chat) => void;
   loading: boolean;
 };
 
@@ -60,10 +60,10 @@ export default function ConversationList({
     <div className="flex flex-col overflow-y-auto">
       {conversations.map((conv) => (
         <button
-          key={conv.id}
+          key={conv.chat_id} // Updated from conv.id
           onClick={() => onSelect(conv)}
           className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 ${
-            selectedId === conv.id ? "bg-teal-50 border-l-2 border-teal-600" : ""
+            selectedId === conv.chat_id ? "bg-teal-50 border-l-2 border-teal-600" : ""
           }`}
         >
           {/* Avatar */}
@@ -96,9 +96,10 @@ export default function ConversationList({
                 {timeAgo(conv.last_message_at)}
               </span>
             </div>
-            {conv.product_name && (
-              <p className="truncate text-[11px] text-teal-600">{conv.product_name}</p>
-            )}
+            {/* Handled fallback display text using backend product identifier */}
+            <p className="truncate text-[11px] text-teal-600">
+              {conv.product_name ?? `Product ID: ${conv.prod_id}`}
+            </p>
             <p className={`truncate text-xs ${conv.unread_count > 0 ? "font-medium text-slate-700" : "text-slate-400"}`}>
               {conv.last_message ?? "Start a conversation"}
             </p>
