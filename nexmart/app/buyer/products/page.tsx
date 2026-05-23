@@ -29,7 +29,6 @@ export default function ProductsPage() {
   const [minRating, setMinRating] = useState("");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [sort, setSort] = useState<SortOption>("popular");
-  const [showAllCategories, setShowAllCategories] = useState(false);
   const [page, setPage] = useState(1);
   const PRODUCTS_PER_PAGE = 12;
   const [isLoading, setIsLoading] = useState(true);
@@ -162,11 +161,7 @@ export default function ProductsPage() {
         </div>
   
         <div className="mt-4">
-          <div
-            className={`flex flex-wrap gap-3 overflow-hidden transition-all ${
-              showAllCategories ? "max-h-none" : "max-h-[38px]"
-            }`}
-          >
+          <div className="flex flex-wrap gap-3">
             {categories.map((item) => (
               <button
                 key={item}
@@ -182,19 +177,9 @@ export default function ProductsPage() {
               </button>
             ))}
           </div>
-  
-          <div className="mt-2 flex justify-end">
-            <button
-              type="button"
-              onClick={() => setShowAllCategories(!showAllCategories)}
-              className="text-sm font-medium text-teal-700 hover:underline"
-            >
-              {showAllCategories ? "Show Less" : "Show More"}
-            </button>
-          </div>
         </div>
+
       </header>
-  
       <div className="space-y-6 p-6">
         <ProductToolbar
           count={totalProducts}
