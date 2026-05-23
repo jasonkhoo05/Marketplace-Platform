@@ -41,6 +41,15 @@ export default function PaymentMethodSelector({
           paymentMethod={paymentMethod}
           onPaymentMethodChange={onPaymentMethodChange}
         />
+
+        <PaymentOption
+          label="Google Pay"
+          description="Pay using your google account"
+          value="google"
+          paymentMethod={paymentMethod}
+          onPaymentMethodChange={onPaymentMethodChange}
+        />
+        
       </div>
     </div>
   );

@@ -19,7 +19,7 @@ export type CheckoutCartItem = {
     country: string;
   };
   
-  export type PaymentMethod = "card" | "paypal" | "cash";
+  export type PaymentMethod = "card" | "paypal" | "cash"|"google";
   
   export type MockOrderStatus =
     | "Cancelled"
