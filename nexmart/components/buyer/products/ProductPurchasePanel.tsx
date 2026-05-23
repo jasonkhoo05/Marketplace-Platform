@@ -35,61 +35,71 @@ export default function ProductPurchasePanel({ product }: Props) {
     );
   }
   async function handleChatWithSeller() {
-  setIsInitializingChat(true);
-  setMessage("");
+    setIsInitializingChat(true);
+    setMessage("");
+    console.log("--- DEBUG START ---");
+    console.log("Raw Product Object Received by Frontend:", product);
+    console.log("Value of seller_id:", product?.seller_uuid);
+    console.log("Value of seller:", product?.seller);
+    console.log("--- DEBUG END ---");
 
-  // Determine the seller ID properly outside the body stringify call
-  const cleanSellerId = typeof product.seller === "object" && product.seller !== null
-    ? (product.seller as any).id
-    : product.seller ?? (product as any).seller_id;
+    //  THE CRITICAL FIX: Use the new UUID property we exposed in the product mapper
+    const cleanSellerId = product.seller_uuid;
 
-  try {
-    // 1. Point this to the endpoint that actually logs/creates the chat channel rows
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sellerId: cleanSellerId,
-        productId: product.id,
-        message: "Hi, I'm interested in this item!" // Pass an initial seeding message string if needed
-      }),
-    });
-
-    if (response.status === 401) {
-      router.push("/login");
+    // Safety fallback flag warning
+    if (!cleanSellerId || cleanSellerId === "i_tired") {
+      setIsInitializingChat(false);
+      setMessage("Error: Component is still receiving username instead of UUID. Please refresh your data cache.");
       return;
     }
 
-    const chatData = await response.json();
+    try {
+      // 1. Point this to the endpoint that actually logs/creates the chat channel rows
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sellerId: cleanSellerId, // This is now a clean UUID string!
+          productId: product.id,
+          message: "Hi, I'm interested in this item!" 
+        }),
+      });
 
-    if (!response.ok) {
-      throw new Error(chatData.error ?? "Could not initialize thread.");
+      if (response.status === 401) {
+        router.push("/login");
+        return;
+      }
+
+      const chatData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(chatData.error ?? "Could not initialize thread.");
+      }
+
+      // 2. SAFETY GUARD: If backend structure didn't return a chat_id property, reconstruct it from fallbacks
+      const structuredPayload = {
+        ...chatData,
+        chat_id: chatData.chat_id ?? chatData.id, 
+        buyer_id: chatData.buyer_id,
+        seller_id: cleanSellerId,
+        prod_id: product.id
+      };
+
+      if (!structuredPayload.chat_id) {
+        throw new Error("Initialization failed: Missing chat identification parameters.");
+      }
+
+      // 3. Dispatch the custom synthetic window event safely
+      window.dispatchEvent(
+        new CustomEvent("open_chat_thread", { detail: structuredPayload })
+      );
+
+    } catch (err: any) {
+      setMessage(err.message || "Failed to setup conversation channel.");
+    } finally {
+      setIsInitializingChat(false);
     }
-
-    // 2. SAFETY GUARD: If backend structure didn't return a chat_id property, reconstruct it from fallbacks
-    const structuredPayload = {
-      ...chatData,
-      chat_id: chatData.chat_id ?? chatData.id, 
-      buyer_id: chatData.buyer_id,
-      seller_id: cleanSellerId,
-      prod_id: product.id
-    };
-
-    if (!structuredPayload.chat_id) {
-      throw new Error("Initialization failed: Missing chat identification parameters.");
-    }
-
-    // 3. Dispatch the custom synthetic window event safely
-    window.dispatchEvent(
-      new CustomEvent("open_chat_thread", { detail: structuredPayload })
-    );
-
-  } catch (err: any) {
-    setMessage(err.message || "Failed to setup conversation channel.");
-  } finally {
-    setIsInitializingChat(false);
   }
-}
 
   async function addToCart() {
     if (outOfStock) {
