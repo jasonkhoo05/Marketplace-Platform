@@ -1,5 +1,5 @@
 import { FiCreditCard } from "react-icons/fi";
-import type { PaymentMethod } from "@/types/checkout";
+import { PAYMENT_METHODS, type PaymentMethod } from "@/types/checkout";
 
 type Props = {
   paymentMethod: PaymentMethod;
@@ -18,15 +18,23 @@ export default function PaymentMethodSelector({
       </div>
 
       <div className="space-y-4">
-        <PaymentOption
-          label="Google Pay"
-          description="Pay using your google account"
-          value="google"
-          paymentMethod={paymentMethod}
-          onPaymentMethodChange={onPaymentMethodChange}
-        />
-
+        {PAYMENT_METHODS.map((method) => (
+          <PaymentOption
+            key={method.id}
+            label={method.label}
+            description={method.description}
+            value={method.id}
+            paymentMethod={paymentMethod}
+            onPaymentMethodChange={onPaymentMethodChange}
+          />
+        ))}
       </div>
+
+      <p className="mt-4 rounded-xl bg-slate-50 p-4 text-xs text-slate-500">
+        Google Pay is the only active payment method for now. To add more methods
+        later, add another entry to PAYMENT_METHODS in types/checkout.ts and
+        update the checkout API validation.
+      </p>
     </div>
   );
 }
