@@ -123,33 +123,36 @@ async function fetchOrders() {
     };
     
     const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+    // 1. Instantly close the dropdown menu
+    setOpenDropdownId(null);
+
     try {
-        const response = await fetch(`/api/seller/orders/${orderId}`, {
+        // 2. Send the update request to the backend
+        const response = await fetch("/api/seller/orders", {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ status: newStatus }),
+            body: JSON.stringify({ orderId, status: newStatus }),
         });
 
         if (!response.ok) {
-            throw new Error("Failed to update order status");
+            throw new Error("Failed to update status");
         }
 
-        setOrders((prev) =>
-            prev.map((order) =>
+        // 3. Update local state so the UI reflects the change immediately
+        setOrders((prevOrders) =>
+            prevOrders.map((order) =>
                 order.id === orderId ? { ...order, status: newStatus } : order
             )
         );
-
-        setOpenDropdownId(null);
+        
     } catch (error) {
-        console.error("Failed to update order:", error);
-        alert("Failed to update order status.");
+        console.error("Failed to update status:", error);
+        alert("Could not update order status. Please try again.");
     }
 };
-
-    return (
+return (
         <main className="min-h-screen bg-slate-50 pl-60">
             <SellerSidebar />
             <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white px-6">
@@ -157,23 +160,26 @@ async function fetchOrders() {
             </header>
 
             <div className="p-6">
-                <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                <div className="overflow-visible rounded-3xl border border-slate-200 bg-white shadow-sm">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-slate-50 text-xs font-semibold uppercase text-slate-500">
                             <tr>
                                 <th className="px-6 py-4">Order ID</th>
                                 <th className="px-6 py-4">Buyer</th>
-                                <th className="px-6 py-4">Product</th>
                                 <th className="px-6 py-4">Address</th>
+                                <th className="px-6 py-4">Product</th>
                                 <th className="px-6 py-4 text-center">Quantity</th>
                                 <th className="px-6 py-4">Total Price</th>
                                 <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {orders.map((order) => (
-                                <tr key={order.id} className="hover:bg-slate-50/50">
+                                <tr 
+                                    key={order.id} 
+                                    className="hover:bg-slate-50/50"
+                                    style={{ zIndex: openDropdownId === order.id ? 40 : 'auto', position: 'relative' }}
+                                >
                                     <td className="px-6 py-4 font-medium">#{order.id}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col">
@@ -181,13 +187,14 @@ async function fetchOrders() {
                                             <span className="text-xs text-slate-500">{order.buyerEmail}</span>
                                         </div>
                                     </td>
+                                    
                                     <td className="px-6 py-4 max-w-[200px]">
-                                            <div className="flex items-start gap-1 text-slate-600">
-                                                <FiMapPin className="text-slate-400 mt-0.5 flex-shrink-0" size={14} />
-                                                <span className="text-xs break-words line-clamp-2" title={order.buyerAddress}>
-                                                    {order.buyerAddress}
-                                                </span>
-                                            </div>
+                                        <div className="flex items-start gap-1 text-slate-600">
+                                            <FiMapPin className="text-slate-400 mt-0.5 flex-shrink-0" size={14} />
+                                            <span className="text-xs break-words line-clamp-2" title={order.buyerAddress}>
+                                                {order.buyerAddress || "No address listed"}
+                                            </span>
+                                        </div>
                                     </td>
 
                                     <td className="px-6 py-4">
@@ -197,10 +204,10 @@ async function fetchOrders() {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-center">{order.quantity}</td>
-                                    <td className="px-6 py-4 font-bold">${order.totalPrice.toFixed(2)}</td>
+                                    <td className="px-6 py-4 font-bold">${Number(order.totalPrice).toFixed(2)}</td>
                                     
-                                    {/* STATUS COLUMN - Fixed nesting */}
-                                    <td className="px-6 py-4 relative">
+                                    {/* STATUS COLUMN */}
+                                    <td className="px-6 py-4 relative overflow-visible">
                                         <button
                                             onClick={() => setOpenDropdownId(openDropdownId === order.id ? null : order.id)}
                                             className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold transition-all hover:ring-2 hover:ring-slate-200 ${getStatusColor(order.status)}`}
@@ -212,30 +219,24 @@ async function fetchOrders() {
                                         {openDropdownId === order.id && (
                                             <>
                                                 <div className="fixed inset-0 z-30" onClick={() => setOpenDropdownId(null)} />
-                                                <div className="absolute left-0 mt-2 z-40 w-40 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                                                <div className="absolute right-6 top-full mt-1 z-50 w-40 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
                                                     <div className="p-1">
                                                         {ALL_STATUSES.map((statusOption) => (
                                                             <button
                                                                 key={statusOption}
                                                                 onClick={() => handleStatusChange(order.id, statusOption)}
                                                                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition hover:bg-slate-50 ${
-                                                                    order.status === statusOption ? "text-teal-700 bg-teal-50/50" : "text-slate-600"
+                                                                    order.status === statusOption ? "text-slate-900 bg-slate-50 font-bold" : "text-slate-600"
                                                                 }`}
                                                             >
                                                                 {statusOption}
-                                                                {order.status === statusOption && <FiCheck />}
+                                                                {order.status === statusOption && <FiCheck className="text-slate-900" />}
                                                             </button>
                                                         ))}
                                                     </div>
                                                 </div>
                                             </>
                                         )}
-                                    </td>
-
-                                    <td className="px-6 py-4 text-right">
-                                        <button className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold hover:bg-slate-50 ml-auto">
-                                            <FiEye /> View
-                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -246,5 +247,3 @@ async function fetchOrders() {
         </main>
     );
 }
-
-

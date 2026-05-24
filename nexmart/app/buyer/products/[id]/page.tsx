@@ -67,7 +67,7 @@ async function ProductDetailContent({ params }: Props) {
         prod_cat_id,
         product_category_type!prod_cat_link_prod_cat_fk(
           prod_cat_name)),
-      user!product_seller_uuid_fkey(username)
+      user!product_seller_uuid_fkey(username,user_uuid)
     `)
     .eq("prod_id", numericId)
     .maybeSingle();
