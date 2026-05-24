@@ -102,11 +102,23 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { chatId, message, sellerId, productId } = body;
 
+    
+
     // =========================================================================
     // SCENARIO A: AI Chat via Groq (greeting or buyer message)
     // =========================================================================
     if (body.isGreet || (body.message && !chatId && !sellerId)) {
-      const { isGreet, prod_name, prod_price, prod_desc, history } = body;
+      const { isGreet, prod_name, prod_price, prod_desc, history, ai_reply_to_save, chat_id: aiChatId } = body;
+      if (ai_reply_to_save && aiChatId) {
+        await supabase.from("chat_message").insert([{
+          chat_id: aiChatId,
+          sender_id: user.id,
+          message: ai_reply_to_save,
+          read: false,
+          is_ai: true,
+        }]);
+        return NextResponse.json({ ok: true });
+      }
 
       const systemPrompt = `You are a warm, polite, and professional seller assistant for a Malaysian e-commerce platform.
       You are selling: ${prod_name ?? "a product"}, priced at ${prod_price ?? "an unspecified price"}.
@@ -181,6 +193,7 @@ export async function POST(req: NextRequest) {
         sender_id: user.id,
         message: message,
         read: false,
+        is_ai: false,
       };
 
       const { data: newMessage, error: dbError } = await supabase
