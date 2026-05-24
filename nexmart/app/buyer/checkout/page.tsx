@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 
 import BuyerHeader from "@/components/buyer/layout/BuyerHeader";
@@ -57,6 +57,7 @@ const emptyProfile: BuyerProfile = {
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [profile, setProfile] = useState<BuyerProfile>(emptyProfile);
   const [profileLoaded, setProfileLoaded] = useState(false);
@@ -72,66 +73,72 @@ export default function CheckoutPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [orderId, setOrderId] = useState("");
 
-  useEffect(() => {
-    async function loadCheckoutData() {
-      setIsLoadingCart(true);
-      setErrorMessage("");
+  const loadCheckoutData = useCallback(async () => {
+    setIsLoadingCart(true);
+    setErrorMessage("");
+    setShowSuccessModal(false);
+    setSuccessMessage("");
 
-      try {
-        const [profileRes, cartRes] = await Promise.all([
-          fetch("/api/profile", { cache: "no-store" }),
-          fetch("/api/cart", { cache: "no-store" }),
-        ]);
+    try {
+      const [profileRes, cartRes] = await Promise.all([
+        fetch("/api/profile", { cache: "no-store" }),
+        fetch("/api/cart", { cache: "no-store" }),
+      ]);
 
-        if (profileRes.status === 401 || cartRes.status === 401) {
-          router.push("/login");
-          return;
-        }
-
-        const profileData = (await profileRes.json()) as ProfileApiResponse;
-        const cartData = (await cartRes.json()) as CartApiResponse;
-
-        if (!profileRes.ok) {
-          throw new Error(profileData.error ?? "Failed to load profile.");
-        }
-
-        if (!cartRes.ok) {
-          throw new Error(cartData.error ?? "Failed to load cart items.");
-        }
-
-        setProfile({
-          username: profileData.username ?? "",
-          email: profileData.email ?? "",
-          phone: profileData.phone ?? "",
-          address: profileData.address ?? "",
-          city: profileData.city ?? "",
-          postalCode: profileData.postcode ?? "",
-        });
-        setProfileLoaded(true);
-
-        setItems(
-          (cartData.items ?? []).map((item) => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            image: item.image,
-            seller: item.seller,
-            quantity: item.quantity,
-            stockQuantity: item.stockQuantity,
-          })),
-        );
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to load checkout.";
-
-        setErrorMessage(message);
-      } finally {
-        setIsLoadingCart(false);
+      if (profileRes.status === 401 || cartRes.status === 401) {
+        router.push("/login");
+        return;
       }
-    }
 
-    loadCheckoutData();
+      const profileData = (await profileRes.json()) as ProfileApiResponse;
+      const cartData = (await cartRes.json()) as CartApiResponse;
+
+      if (!profileRes.ok) {
+        throw new Error(profileData.error ?? "Failed to load profile.");
+      }
+
+      if (!cartRes.ok) {
+        throw new Error(cartData.error ?? "Failed to load cart items.");
+      }
+
+      setProfile({
+        username: profileData.username ?? "",
+        email: profileData.email ?? "",
+        phone: profileData.phone ?? "",
+        address: profileData.address ?? "",
+        city: profileData.city ?? "",
+        postalCode: profileData.postcode ?? "",
+      });
+      setProfileLoaded(true);
+
+      setItems(
+        (cartData.items ?? []).map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          seller: item.seller,
+          quantity: item.quantity,
+          stockQuantity: item.stockQuantity,
+        })),
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to load checkout.";
+
+      setErrorMessage(message);
+    } finally {
+      setIsLoadingCart(false);
+    }
   }, [router]);
+
+  // Re-fetch when returning to checkout (e.g. after "Continue shopping").
+  // router alone does not change on client navigation; pathname does.
+  useEffect(() => {
+    if (pathname === "/buyer/checkout") {
+      void loadCheckoutData();
+    }
+  }, [pathname, loadCheckoutData]);
 
   const subtotal = useMemo(() => {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -279,8 +286,14 @@ export default function CheckoutPage() {
           {showSuccessModal && (
             <CheckoutSuccessModal
               orderId={orderId}
-              onContinueShopping={() => router.push("/buyer/products")}
-              onViewOrders={() => router.push("/buyer/orders")}
+              onContinueShopping={() => {
+                setShowSuccessModal(false);
+                router.push("/buyer/products");
+              }}
+              onViewOrders={() => {
+                setShowSuccessModal(false);
+                router.push("/buyer/orders");
+              }}
             />
           )}
         </div>

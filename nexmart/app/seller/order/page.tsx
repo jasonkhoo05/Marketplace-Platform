@@ -4,65 +4,7 @@ import { useState, useEffect } from "react";
 import SellerSidebar from "@/components/seller/SellerSidebar";
 import { Order, OrderStatus } from "@/types/order";
 import { FiEye, FiChevronDown,FiCheck,FiMapPin } from "react-icons/fi";
-/*
-const MOCK_ORDERS: Order[] = [
-    {
-        id: "ORD-1005",
-        buyerName: "John Doe",
-        buyerEmail: "john@example.com",
-        productName: "Wireless Headphones",
-        productImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&q=80",
-        quantity: 1,
-        totalPrice: 59.99,
-        orderDate: "12 May 2026, 02:30 PM",
-        status: "Pending" as OrderStatus,
-    },
-    {
-        id: "ORD-1004",
-        buyerName: "Sarah Wilson",
-        buyerEmail: "sarah@example.com",
-        productName: "Travel Backpack",
-        productImage: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=100&q=80",
-        quantity: 2,
-        totalPrice: 79.98,
-        orderDate: "11 May 2026, 11:20 AM",
-        status: "Processing" as OrderStatus,
-    },
-    {
-        id: "ORD-1003",
-        buyerName: "Michael Brown",
-        buyerEmail: "michael@example.com",
-        productName: "Stainless Steel Bottle",
-        productImage: "https://images.unsplash.com/photo-1602143307185-8c1c5595218e?w=100&q=80",
-        quantity: 1,
-        totalPrice: 15.99,
-        orderDate: "10 May 2026, 09:15 AM",
-        status: "Shipped" as OrderStatus,
-    },
-    {
-        id: "ORD-1002",
-        buyerName: "Emily Davis",
-        buyerEmail: "emily@example.com",
-        productName: "Running Shoes",
-        productImage: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&q=80",
-        quantity: 1,
-        totalPrice: 69.99,
-        orderDate: "09 May 2026, 04:45 PM",
-        status: "Completed" as OrderStatus,
-    },
-    {
-        id: "ORD-1001",
-        buyerName: "David Lee",
-        buyerEmail: "david@example.com",
-        productName: "Smart Watch",
-        productImage: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&q=80",
-        quantity: 1,
-        totalPrice: 89.99,
-        orderDate: "08 May 2026, 01:10 PM",
-        status: "Cancelled" as OrderStatus,
-    },
-];
-*/
+
 const ALL_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Refunded"];
 
 export default function SellerOrdersPage() {
