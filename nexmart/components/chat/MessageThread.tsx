@@ -5,6 +5,7 @@ import { chat_message,chat } from "@/lib/types/chat";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import AiChat from "@/components/chat/AiChat";
 
 type Props = {
   conversation: chat;
@@ -51,6 +52,20 @@ export default function MessageThread({ conversation, messages, currentUserId, o
     const last = grouped[grouped.length - 1];
     if (last && last.date === date) last.messages.push(msg);
     else grouped.push({ date, messages: [msg] });
+  }
+
+  const isBuyer = conversation.buyer_id === currentUserId;
+  const hasNoMessages = messages.length === 0;
+
+  if (isBuyer && hasNoMessages) {
+    return (
+      <AiChat
+        prod_name={conversation.product_name}
+        prod_price={undefined}
+        prod_desc={undefined}
+        onSendToSeller={(msg) => onSendMessage(msg)}
+      />
+    );
   }
 
   return (

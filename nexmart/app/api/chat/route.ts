@@ -103,7 +103,36 @@ export async function POST(req: NextRequest) {
     const { chatId, message, sellerId, productId } = body;
 
     // =========================================================================
-    // SCENARIO A: Clicking "Chat with Seller" from a Product Page (Create Chat Room)
+    // SCENARIO A: AI Chat via Groq (greeting or buyer message)
+    // =========================================================================
+    if (body.isGreet || (body.message && !chatId && !sellerId)) {
+      const { isGreet, prod_name, prod_price, prod_desc, history } = body;
+
+      const systemPrompt = `You are a helpful seller assistant for an e-commerce platform.
+  You are selling: ${prod_name ?? "a product"}, priced at ${prod_price ?? "an unspecified price"}.
+  Product description: ${prod_desc ?? "No description provided."}
+  Be friendly, concise, and helpful. Answer questions about the product only.`;
+
+      const userMessage = isGreet
+        ? `Greet the buyer warmly and briefly introduce the product in 1-2 sentences.`
+        : message;
+
+      const completion = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...(history && !isGreet ? history : []),
+          { role: "user", content: userMessage },
+        ],
+        max_tokens: 200,
+      });
+
+      const reply = completion.choices[0]?.message?.content ?? "Hi! How can I help you?";
+      return NextResponse.json({ reply });
+    }
+
+    // =========================================================================
+    // SCENARIO B: Clicking "Chat with Seller" from a Product Page (Create Chat Room)
     // =========================================================================
     if (sellerId && productId && !chatId) {
       // 1. Check if a chat room already exists between this buyer, seller, and product
@@ -140,7 +169,7 @@ export async function POST(req: NextRequest) {
     }
 
     // =========================================================================
-    // SCENARIO B: Typing a message inside an open chat box (Send Message)
+    // SCENARIO C: Typing a message inside an open chat box (Send Message)
     // =========================================================================
     if (chatId && message) {
       const payload = {
