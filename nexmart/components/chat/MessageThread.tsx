@@ -60,6 +60,7 @@ export default function MessageThread({ conversation, messages, currentUserId, o
   if (isBuyer && hasNoSellerReply) {
     return (
       <AiChat
+        chat_id={conversation.chat_id}
         prod_name={conversation.product_name}
         prod_price={undefined}
         prod_desc={undefined}

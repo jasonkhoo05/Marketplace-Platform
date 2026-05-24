@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
     // =========================================================================
     // SCENARIO A: AI Chat via Groq (greeting or buyer message)
     // =========================================================================
-    if (body.isGreet || (body.message && !chatId && !sellerId)) {
+    if (body.isGreet || body.ai_reply_to_save || (body.message && !chatId && !sellerId)) {
       const { isGreet, prod_name, prod_price, prod_desc, history, ai_reply_to_save, chat_id: aiChatId } = body;
       if (ai_reply_to_save && aiChatId) {
         await supabase.from("chat_message").insert([{

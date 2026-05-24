@@ -63,7 +63,20 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
           body: JSON.stringify({ isGreet: true, prod_name, prod_price, prod_desc }),
         });
         const data = await res.json();
-        setMessages([{ id: Date.now().toString(), role: "seller", content: data.reply, isAi: true }]);
+        setMessages([{ id: Date.now().toString(), role: "seller", content: data.reply, isAi: true, created_at: new Date().toISOString() }]);
+    
+        if (chat_id) {
+          await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ai_reply_to_save: data.reply,
+              chat_id,
+              isGreet: false,
+              prod_name,
+            }),
+          });
+        }
       } catch {
         setMessages([{ id: Date.now().toString(), role: "seller", content: `Hi ${username?? "there"}! Welcome to our shop! 
           Feel free to ask me anything about ${prod_name ?? "this product"}`, isAi: true }]);
