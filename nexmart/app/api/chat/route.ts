@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
       Answer questions about the product only. Keep replies concise and friendly.`;
 
       const userMessage = isGreet
-        ? `Greet the buyer warmly and briefly introduce the product in 1-2 sentences.`
+        ? `Greet the buyer warmly and briefly introduce the product in 1-2 sentences. You MUST reply in English only.`
         : message;
 
       const completion = await groq.chat.completions.create({
