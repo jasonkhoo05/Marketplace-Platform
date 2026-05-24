@@ -19,7 +19,7 @@ type Props = {
           <p className="mt-3 text-sm leading-6 text-slate-500">
             Are you sure you want to delete order{" "}
             <span className="font-semibold text-slate-700">#{orderId}</span>?
-            This action will remove it from your mock order history.
+            This action will remove it from your order history.
           </p>
   
           <div className="mt-6 flex justify-end gap-3">
