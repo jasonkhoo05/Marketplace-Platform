@@ -18,12 +18,20 @@ export default function ResetPasswordPage() {
 
     const router = useRouter();
 
+    const validatePassword = (pwd: string) => {
+        if (pwd.length < 8) return "Password must be at least 8 characters.";
+        if (!/[A-Z]/.test(pwd)) return "Password must contain at least one uppercase letter.";
+        if (!/[a-z]/.test(pwd)) return "Password must contain at least one lowercase letter.";
+        return null;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
 
-        if (password.length < 6) {
-            setError("Password must be at least 6 characters.")
+        const pwdError = validatePassword(password);
+        if (pwdError) {
+            setError(pwdError);
             return;
         }
 
