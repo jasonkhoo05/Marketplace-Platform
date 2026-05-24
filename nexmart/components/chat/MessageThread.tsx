@@ -64,6 +64,7 @@ export default function MessageThread({ conversation, messages, currentUserId, o
         prod_price={undefined}
         prod_desc={undefined}
         onSendToSeller={(msg) => onSendMessage(msg)}
+        dbMessages={messages}
       />
     );
   }

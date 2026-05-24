@@ -15,6 +15,7 @@ interface AiChatProps {
   prod_desc?: string;
   username?: string;
   onSendToSeller?: (msg: string) => void;
+  dbMessages?: any[];
 }
 
 const QUICK_REPLIES = [
@@ -25,7 +26,7 @@ const QUICK_REPLIES = [
   "Is this item original from manufacturer?"
 ];
 
-export default function AiChat({ prod_name, prod_price, prod_desc, username, onSendToSeller }: AiChatProps) {
+export default function AiChat({ prod_name, prod_price, prod_desc, username, onSendToSeller, dbMessages = [] }: AiChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -51,6 +52,13 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
     };
     greet();
   }, [prod_name, prod_price, prod_desc]);
+
+  useEffect(() => {
+    const hasSellerReplied = dbMessages.some((m) => m.sender_id !== undefined);
+    if (hasSellerReplied) {
+      setSellerInterrupt(true);
+    }
+  }, [dbMessages]);
 
   const sendToAI = async (message: string) => {
     if (!message.trim() || loading) 
@@ -98,6 +106,7 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
 
   const sellerSendMessage = () => {
     if (!input.trim()) return;
+    onSendToSeller?.(input);
     setMessages((prev) => [...prev, { id: Date.now().toString(), role: "seller", content: input, isAi: false }]);
     setInput("");
     setSellerInterrupt(true);
