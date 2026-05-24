@@ -118,7 +118,7 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-gray-50 min-h-[300px]">
               {messages.map((msg) => (
               <div key={msg.id} className={`flex flex-col ${msg.role === "buyer" ? "items-end" : "items-start"}`}>
-                  <div className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm leading-relaxed ${msg.role === "buyer" ? "bg-orange-500 text-white rounded-br-sm" : "bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100"}`}>
+                  <div className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm leading-relaxed ${msg.role === "buyer" ? "bg-gradient-to-br from-[#185fa5] to-[#1d9e75] text-white rounded-br-sm" : "bg-white text-gray-800 rounded-bl-sm shadow-sm border border-gray-100"}`}>
                   {msg.content}
                   </div>
                   {msg.isAi && <p className="text-[10px] text-gray-400 mt-1 ml-1">🤖 This is an AI reply, it might not be accurate</p>}
@@ -134,7 +134,8 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
           {!sellerInterrupt && (
               <div className="px-3 py-2 flex gap-2 overflow-x-auto bg-white border-t border-gray-100">
               {QUICK_REPLIES.map((q) => (
-                  <button key={q} onClick={() => sendToAI(q)} disabled={loading} className="shrink-0 text-xs px-3 py-1.5 rounded-full border border-orange-300 text-orange-500 hover:bg-orange-50 transition-colors disabled:opacity-50">
+                  <button key={q} onClick={() => sendToAI(q)} disabled={loading} 
+                  className="shrink-0 text-xs px-3 py-1.5 rounded-full border border-[#1d9e75] text-[#1d9e75] hover:bg-[#1d9e75]/10 transition-colors disabled:opacity-50">
                   {q}
                   </button>
               ))}
@@ -149,9 +150,10 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
               onKeyDown={(e) => { if (e.key === "Enter") sellerInterrupt ? sellerSendMessage() : sendToAI(input); }}
               placeholder={sellerInterrupt ? "Seller is typing..." : "Type a message..."}
               disabled={loading}
-              className="flex-1 text-sm px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:border-orange-400 disabled:opacity-50"
+              className="flex-1 text-sm px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:border-[#1d9e75] disabled:opacity-50"
               />
-              <button onClick={() => sellerInterrupt ? sellerSendMessage() : sendToAI(input)} disabled={loading || !input.trim()} className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-orange-600 transition-colors disabled:opacity-50">
+              <button onClick={() => sellerInterrupt ? sellerSendMessage() : sendToAI(input)} disabled={loading || !input.trim()} 
+                className="bg-gradient-to-br from-[#185fa5] to-[#1d9e75] text-white px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
               Send
               </button>
           </div>
