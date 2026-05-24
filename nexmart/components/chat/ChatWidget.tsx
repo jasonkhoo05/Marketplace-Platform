@@ -110,13 +110,19 @@ export default function ChatWidget() {
     loadMessages();
   }, [selectedConv?.chat_id]); // Only runs when chat_id itself changes
 
-  // 4.  PERMANENT REALTIME CHANNEL: Connects ONCE and stays open seamlessly
-  useEffect(() => {
-    if (!isVisible) return;
+  // 4. PERMANENT REALTIME CHANNEL: Connects ONCE and stays open seamlessly
+useEffect(() => {
+  if (!isVisible) return;
 
-    const supabaseClient = createClient();
-    
-    const channel = supabaseClient
+  const supabaseClient = createClient();
+  let channel: any;
+
+  async function setupRealtime() {
+    // A. Grab the true logged-in user session token
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const token = session?.access_token;
+
+    channel = supabaseClient
       .channel("global-chat-listener")
       .on(
         "postgres_changes",
@@ -129,10 +135,12 @@ export default function ChatWidget() {
           console.log("REALTIME PAYLOAD RECEIVED:", payload);
           const newMessage = payload.new as chat_message;
           const targetChatId = Number(newMessage.chat_id);          
-          // 1. Append live stream payload data instantly
+          
           setMessagesMap((prev) => {
             const currentRoomMessages = prev[targetChatId] || [];
-            const alreadyExists = currentRoomMessages.some((m) => Number(m.message_id) === Number(newMessage.message_id));
+            const alreadyExists = currentRoomMessages.some(
+              (m) => Number(m.message_id) === Number(newMessage.message_id)
+            );
             if (alreadyExists) return prev;
 
             return {
@@ -141,7 +149,6 @@ export default function ChatWidget() {
             };
           });
 
-          // 2. Refresh the overall chat sidebar feed list immediately
           setConversations((prevConvs) => {
             return prevConvs.map((conv) => {
               if (conv.chat_id === targetChatId) {
@@ -157,15 +164,24 @@ export default function ChatWidget() {
             });
           });
         }
-      )
-      .subscribe((status) => {
-        console.log("Persistent Realtime Channel Status:", status);
-      });
+      );
 
-    return () => {
-      supabaseClient.removeChannel(channel);
-    };
-  }, [isVisible]);
+    // B. Inject the token directly into the real-time engine before connecting
+    if (token) {
+      await supabaseClient.realtime.setAuth(token);
+    }
+
+    channel.subscribe((status: string) => {
+      console.log("Persistent Realtime Channel Status:", status);
+    });
+  }
+
+  setupRealtime();
+
+  return () => {
+    if (channel) supabaseClient.removeChannel(channel);
+  };
+}, [isVisible]);
 
   const handleSendMessage = async (content: string) => {
     if (!selectedConv) return;
