@@ -1,12 +1,28 @@
 // app/api/seller/orders/route.ts
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabase/server";
 
 // ==========================================
 // 1. GET HANDLER (Fetch all orders)
 // ==========================================
 export async function GET() {
+    const supabaseAuth = await createClient();
     const supabase = createAdminClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseAuth.auth.getUser();
+
+    if (authError || !user) {
+        return NextResponse.json(
+            { error: "Unauthorized. Please log in." },
+            { status: 401 }
+        );
+    }
+    const sellerId = user.id;
+
 
     const { data, error } = await supabase
         .from("order")
@@ -33,6 +49,7 @@ export async function GET() {
                 postcode
             )
         `)
+        .eq("seller_id", sellerId)
         .order("order_date", { ascending: false });
 
     if (error) {
