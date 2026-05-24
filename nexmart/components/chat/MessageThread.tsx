@@ -55,14 +55,16 @@ export default function MessageThread({ conversation, messages, currentUserId, o
   }
 
   const isBuyer = conversation.buyer_id === currentUserId;
-  const hasNoMessages = messages.length === 0;
+  const hasNoSellerReply = !messages.some((m) => m.sender_id === conversation.seller_id);
 
-  if (isBuyer && hasNoMessages) {
+  if (isBuyer && hasNoSellerReply) {
     return (
       <AiChat
         prod_name={conversation.product_name}
         prod_price={undefined}
         prod_desc={undefined}
+        seller_id={conversation.seller_id} 
+        current_user_id={currentUserId}
         onSendToSeller={(msg) => onSendMessage(msg)}
         dbMessages={messages}
       />
@@ -90,9 +92,11 @@ export default function MessageThread({ conversation, messages, currentUserId, o
                 {dayMsgs.map((msg, idx) => {
                   // Mapped against exact Supabase column: sender_id
                   const isMine = msg.sender_id === currentUserId;
-                  const isLast =
-                    idx === dayMsgs.length - 1 ||
-                    dayMsgs[idx + 1].sender_id !== msg.sender_id;
+                  // const isLast =
+                  //   idx === dayMsgs.length - 1 ||
+                  //   dayMsgs[idx + 1].sender_id !== msg.sender_id;
+                  const nextMsg = dayMsgs[idx + 1];
+                  const isLast = !nextMsg || nextMsg.sender_id !== msg.sender_id;
 
                   return (
                     <div key={msg.message_id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>

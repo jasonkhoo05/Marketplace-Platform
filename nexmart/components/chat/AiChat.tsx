@@ -7,6 +7,7 @@ interface Message {
   role: "seller" | "buyer";
   content: string;
   isAi?: boolean;
+  created_at?: string;
 }
 
 interface AiChatProps {
@@ -16,6 +17,8 @@ interface AiChatProps {
   username?: string;
   onSendToSeller?: (msg: string) => void;
   dbMessages?: any[];
+  seller_id?: string;
+  current_user_id?: string;
 }
 
 const QUICK_REPLIES = [
@@ -26,7 +29,7 @@ const QUICK_REPLIES = [
   "Is this item original from manufacturer?"
 ];
 
-export default function AiChat({ prod_name, prod_price, prod_desc, username, onSendToSeller, dbMessages = [] }: AiChatProps) {
+export default function AiChat({ prod_name, prod_price, prod_desc, username, onSendToSeller, dbMessages = [], seller_id, current_user_id }: AiChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,7 +48,7 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
         setMessages([{ id: Date.now().toString(), role: "seller", content: data.reply, isAi: true }]);
       } catch {
         setMessages([{ id: Date.now().toString(), role: "seller", content: `Hi ${username?? "there"}! Welcome to our shop! 
-            Feel free to ask me anything about ${prod_name ?? "this product"}`, isAi: true }]);
+          Feel free to ask me anything about ${prod_name ?? "this product"}`, isAi: true }]);
       } finally {
         setLoading(false);
       }
@@ -54,11 +57,9 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
   }, [prod_name, prod_price, prod_desc]);
 
   useEffect(() => {
-    const hasSellerReplied = dbMessages.some((m) => m.sender_id !== undefined);
-    if (hasSellerReplied) {
-      setSellerInterrupt(true);
-    }
-  }, [dbMessages]);
+    const hasSellerReplied = dbMessages.some((m) => m.sender_id === seller_id);
+  if (hasSellerReplied) setSellerInterrupt(true);
+}, [dbMessages, seller_id]);
 
   const sendToAI = async (message: string) => {
     if (!message.trim() || loading) 
@@ -76,8 +77,10 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
 
     setInput("");
 
-    if (sellerInterrupt) 
+    if (sellerInterrupt) {
+      onSendToSeller?.(message);
       return;
+    }
 
     setLoading(true);
     try {
@@ -97,8 +100,10 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
       });
       const data = await res.json();
       setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), role: "seller", content: data.reply, isAi: true }]);
+      onSendToSeller?.(message);
     } catch {
       setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), role: "seller", content: "Sorry, something went wrong. Please wait for the seller 🙏", isAi: true }]);
+      onSendToSeller?.(message);
     } finally {
       setLoading(false);
     }
