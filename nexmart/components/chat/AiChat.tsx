@@ -68,7 +68,8 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
     const newUserMsg: Message = { 
       id: Date.now().toString(), 
       role: "buyer", 
-      content: message 
+      content: message,
+      created_at: new Date().toISOString(),
     };
 
     const updatedMessages = [...messages, newUserMsg];
@@ -127,6 +128,11 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
                   {msg.content}
                   </div>
                   {msg.isAi && <p className="text-[10px] text-gray-400 mt-1 ml-1">🤖 This is an AI reply, it might not be accurate</p>}
+                  {msg.created_at && ( 
+                  <p className={`text-[10px] text-gray-400 mt-0.5 ${msg.role === "buyer" ? "text-right" : "text-left"}`}>
+                    {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                )}
               </div>
               ))}
               {loading && (
