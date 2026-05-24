@@ -1,5 +1,12 @@
+
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
+import Groq from "groq-sdk";
+
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY 
+    });
+
 
 export async function GET(request: Request) {
   try {
@@ -79,15 +86,20 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { 
+      data: { user }, 
+      error: authError 
+      } = await supabase.auth.getUser();
+
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
+    // const body = await request.json();
+    const body = await req.json();
     const { chatId, message, sellerId, productId } = body;
 
     // =========================================================================
@@ -145,7 +157,9 @@ export async function POST(request: Request) {
         .single();
 
       if (dbError) {
-        return NextResponse.json({ error: dbError.message }, { status: 500 });
+        return NextResponse.json(
+          { error: dbError.message }, 
+          { status: 500 });
       }
 
       return NextResponse.json(newMessage);
@@ -157,3 +171,94 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+  // // database chat
+  // const supabase = await createClient();
+  
+  // const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  // if (authError || !user) {
+  //   return NextResponse.json({ 
+  //     error: "Unauthorized" }, 
+  //     { status: 401 }
+  //     );
+  //   }
+
+  //   // const body = await request.json();
+  //   const { chatId, message, sellerId, productId } = body;
+
+  //   // =========================================================================
+  //   // SCENARIO A: Clicking "Chat with Seller" from a Product Page (Create Chat Room)
+  //   // =========================================================================
+  //   if (sellerId && productId && !chatId) {
+  //     // 1. Check if a chat room already exists between this buyer, seller, and product
+  //     const { data: existingChat } = await supabase
+  //       .from("chat")
+  //       .select("*")
+  //       .eq("buyer_id", user.id)
+  //       .eq("seller_id", sellerId)
+  //       .eq("prod_id", productId)
+  //       .maybeSingle();
+
+  //     if (existingChat) {
+  //       return NextResponse.json(existingChat);
+  //     }
+
+  //     // 2. If it doesn't exist, create a brand new chat room row!
+  //     const { data: newChat, error: chatError } = await supabase
+  //       .from("chat")
+  //       .insert([
+  //         {
+  //           buyer_id: user.id,
+  //           seller_id: sellerId,
+  //           prod_id: productId,
+  //         },
+  //       ])
+  //       .select()
+  //       .single();
+
+  //     if (chatError) {
+  //       return NextResponse.json(
+  //         { error: chatError.message }, 
+  //         { status: 500 }
+  //         );
+  //     }
+
+  //     return NextResponse.json(newChat);
+  //   }
+
+  //   // =========================================================================
+  //   // SCENARIO B: Typing a message inside an open chat box (Send Message)
+  //   // =========================================================================
+  //   if (chatId && message) {
+  //     const payload = {
+  //       chat_id: chatId,
+  //       sender_id: user.id,
+  //       message: message,
+  //       read: false,
+  //     };
+
+  //     const { data: newMessage, error: dbError } = await supabase
+  //       .from("chat_message")
+  //       .insert([payload])
+  //       .select()
+  //       .single();
+
+  //     if (dbError) {
+  //       return NextResponse.json(
+  //         { error: dbError.message }, 
+  //         { status: 500 }
+  //         );
+  //     }
+
+  //     return NextResponse.json(newMessage);
+  //   }
+
+  //   return NextResponse.json({ error: "Invalid request payload parameters." }, { status: 400 });
+
+  // } catch (err: any) {
+  //   return NextResponse.json({ error: err.message }, 
+  //   { status: 500 })
+  //   ;
+  // }
+
