@@ -107,7 +107,7 @@ async function ProductDetailContent({ params }: Props) {
                     alt={product.name}
                     fill
                     sizes="420px"
-                    className="object-cover"
+                    className="object-contain"
                     priority
                   />
                 </div>

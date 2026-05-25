@@ -151,7 +151,7 @@ export default function ProductImageUploader({
                             <img
                                 src={imageUrl}
                                 alt={`Product preview ${index + 1}`}
-                                className="h-full w-full object-cover"
+                                className="h-full w-full object-contain"
                             />
                             <button
                                 type="button"
