@@ -9,9 +9,10 @@ import AiChat from "@/components/chat/AiChat";
 
 type Props = {
   conversation: chat;
-  messages: chat_message[]; // Passed down from parent component to utilize real database arrays
+  messages: chat_message[];
   currentUserId: string;
-  onSendMessage: (content: string) => void; // Trigger callback function to execute backend row insertions
+  onSendMessage: (content: string) => void;
+  messagesLoading?: boolean;
 };
 
 function formatTime(iso: string) {
@@ -28,7 +29,7 @@ function formatDate(iso: string) {
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
-export default function MessageThread({ conversation, messages, currentUserId, onSendMessage }: Props) {
+export default function MessageThread({ conversation, messages, currentUserId, onSendMessage, messagesLoading }: Props) {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -55,19 +56,27 @@ export default function MessageThread({ conversation, messages, currentUserId, o
   }
 
   const isBuyer = conversation.buyer_id === currentUserId;
-  const hasNoSellerReply = !messages.some((m) => m.sender_id === conversation.seller_id);
+  const hasNoRealSellerReply = !messages.some((m) => m.sender_id === conversation.seller_id && !m.is_ai);
 
-  if (isBuyer && hasNoSellerReply) {
+  if (isBuyer && hasNoRealSellerReply) {
+    if (messagesLoading) {
+      return (
+        <div className="flex h-full items-center justify-center">
+          <p className="text-sm text-slate-400">Loading...</p>
+        </div>
+      );
+    }
     return (
       <AiChat
         chat_id={conversation.chat_id}
         prod_name={conversation.product_name}
         prod_price={undefined}
         prod_desc={undefined}
-        seller_id={conversation.seller_id} 
+        seller_id={conversation.seller_id}
         current_user_id={currentUserId}
         onSendToSeller={(msg) => onSendMessage(msg)}
         dbMessages={messages}
+        messagesLoading={messagesLoading}
       />
     );
   }

@@ -17,6 +17,8 @@ export default function ChatWidget() {
   const [messagesMap, setMessagesMap] = useState<Record<number, chat_message[]>>({});
   const [currentUserId, setCurrentUserId] = useState<string>("");
 
+  const messagesLoading = selectedConv ? !(selectedConv.chat_id in messagesMap) : false;
+
   const totalUnread = conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0);
 
   const activeChatIdRef = useRef<number | null>(null);
@@ -30,8 +32,12 @@ export default function ChatWidget() {
     async function loadConversations() {
       setLoading(true);
       try {
+        const supabaseClient = createClient();
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) setCurrentUserId(user.id);
+
         const response = await fetch("/api/chat");
-        
+
         // GUARD: If the endpoint returns 401, they are not logged in! Keep it hidden.
         if (response.status === 401) {
           setIsVisible(false);
@@ -41,11 +47,10 @@ export default function ChatWidget() {
         if (response.ok) {
           const data: chat[] = await response.json();
           setConversations(data);
-          
+
           // Rule: If logged in AND they already have chats, show the floating icon
           if (data.length > 0) {
             setIsVisible(true);
-            setCurrentUserId(data[0].buyer_id || "");
           }
         }
       } catch (error) {
@@ -101,12 +106,15 @@ export default function ChatWidget() {
         if (response.ok) {
           const messagesData = await response.json();
           setMessagesMap((prev) => ({ ...prev, [chatId]: messagesData }));
+        } else {
+          setMessagesMap((prev) => ({ ...prev, [chatId]: [] }));
         }
       } catch (err) {
         console.error("Error pulling history timeline logs:", err);
+        setMessagesMap((prev) => ({ ...prev, [chatId]: [] }));
       }
     }
-    
+
     loadMessages();
   }, [selectedConv?.chat_id]); // Only runs when chat_id itself changes
 
@@ -267,9 +275,10 @@ useEffect(() => {
             {selectedConv ? (
               <MessageThread
                 conversation={selectedConv}
-                messages={messagesMap[selectedConv.chat_id] || []} 
-                currentUserId={currentUserId} 
+                messages={messagesMap[selectedConv.chat_id] || []}
+                currentUserId={currentUserId}
                 onSendMessage={handleSendMessage}
+                messagesLoading={messagesLoading}
               />
             ) : (
               <ConversationList

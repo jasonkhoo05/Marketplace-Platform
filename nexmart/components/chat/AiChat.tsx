@@ -20,6 +20,7 @@ interface AiChatProps {
   seller_id?: string;
   current_user_id?: string;
   chat_id?: number;
+  messagesLoading?: boolean;
 }
 
 const QUICK_REPLIES = [
@@ -30,7 +31,7 @@ const QUICK_REPLIES = [
   "Is this item original from manufacturer?"
 ];
 
-export default function AiChat({ prod_name, prod_price, prod_desc, username, onSendToSeller, dbMessages = [], seller_id, current_user_id, chat_id }: AiChatProps) {
+export default function AiChat({ prod_name, prod_price, prod_desc, username, onSendToSeller, dbMessages = [], seller_id, current_user_id, chat_id, messagesLoading }: AiChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [dbLoaded, setDbLoaded] = useState(false);
   useEffect(() => {
@@ -51,8 +52,10 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
   const [sellerInterrupt, setSellerInterrupt] = useState(false);
 
   useEffect(() => {
+    if (messagesLoading) return;
     if (!dbLoaded) return;
     if (messages.length > 0) return;
+    if (dbMessages.some((m) => m.is_ai)) return;
 
     const greet = async () => {
       setLoading(true);
@@ -85,7 +88,7 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
       }
     };
     greet();
-  }, [dbLoaded, prod_name, prod_price, prod_desc]);
+  }, [dbLoaded, messagesLoading, prod_name, prod_price, prod_desc]);
 
   useEffect(() => {
     const hasSellerReplied = dbMessages.some((m) => m.sender_id === seller_id);
@@ -158,7 +161,7 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
   const sellerSendMessage = () => {
     if (!input.trim()) return;
     onSendToSeller?.(input);
-    setMessages((prev) => [...prev, { id: Date.now().toString(), role: "seller", content: input, isAi: false }]);
+    setMessages((prev) => [...prev, { id: Date.now().toString(), role: "buyer", content: input, isAi: false }]);
     setInput("");
     setSellerInterrupt(true);
   };
@@ -203,7 +206,7 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") sellerInterrupt ? sellerSendMessage() : sendToAI(input); }}
-              placeholder={sellerInterrupt ? "Seller is typing..." : "Type a message..."}
+              placeholder="Type a message..."
               disabled={loading}
               className="flex-1 text-sm px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:border-[#1d9e75] disabled:opacity-50"
               />
