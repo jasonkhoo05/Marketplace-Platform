@@ -81,9 +81,9 @@ export default function ProfilePage() {
       try {
         const res = await fetch("/api/profile");
         if (!res.ok) throw new Error("Failed to load profile data.");
-        
+
         const data = await res.json();
-        
+
         // Fallback fields safely if null in database
         setForm({
           username: data.username || "",
@@ -146,7 +146,7 @@ export default function ProfilePage() {
       toast.success("Profile saved successfully!");
 
       if (isNewUser) {
-        setTimeout(() => router.push("/products"), 1000);
+        setTimeout(() => router.push("/buyer/products"), 1000);
       }
     } catch (err: any) {
       toast.error(err.message);
@@ -165,7 +165,7 @@ export default function ProfilePage() {
   const years = Array.from({ length: 80 }, (_, i) => currentYear - 18 - i);
   const days  = Array.from({ length: 31 }, (_, i) => i + 1);
 
-  
+
 
   const selectCls = "h-10 rounded-md border border-input bg-transparent px-3 py-1 text-[15px] shadow-sm outline-none focus:ring-1 focus:ring-teal-700 focus:border-teal-700";
 
@@ -204,7 +204,7 @@ export default function ProfilePage() {
 
         {/* Header */}
         <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white px-6">
-          <Button variant="ghost" onClick={() => isNewUser ? router.push("/products") : router.back()} className="ml-auto text-teal-700 hover:bg-teal-50 hover:text-teal-800 gap-1.5 font-medium text-[15px] px-4 py-2 h-auto">
+          <Button variant="ghost" onClick={() => isNewUser ? router.push("/buyer/products") : router.back()} className="ml-auto text-teal-700 hover:bg-teal-50 hover:text-teal-800 gap-1.5 font-medium text-[15px] px-4 py-2 h-auto">
             Back <IoExitOutline size={18} />
           </Button>
         </header>
