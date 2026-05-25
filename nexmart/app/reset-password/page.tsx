@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { CheckCircle2Icon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import "./reset-password.css";
 
@@ -12,15 +14,24 @@ export default function ResetPasswordPage() {
     const [confirm, setConfirm] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
     const router = useRouter();
+
+    const validatePassword = (pwd: string) => {
+        if (pwd.length < 8) return "Password must be at least 8 characters.";
+        if (!/[A-Z]/.test(pwd)) return "Password must contain at least one uppercase letter.";
+        if (!/[a-z]/.test(pwd)) return "Password must contain at least one lowercase letter.";
+        return null;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
 
-        if (password.length < 6) {
-            setError("Password must be at least 6 characters.")
+        const pwdError = validatePassword(password);
+        if (pwdError) {
+            setError(pwdError);
             return;
         }
 
@@ -41,7 +52,11 @@ export default function ResetPasswordPage() {
             return;
         }
 
-        router.push("/login");
+        setSuccess(true);
+
+        setTimeout(() => {
+            router.push("/login");
+        }, 2000);
     };
 
     return (
@@ -53,6 +68,16 @@ export default function ResetPasswordPage() {
                         <h2>Reset Password</h2>
                         <p className="reset-subtitle">Create a new secure password</p>
 
+                        {success && (
+                            <Alert className="mb-4 border-green-500 bg-green-50 text-green-800">
+                                <CheckCircle2Icon className="h-4 w-4 text-green-600" />
+                                <AlertTitle>Password Reset Successful</AlertTitle>
+                                <AlertDescription>
+                                    Your password has been updated. Redirecting to login...
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                        
                         <form onSubmit={handleSubmit}>
 
                             <label>New Password</label>

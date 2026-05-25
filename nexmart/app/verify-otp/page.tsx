@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { CheckCircle2Icon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import "./verity-otp.css"
 
 export default function VerifyOtpPage() {
     const [otp, setOtp] = useState("");
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
 
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -42,7 +45,11 @@ export default function VerifyOtpPage() {
             return;
         }
 
-        router.push("/reset-password");
+        setSuccess(true);
+
+        setTimeout(() => {
+            router.push("/reset-password");
+        }, 2000);
     };
 
     return (
@@ -55,6 +62,16 @@ export default function VerifyOtpPage() {
                     <p className="otp-subtitle">
                         Enter the OTP sent to your email
                     </p>
+
+                    {success && (
+                        <Alert className="mb-4 border-green-500 bg-green-50 text-green-800">
+                            <CheckCircle2Icon className="h-4 w-4 text-green-600" />
+                            <AlertTitle>Verification Successful</AlertTitle>
+                            <AlertDescription>
+                                Your OTP has been verified. Redirecting you shortly...
+                            </AlertDescription>
+                        </Alert>
+                    )}
 
                     <form onSubmit={handleVerifyOtp}>
                         <label>OTP Code</label>

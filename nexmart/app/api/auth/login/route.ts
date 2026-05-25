@@ -46,11 +46,11 @@ export async function POST(request: Request) {
       );
     }
 
-  return NextResponse.json(
-    { error: "Incorrect password. Please try again." },
-    { status: 401 }
-  );
-}
+    return NextResponse.json(
+      { error: "Incorrect password. Please try again." },
+      { status: 401 }
+    );
+  }
 
   const { data: userData, error: userError } = await supabase
     .from("user")
