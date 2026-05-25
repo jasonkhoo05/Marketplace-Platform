@@ -3,7 +3,7 @@
 import CartBadge from "@/components/buyer/CartBadge";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FiBox, FiSearch, FiUser } from "react-icons/fi";
+import { FiSearch, FiUser } from "react-icons/fi";
 
 export default function BuyerHeader() {
   const [username, setUsername] = useState("");
@@ -24,11 +24,10 @@ export default function BuyerHeader() {
     <header className="border-b border-slate-200 bg-white">
       <div className="flex h-16 items-center justify-between px-6">
         <Link href="/buyer/products" className="flex w-60 items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-700 text-white">
-            <FiBox size={18} />
+          <div className="grad" style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 15, color: "white" }}>
+            N
           </div>
-
-          <span className="text-lg font-bold text-slate-900">NexMart</span>
+          <span className="grad-text text-lg font-bold leading-none">NexMart</span>
         </Link>
 
         <div className="flex w-[420px] items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2">

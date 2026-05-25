@@ -58,10 +58,10 @@ export default function BuyerSidebar({
   return (
     <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-slate-200 bg-white">
       <div className="flex h-16 items-center gap-3 border-b border-slate-100 px-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-700 text-white">
-          <FiBox size={18} />
+        <div className="grad" style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 15, color: "white" }}>
+          N
         </div>
-        <span className="text-lg font-bold text-slate-900">NexMart</span>
+        <span className="grad-text text-lg font-bold leading-none">NexMart</span>
       </div>
 
       <nav className="space-y-2 px-3 py-5">
