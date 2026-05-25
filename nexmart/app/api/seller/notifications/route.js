@@ -1,10 +1,24 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabaseServer";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
-    const supabase = createAdminClient();
+    const supabase = await createClient();
+    const admin = createAdminClient();
 
-    const { data, error } = await supabase
+    const {
+        data: { user },
+        error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+        return NextResponse.json(
+            { error: "Authentication required" },
+            { status: 401 }
+        );
+    }
+
+    const { data, error } = await admin
         .from("notification")
         .select(`
             notification_id,
@@ -15,7 +29,8 @@ export async function GET() {
             created_at,
             is_read
         `)
-        .order("created_at", { ascending: false });
+        .eq("seller_id", user.id)
+        .order("notification_id", { ascending: false });
 
     if (error) {
         return NextResponse.json(

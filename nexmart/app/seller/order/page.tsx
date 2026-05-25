@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import SellerSidebar from "@/components/seller/SellerSidebar";
 import { Order, OrderStatus } from "@/types/order";
 import { FiChevronDown,FiCheck,FiMapPin } from "react-icons/fi";
-
+import SellerNotifications from "@/components/seller/SellerNotifications";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge"; 
 
@@ -133,6 +133,8 @@ export default function SellerOrdersPage() {
             <SellerSidebar />
             <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white px-6">
                 <h1 className="text-xl font-bold text-slate-900">Orders</h1>
+
+                <SellerNotifications />
             </header>
 
             <div className="p-6">
