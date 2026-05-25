@@ -10,7 +10,7 @@ interface OrderSummary {
     id: string;
     customerName: string;
     totalAmount: number;
-    status: "Pending" |"Processing"| "Completed" | "Shipped" | "Cancelled"|"Refunded";  
+    status: "Pending" |"Processing"| "Completed" | "Shipped" | "Cancelled"|"Refunded";
     createdAt: string;
 }
 
@@ -116,7 +116,7 @@ export default function SellerDashboardPage() {
         alert("Invalid action: rejected listings cannot be edited.");
         return;
         }
-        
+
         setEditingProduct(product);
         setIsFormOpen(true);
     }

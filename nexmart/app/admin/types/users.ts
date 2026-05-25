@@ -18,7 +18,9 @@ export type User = {
     user_image: string | null;
     gender: "Male" | "Female" | "Other" | null;
     date_of_birth: string | null;
-    // userRole?: UserRole[];
+    user_role?: {
+        role_name: string[]
+    };
     // address?: Address[];
 };
 

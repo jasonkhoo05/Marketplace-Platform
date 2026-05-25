@@ -1,13 +1,17 @@
 "use client";
 
-// export const dynamic = "force-dynamic";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2, Search } from "lucide-react";
-import { Address, User, UserDetails } from "../../types/users";
-import { AiFillSwitcher } from "react-icons/ai";
+import { User } from "../../types/users";
 import Link from "next/link";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 export default function AdminUserManagementDashboard() {
     const router = useRouter();
@@ -15,8 +19,9 @@ export default function AdminUserManagementDashboard() {
     const [users, setUsers] = useState<User[]>([]);
     const [totalCount, setTotalCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
-    const [errorMessage, setErrorMessage] = useState<String | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [search, setSearch] = useState("");
+    const [roleFilter, setRoleFilter] = useState("all")
 
     useEffect(() => {
         fetchUsers();
@@ -67,16 +72,33 @@ export default function AdminUserManagementDashboard() {
         }
     };
 
+
+    const uniqueRoles = useMemo(() => {
+        const allRoles = users.flatMap((u) => u.user_role?.role_name ?? []);
+        return ["all", ...Array.from(new Set(allRoles)).sort()];
+    }, [users]);
+
     const filteredUsers = useMemo(() => {
-        if (!search.trim()) { return users; }
-        const keyword = search.toLowerCase();
-        return users.filter(
-            (u) =>
-                u.username.toLowerCase().includes(keyword) ||
-                u.email.toLowerCase().includes(keyword) ||
-                u.user_uuid.toLowerCase().includes(keyword)
-        );
-    }, [users, search]);
+        let result = users;
+
+        if (search.trim()) {
+            const keyword = search.toLowerCase();
+            result = result.filter((u) =>
+                u.username?.toLowerCase().includes(keyword) ||
+                u.email?.toLowerCase().includes(keyword) ||
+                u.phone?.includes(keyword) ||
+                u.user_role?.role_name?.some(r => r.toLowerCase().includes(keyword))
+            );
+        }
+
+        if (roleFilter !== "all") {
+            result = result.filter((u) => u.user_role?.role_name?.includes(roleFilter));
+        }
+
+        return result;
+    }, [users, search, roleFilter]);
+
+
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -97,11 +119,24 @@ export default function AdminUserManagementDashboard() {
                 <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search username / email / uuid..."
+                    placeholder="Search username / email / role..."
                     className="w-full rounded-2xl border px-10 py-2 text-sm outline-none focus:ring-2 focus:ring-gray-200"
                 />
             </div>
         </div>
+
+        <Tabs defaultValue="all" onValueChange={(val) => setRoleFilter(val)} className="w-full">
+            <TabsList>
+                <TabsTrigger value="all">All</TabsTrigger>
+                {uniqueRoles
+                    .filter((r) => r !== "all")
+                    .map((role) => (
+                        <TabsTrigger key={role} value={role} className="capitalize">
+                            {role}
+                        </TabsTrigger>
+                    ))}
+            </TabsList>
+        </Tabs>
 
         {errorMessage && (
             <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
@@ -134,7 +169,24 @@ export default function AdminUserManagementDashboard() {
                     >
                     <td className="px-5 py-4 font-medium">{u.username}</td>
                     <td className="px-5 py-4 text-gray-700">{u.email}</td>
-                    <td className="px-5 py-4">{u.last_active_role}</td>
+                    <td className="px-5 py-4">
+                        <div className="flex flex-wrap gap-1">
+                            {(u.user_role?.role_name ?? []).length > 0 ? (
+                                u.user_role?.role_name.map((role) => (
+                                    <span
+                                        key={role}
+                                        className="inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 capitalize"
+                                    >
+                                        {role}
+                                    </span>
+                                ))
+                            ) : (
+                                <span className="text-gray-400">-</span>
+                            )}
+                        </div>
+                    </td>
+
+                    {/* <td className="px-5 py-4">{u.last_active_role}</td> */}
                     <td className="px-5 py-4">{u.phone || "-"}</td>
                     <td className="px-5 py-4 text-right">
                         <button

@@ -1,7 +1,6 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-// import { Button } from "@/components/ui/button";
 import { FiLogOut } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 
