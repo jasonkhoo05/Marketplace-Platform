@@ -8,7 +8,8 @@ import SellerNotifications from "@/components/seller/SellerNotifications";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge"; 
 
-const ALL_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Refunded"];
+// const ALL_STATUSES: OrderStatus[] = ["Pending", "Processing", "Shipped", "Completed", "Cancelled", "Refunded"];
+const ALL_STATUSES: OrderStatus[] = ["Processing", "Shipped", "Completed"];
 
 /*
 const MOCK_ORDERS: Order[] = [
@@ -131,8 +132,13 @@ export default function SellerOrdersPage() {
     return (
         <main className="min-h-screen bg-slate-50 pl-60">
             <SellerSidebar />
-            <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white px-6">
-                <h1 className="text-xl font-bold text-slate-900">Orders</h1>
+            <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6">
+                <div>
+                    <h1 className="text-xl font-bold text-slate-900">Orders</h1>
+                    <p className="text-sm text-slate-500">
+                        Manage and update the status of your incoming customer orders.
+                    </p>
+                </div>
 
                 <SellerNotifications />
             </header>

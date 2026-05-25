@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabaseServer";
 import { createClient } from "@/lib/supabase/server";
 
 export async function PATCH(request, { params }) {
+    const { id } = await params;
     const supabase = await createClient();
     const admin = createAdminClient();
 
@@ -21,7 +22,7 @@ export async function PATCH(request, { params }) {
     const { data, error } = await admin
         .from("notification")
         .update({ is_read: true })
-        .eq("notification_id", params.id)
+        .eq("notification_id", id)
         .eq("seller_id", user.id)
         .select()
         .single();
@@ -40,6 +41,7 @@ export async function PATCH(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
+    const { id } = await params;
     const supabase = await createClient();
     const admin = createAdminClient();
 
@@ -58,7 +60,7 @@ export async function DELETE(request, { params }) {
     const { error } = await admin
         .from("notification")
         .delete()
-        .eq("notification_id", params.id)
+        .eq("notification_id", id)
         .eq("seller_id", user.id);
 
     if (error) {
