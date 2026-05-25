@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import UserProfileCard from "@/components/ui/UserProfileCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -26,6 +28,35 @@ const DEFAULT_FORM: FormState = {
   address: "", city: "", postcode: "", is_default: false,
   gender: "", dob_day: "", dob_month: "", dob_year: "", user_image: "",
 };
+
+type FormErrors = Partial<Record<keyof FormState | "dob", string>>;
+
+function validateProfile(form: FormState): FormErrors {
+  const errors: FormErrors = {};
+
+  if (!form.username.trim()) {
+    errors.username = "Username is required.";
+  } else if (form.username.trim().length < 3) {
+    errors.username = "Username must be at least 3 characters.";
+  } else if (!/^[a-zA-Z0-9_]+$/.test(form.username.trim())) {
+    errors.username = "Username can only contain letters, numbers, and underscores.";
+  }
+
+  if (form.phone && !/^\+?[0-9\s\-()]{7,15}$/.test(form.phone.trim())) {
+    errors.phone = "Enter a valid phone number.";
+  }
+
+  if (form.postcode && !/^\d{5}$/.test(form.postcode.trim())) {
+    errors.postcode = "Postcode must be 5 digits.";
+  }
+
+  const dobFilled = [form.dob_day, form.dob_month, form.dob_year].filter(Boolean);
+  if (dobFilled.length > 0 && dobFilled.length < 3) {
+    errors.dob = "Please select a complete date of birth (day, month, and year).";
+  }
+
+  return errors;
+}
 
 const sidebarItems = [
   { label: "Profile", href: "/profile", icon: FiUser, active: true  },
@@ -43,17 +74,16 @@ export default function ProfilePage() {
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [isSaving, setIsSaving]= useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await fetch("/api/profile");
         if (!res.ok) throw new Error("Failed to load profile data.");
-
+        
         const data = await res.json();
-
+        
         // Fallback fields safely if null in database
         setForm({
           username: data.username || "",
@@ -72,7 +102,7 @@ export default function ProfilePage() {
         });
         setAvatarPreview(data.user_image ?? "");
       } catch (err: any) {
-        setError(err.message);
+        toast.error(err.message);
       }
     };
 
@@ -94,9 +124,14 @@ export default function ProfilePage() {
   // 2. SAVE PROFILE DATA TO BACKEND ON SUBMIT
   const handleSave = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const validationErrors = validateProfile(form);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setErrors({});
     setIsSaving(true);
-    setSuccess(null);
-    setError(null);
 
     try {
       const res = await fetch("/api/profile", {
@@ -108,35 +143,35 @@ export default function ProfilePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to update profile.");
 
-      setSuccess("Profile saved successfully!");
+      toast.success("Profile saved successfully!");
 
-      // If they are a new user completing onboarding, push them straight to the store!
       if (isNewUser) {
-        setTimeout(() => {
-          router.push("/products");
-        }, 1000);
+        setTimeout(() => router.push("/products"), 1000);
       }
     } catch (err: any) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setIsSaving(false);
     }
   };
 
   const set = (key: keyof FormState) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setForm((prev) => ({ ...prev, [key]: e.target.value }));
+      setErrors((prev) => ({ ...prev, [key]: undefined }));
+    };
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 80 }, (_, i) => currentYear - 18 - i);
   const days  = Array.from({ length: 31 }, (_, i) => i + 1);
 
-
+  
 
   const selectCls = "h-10 rounded-md border border-input bg-transparent px-3 py-1 text-[15px] shadow-sm outline-none focus:ring-1 focus:ring-teal-700 focus:border-teal-700";
 
   return (
     <div className="min-h-screen bg-slate-100">
+      <Toaster position="top-right" richColors />
 
       {/* Sidebar - matches SellerSidebar */}
       <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-slate-200 bg-white z-30">
@@ -160,12 +195,7 @@ export default function ProfilePage() {
         </nav>
 
         <div className="border-t border-slate-100 p-4">
-          <div className="mb-3">
-            <UserProfileCard username={form.username} email={form.email} avatarUrl={avatarPreview} />
-          </div>
-          <Link href="/products" className="flex items-center justify-center text-sm text-slate-500 hover:text-teal-700 transition-colors">
-            Back to Store
-          </Link>
+          <UserProfileCard username={form.username} email={form.email} avatarUrl={avatarPreview} />
         </div>
       </aside>
 
@@ -174,11 +204,9 @@ export default function ProfilePage() {
 
         {/* Header */}
         <header className="sticky top-0 z-20 flex h-16 items-center border-b border-slate-200 bg-white px-6">
-          {!isNewUser && (
-            <Button variant="ghost" onClick={() => router.back()} className="ml-auto text-teal-700 hover:bg-teal-50 hover:text-teal-800 gap-1.5 font-medium text-[15px] px-4 py-2 h-auto">
-              Back <IoExitOutline size={18} />
-            </Button>
-          )}
+          <Button variant="ghost" onClick={() => isNewUser ? router.push("/products") : router.back()} className="ml-auto text-teal-700 hover:bg-teal-50 hover:text-teal-800 gap-1.5 font-medium text-[15px] px-4 py-2 h-auto">
+            Back <IoExitOutline size={18} />
+          </Button>
         </header>
 
         <div className="flex-1 p-6">
@@ -198,8 +226,9 @@ export default function ProfilePage() {
                   {/* Label-input rows */}
                   <div className="flex-1 px-6 py-5 space-y-6 border-r border-slate-100">
 
-                    <Row label="Username">
-                      <Input className="text-[15px] h-10 focus-visible:ring-teal-700" placeholder="your_username" value={form.username} onChange={set("username")} required />
+                    <Row label="Username" required>
+                      <Input className={`text-[15px] h-10 focus-visible:ring-teal-700 ${errors.username ? "border-red-400 focus-visible:ring-red-400" : ""}`} placeholder="your_username" value={form.username} onChange={set("username")} />
+                      {errors.username && <p className="text-xs text-red-500 mt-1">{errors.username}</p>}
                     </Row>
 
                     <Row label="Name">
@@ -211,7 +240,8 @@ export default function ProfilePage() {
                     </Row>
 
                     <Row label="Phone Number">
-                      <Input className="text-[15px] h-10 focus-visible:ring-teal-700" type="tel" placeholder="+60 XXX XXX XXX" value={form.phone} onChange={set("phone")} />
+                      <Input className={`text-[15px] h-10 focus-visible:ring-teal-700 ${errors.phone ? "border-red-400 focus-visible:ring-red-400" : ""}`} type="tel" placeholder="+60 XXX XXX XXX" value={form.phone} onChange={set("phone")} />
+                      {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
                     </Row>
 
                     <Row label="Address">
@@ -223,7 +253,8 @@ export default function ProfilePage() {
                     </Row>
 
                     <Row label="Postcode">
-                      <Input className="text-[15px] h-10 focus-visible:ring-teal-700" placeholder="e.g. 47810" value={form.postcode} onChange={set("postcode")} />
+                      <Input className={`text-[15px] h-10 focus-visible:ring-teal-700 ${errors.postcode ? "border-red-400 focus-visible:ring-red-400" : ""}`} placeholder="e.g. 47810" value={form.postcode} onChange={set("postcode")} />
+                      {errors.postcode && <p className="text-xs text-red-500 mt-1">{errors.postcode}</p>}
                     </Row>
 
                     <Row label="Default Address">
@@ -231,7 +262,7 @@ export default function ProfilePage() {
                         <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
                           <input type="checkbox" checked={form.is_default}
                             onChange={(e) => setForm((prev) => ({ ...prev, is_default: e.target.checked }))}
-                            className="accent-teal-700 w-4 h-4" />
+                            className="accent-teal-700 w-4 h-4 align-middle" />
                           Set as default address
                         </label>
                       </div>
@@ -244,7 +275,7 @@ export default function ProfilePage() {
                             <input type="radio" name="gender" value={g}
                               checked={form.gender === g}
                               onChange={() => setForm((prev) => ({ ...prev, gender: g }))}
-                              className="accent-teal-700 w-4 h-4" />
+                              className="accent-teal-700 w-4 h-4 align-middle" />
                             {g}
                           </label>
                         ))}
@@ -253,24 +284,23 @@ export default function ProfilePage() {
 
                     <Row label="Date of Birth">
                       <div className="flex gap-2">
-                        <select className={`${selectCls} flex-1`} value={form.dob_day} onChange={set("dob_day")}>
+                        <select className={`${selectCls} flex-1 ${errors.dob ? "border-red-400 ring-1 ring-red-400" : ""}`} value={form.dob_day} onChange={(e) => { set("dob_day")(e); setErrors((prev) => ({ ...prev, dob: undefined })); }}>
                           <option value="">Day</option>
                           {days.map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
-                        <select className={`${selectCls} flex-1`} value={form.dob_month} onChange={set("dob_month")}>
+                        <select className={`${selectCls} flex-1 ${errors.dob ? "border-red-400 ring-1 ring-red-400" : ""}`} value={form.dob_month} onChange={(e) => { set("dob_month")(e); setErrors((prev) => ({ ...prev, dob: undefined })); }}>
                           <option value="">Month</option>
                           {MONTHS.map((m,i) => <option key={m} value={i+1}>{m}</option>)}
                         </select>
-                        <select className={`${selectCls} flex-1`} value={form.dob_year} onChange={set("dob_year")}>
+                        <select className={`${selectCls} flex-1 ${errors.dob ? "border-red-400 ring-1 ring-red-400" : ""}`} value={form.dob_year} onChange={(e) => { set("dob_year")(e); setErrors((prev) => ({ ...prev, dob: undefined })); }}>
                           <option value="">Year</option>
                           {years.map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
                       </div>
+                      {errors.dob && <p className="text-xs text-red-500 mt-1">{errors.dob}</p>}
                     </Row>
 
-                    <div className="flex items-center justify-center gap-3 pt-2">
-                      {success && <p className="text-sm text-teal-700">{success}</p>}
-                      {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+                    <div className="flex justify-center pt-2">
                       <Button type="submit" disabled={isSaving} className="bg-teal-700 hover:bg-teal-800 text-white px-8">
                         {isSaving ? "Saving..." : "Save"}
                       </Button>
@@ -311,9 +341,12 @@ export default function ProfilePage() {
 }
 
 /* Reusable row: label on the left (fixed 160px, right-aligned), content fills right */
-  const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div className="flex items-center gap-0">
-      <Label className="w-40 shrink-0 text-right pr-5 text-slate-500 text-[15px] font-normal">{label}</Label>
+  const Row = ({ label, children, required }: { label: string; children: React.ReactNode; required?: boolean }) => (
+    <div className="flex items-start gap-0">
+      <Label className="w-40 shrink-0 text-right pr-5 text-slate-500 text-[15px] font-normal pt-2.5">
+        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+      </Label>
       <div className="flex-1">{children}</div>
     </div>
   );
+

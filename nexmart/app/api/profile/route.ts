@@ -142,8 +142,8 @@ export async function PUT(request: Request) {
         full_name,
         email: user.email,
         phone,
-        gender,
-        date_of_birth: formattedDob, // FIX 2: Updated property key to match date_of_birth column
+        gender: gender || null,
+        date_of_birth: formattedDob,
         user_image, 
         is_new_user: false,
         last_active_role: assignedRole,

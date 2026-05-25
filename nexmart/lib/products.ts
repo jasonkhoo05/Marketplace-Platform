@@ -8,6 +8,7 @@ export type ProductView = {
   image: string;
   rating: number;
   seller: string;
+  seller_uuid: string;
   quantitySold: number;
   stockQuantity: number;
 };
@@ -27,6 +28,8 @@ type ProductCatLinkRow = {
 
 type SellerRow = {
   username: string | null;
+  user_uuid: string | null;
+
 };
 
 /** Row shape returned from Supabase `product` table (snake_case columns) */
@@ -78,6 +81,7 @@ export function productFromRow(row: ProductRow): ProductView {
         ? Number(row.prod_rating)
         : row.prod_rating,
     seller: sellerValue?.username ?? "Unknown seller",
+    seller_uuid: sellerValue?.user_uuid ?? "",
     quantitySold:
       typeof row.prod_sold_qty === "string"
         ? Number(row.prod_sold_qty)
