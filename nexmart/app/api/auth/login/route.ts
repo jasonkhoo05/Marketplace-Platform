@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { isAdmin } from "@/lib/isAdmin";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 export async function POST(request: Request) {
   const { email, password } = await request.json();
@@ -14,25 +14,43 @@ export async function POST(request: Request) {
 
   const supabase = await createClient();
 
+  const adminClient = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
+  // if (error) {
+  //   console.error("[login] signInWithPassword error:", error.message, error.status);
+  //   const { data: existingUser } = await supabase
+  //     .from("user")
+  //     .select("user_uuid")
+  //     .eq("email", email)
+  //     .maybeSingle();
+
   if (error) {
-    console.error("[login] signInWithPassword error:", error.message, error.status);
-    const { data: existingUser } = await supabase
+    const { data: existingUser } = await adminClient
       .from("user")
       .select("user_uuid")
       .eq("email", email)
       .maybeSingle();
 
     if (!existingUser) {
-      return NextResponse.json({ error: "No account found. Please sign up first." }, { status: 404 });
+      return NextResponse.json(
+        { error: "No account found. Please sign up first." }, 
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ error: "Incorrect password. Please try again." }, { status: 401 });
-  }
+  return NextResponse.json(
+    { error: "Incorrect password. Please try again." }, 
+    { status: 401 }
+  );
+}
 
   const { data: userData, error: userError } = await supabase
     .from("user")
@@ -41,21 +59,27 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   if (userError) {
-    return NextResponse.json({ error: userError.message }, { status: 400 });
+    return NextResponse.json(
+      { error: userError.message }, 
+      { status: 400 }
+    );
   }
 
   if (!userData) {
     await supabase.auth.signOut();
-    return NextResponse.json({ error: "Account not found. Please sign up first." }, { status: 404 });
+    return NextResponse.json(
+      { error: "Account not found. Please sign up first." }, 
+      { status: 404 }
+    );
   }
 
-  let redirectTo = "/buyer/products";
+  // DETERMINISTIC ROUTING LOGIC
+  let redirectTo = "/products"; // Default destination for existing users
 
-  if (await isAdmin(data.user.id)) {
-    redirectTo = "/admin/moderation";
-  } else if (userData.is_new_user) {
+  if (userData.is_new_user) {
+  // First time logging in? Force them to the profile onboarding page
     redirectTo = "/profile?new=true";
-  }
+  } 
 
   return NextResponse.json({ success: true, user: userData, redirectTo }, { status: 200 });
 }
