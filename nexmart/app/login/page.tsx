@@ -45,7 +45,7 @@ export default function LoginPage() {
                 setError(data.error || "Login failed");
                 return;
             }
-            
+
             router.push(data.redirectTo);
 
             const userRole = data.user?.last_active_role;
@@ -55,7 +55,7 @@ export default function LoginPage() {
             } else if (userRole === "seller") {
                 router.push("/seller/dashboard");
             } else if (userRole === "buyer") {
-                router.push("/products");
+                router.push("/buyer/products");
             } else {
                 router.push("/");
             }
@@ -77,7 +77,7 @@ export default function LoginPage() {
             return;
         }
 
-        setIsResetting(true); 
+        setIsResetting(true);
         setError(null);
 
         const supabase = createClient();
@@ -97,15 +97,15 @@ export default function LoginPage() {
             setTimeout(() => {
                 setToast(false);
                 router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
-            }, 1200);                                           
+            }, 1200);
         }
 
         setIsLoading(false);
     };
 
     return (
-        <div className="page-login">                         
-            {toast && (                                     
+        <div className="page-login">
+            {toast && (
                 <div className="redirecting-card">
                     <p>Redirecting...</p>
                 </div>

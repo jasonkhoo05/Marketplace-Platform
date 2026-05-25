@@ -66,16 +66,17 @@ export async function GET(request: Request) {
       query = query.not("user_uuid", "in", `(${adminUuids.join(",")})`);
     }
 
+    if (limit) {
+      query = query.limit(limit); // TODO: Replace with pagination in next milestone
+    }
+
     const { data, error, count } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const users = data ?? [];
-
-  // const limitedUsers = users.slice(0, limit);
-  const resultUsers = (limit ? users.slice(0, limit) : users).map((user) => ({
+  const resultUsers = (data ?? []).map((user) => ({
     ...user,
     user_role: {
       role_name: user.user_role.map((userRole) => userRole.role.role_name),

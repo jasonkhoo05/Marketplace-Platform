@@ -303,14 +303,24 @@ export default function CartPage() {
                   </span>
                 </div>
 
-                <button
-                  type="button"
-                  disabled={isCartEmpty}
-                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 py-3 font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-300"
-                >
-                  Proceed to Checkout
-                  <FiArrowRight />
-                </button>
+                {isCartEmpty ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-300 py-3 font-semibold text-white"
+                  >
+                    Proceed to Checkout
+                    <FiArrowRight />
+                  </button>
+                ) : (
+                  <Link
+                    href="/buyer/checkout"
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-700 py-3 font-semibold text-white transition hover:bg-teal-800"
+                  >
+                    Proceed to Checkout
+                    <FiArrowRight />
+                  </Link>
+                )}
 
                 <Link
                   href="/buyer/products"

@@ -26,7 +26,7 @@ export default function ProductCard({ product }: Props) {
           alt={product.name}
           fill
           sizes="(max-width: 768px) 50vw, 20vw"
-          className="object-cover transition duration-300 hover:scale-105"
+          className="object-contain transition duration-300 hover:scale-105"
         />
       </div>
 

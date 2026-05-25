@@ -1,9 +1,11 @@
 "use client";
 
 import type { ProductView } from "@/lib/products";
+import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type Props = {
   product: ProductView;
@@ -20,6 +22,14 @@ export default function ProductPurchasePanel({ product }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [isInitializingChat, setIsInitializingChat] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null));
+  }, []);
+
+  const isSeller = currentUserId === product.seller_uuid;
 
   const outOfStock = product.stockQuantity === 0;
 
@@ -31,6 +41,72 @@ export default function ProductPurchasePanel({ product }: Props) {
     setQuantity((current) =>
       Math.min(product.stockQuantity, current + 1)
     );
+  }
+  async function handleChatWithSeller() {
+    setIsInitializingChat(true);
+    setMessage("");
+    console.log("--- DEBUG START ---");
+    console.log("Raw Product Object Received by Frontend:", product);
+    console.log("Value of seller_id:", product?.seller_uuid);
+    console.log("Value of seller:", product?.seller);
+    console.log("--- DEBUG END ---");
+
+    //  THE CRITICAL FIX: Use the new UUID property we exposed in the product mapper
+    const cleanSellerId = product.seller_uuid;
+
+    // Safety fallback flag warning
+    if (!cleanSellerId || cleanSellerId === "i_tired") {
+      setIsInitializingChat(false);
+      setMessage("Error: Component is still receiving username instead of UUID. Please refresh your data cache.");
+      return;
+    }
+
+    try {
+      // 1. Point this to the endpoint that actually logs/creates the chat channel rows
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sellerId: cleanSellerId, // This is now a clean UUID string!
+          productId: product.id,
+          message: "Hi, I'm interested in this item!" 
+        }),
+      });
+
+      if (response.status === 401) {
+        router.push("/login");
+        return;
+      }
+
+      const chatData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(chatData.error ?? "Could not initialize thread.");
+      }
+
+      // 2. SAFETY GUARD: If backend structure didn't return a chat_id property, reconstruct it from fallbacks
+      const structuredPayload = {
+        ...chatData,
+        chat_id: chatData.chat_id ?? chatData.id, 
+        buyer_id: chatData.buyer_id,
+        seller_id: cleanSellerId,
+        prod_id: product.id
+      };
+
+      if (!structuredPayload.chat_id) {
+        throw new Error("Initialization failed: Missing chat identification parameters.");
+      }
+
+      // 3. Dispatch the custom synthetic window event safely
+      window.dispatchEvent(
+        new CustomEvent("open_chat_thread", { detail: structuredPayload })
+      );
+
+    } catch (err: any) {
+      setMessage(err.message || "Failed to setup conversation channel.");
+    } finally {
+      setIsInitializingChat(false);
+    }
   }
 
   async function addToCart() {
@@ -154,6 +230,18 @@ export default function ProductPurchasePanel({ product }: Props) {
           Buy Now
         </button>
       </div>
+
+      {!isSeller && (
+        <button
+          type="button"
+          onClick={handleChatWithSeller}
+          disabled={isInitializingChat}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
+        >
+          <MessageCircle size={17} />
+          {isInitializingChat ? "Opening Chat..." : "Chat with Seller"}
+        </button>
+      )}
 
       {message && (
         <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">

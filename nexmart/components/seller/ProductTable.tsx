@@ -54,7 +54,7 @@ export default function ProductTable({
                                             <img
                                                 src={product.imageUrls[0]}
                                                 alt={product.name}
-                                                className={`h-12 w-12 rounded-xl object-cover ${
+                                                className={`h-12 w-12 rounded-xl object-contain ${
                                                     isHidden ? "grayscale" : ""
                                                 }`}
                                             />

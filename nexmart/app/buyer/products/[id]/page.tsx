@@ -7,6 +7,7 @@ import { productFromRow, type ProductRow } from "@/lib/products";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { FiChevronLeft } from "react-icons/fi";
 
 type Props = {
   params: Promise<{
@@ -67,7 +68,7 @@ async function ProductDetailContent({ params }: Props) {
         prod_cat_id,
         product_category_type!prod_cat_link_prod_cat_fk(
           prod_cat_name)),
-      user!product_seller_uuid_fkey(username)
+      user!product_seller_uuid_fkey(username,user_uuid)
     `)
     .eq("prod_id", numericId)
     .maybeSingle();
@@ -87,9 +88,10 @@ async function ProductDetailContent({ params }: Props) {
         <div className="mx-auto max-w-6xl space-y-6">
           <Link
             href="/buyer/products"
-            className="inline-flex text-sm font-medium text-teal-700 hover:underline"
+            className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-teal-700 transition-colors"
           >
-             Back to products
+            <FiChevronLeft size={16} />
+            Back to products
           </Link>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6">
@@ -107,7 +109,7 @@ async function ProductDetailContent({ params }: Props) {
                     alt={product.name}
                     fill
                     sizes="420px"
-                    className="object-cover"
+                    className="object-contain"
                     priority
                   />
                 </div>

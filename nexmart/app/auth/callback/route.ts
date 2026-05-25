@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isAdmin } from "@/lib/isAdmin";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -71,5 +72,9 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/profile?new=true`);
   }
   
+  if (await isAdmin(user.id)) {
+    return NextResponse.redirect(`${origin}/admin/moderation`);
+  }
+
   return NextResponse.redirect(`${origin}/buyer/products`);
 }

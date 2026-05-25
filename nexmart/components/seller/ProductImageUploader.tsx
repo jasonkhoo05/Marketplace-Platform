@@ -41,36 +41,62 @@ export default function ProductImageUploader({
         setUploading(true);
         setUploadProgress(0);
 
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const previewUrl = URL.createObjectURL(file);
-            const insertIndex = imageUrlsRef.current.length;
-            onChange([...imageUrlsRef.current, previewUrl]);
+        // -- Single image upload (Milestone 2) --
+        const file = files[0];
+        const previewUrl = URL.createObjectURL(file);
+        onChange([previewUrl]); // Replace any existing image
 
-            const formData = new FormData();
-            formData.append("file", file);
+        const formData = new FormData();
+        formData.append("file", file);
 
-            try {
-                const res = await fetch("/api/upload", { method: "POST", body: formData });
-                if (res.ok) {
-                    const { url } = await res.json();
-                    URL.revokeObjectURL(previewUrl);
-                    const updated = [...imageUrlsRef.current];
-                    updated[insertIndex] = url;
-                    onChange(updated);
-                } else {
-                    const data = await res.json().catch(() => ({}));
-                    setUploadError(data.error ?? "Upload failed. Please try again.");
-                    onChange(imageUrlsRef.current.filter((_, j) => j !== insertIndex));
-                    URL.revokeObjectURL(previewUrl);
-                }
-            } catch {
-                setUploadError("Upload failed. Please check your connection and try again.");
-                onChange(imageUrlsRef.current.filter((_, j) => j !== insertIndex));
+        try {
+            const res = await fetch("/api/upload", { method: "POST", body: formData });
+            if (res.ok) {
+                const { url } = await res.json();
+                URL.revokeObjectURL(previewUrl);
+                onChange([url]);
+            } else {
+                const data = await res.json().catch(() => ({}));
+                setUploadError(data.error ?? "Upload failed. Please try again.");
+                onChange([]);
                 URL.revokeObjectURL(previewUrl);
             }
-
+        } catch {
+            setUploadError("Upload failed. Please check your connection and try again.");
+            onChange([]);
+            URL.revokeObjectURL(previewUrl);
         }
+
+        // -- Multiple image upload: to be implemented in Milestone 3 --
+        // for (let i = 0; i < files.length; i++) {
+        //     const file = files[i];
+        //     const previewUrl = URL.createObjectURL(file);
+        //     const insertIndex = imageUrlsRef.current.length;
+        //     onChange([...imageUrlsRef.current, previewUrl]);
+        //
+        //     const formData = new FormData();
+        //     formData.append("file", file);
+        //
+        //     try {
+        //         const res = await fetch("/api/upload", { method: "POST", body: formData });
+        //         if (res.ok) {
+        //             const { url } = await res.json();
+        //             URL.revokeObjectURL(previewUrl);
+        //             const updated = [...imageUrlsRef.current];
+        //             updated[insertIndex] = url;
+        //             onChange(updated);
+        //         } else {
+        //             const data = await res.json().catch(() => ({}));
+        //             setUploadError(data.error ?? "Upload failed. Please try again.");
+        //             onChange(imageUrlsRef.current.filter((_, j) => j !== insertIndex));
+        //             URL.revokeObjectURL(previewUrl);
+        //         }
+        //     } catch {
+        //         setUploadError("Upload failed. Please check your connection and try again.");
+        //         onChange(imageUrlsRef.current.filter((_, j) => j !== insertIndex));
+        //         URL.revokeObjectURL(previewUrl);
+        //     }
+        // }
 
         setUploading(false);
     }
@@ -82,26 +108,28 @@ export default function ProductImageUploader({
     return (
         <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Product Images
+                Product Images <span className="text-red-500">*</span>
             </label>
 
-            <label className={`flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-6 text-center transition ${uploading ? "border-teal-400 bg-teal-50 opacity-70 cursor-not-allowed" : "border-slate-300 bg-slate-50 hover:border-teal-600 hover:bg-teal-50"}`}>
-                <FiImage className="mb-2 text-teal-700" size={28} />
-                <span className="text-sm font-medium text-slate-700">
-                    {uploading ? "Uploading…" : "Click to upload product images"}
-                </span>
-                <span className="mt-1 text-xs text-slate-500">
-                    Multiple images are supported
-                </span>
-                <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    disabled={uploading}
-                />
-            </label>
+            {/* Upload dropzone — hidden once an image is selected */}
+            {imageUrls.length === 0 && (
+                <label className={`flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-6 text-center transition ${uploading ? "border-teal-400 bg-teal-50 opacity-70 cursor-not-allowed" : "border-slate-300 bg-slate-50 hover:border-teal-600 hover:bg-teal-50"}`}>
+                    <FiImage className="mb-2 text-teal-700" size={28} />
+                    <span className="text-sm font-medium text-slate-700">
+                        {uploading ? "Uploading…" : "Click to upload a product image"}
+                    </span>
+                    <span className="mt-1 text-xs text-slate-500">
+                        1 image supported {/* Multiple images: to be implemented in Milestone 3 */}
+                    </span>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                        disabled={uploading}
+                    />
+                </label>
+            )}
 
             {uploading && (
                 <div className="mt-3">
@@ -123,7 +151,7 @@ export default function ProductImageUploader({
                             <img
                                 src={imageUrl}
                                 alt={`Product preview ${index + 1}`}
-                                className="h-full w-full object-cover"
+                                className="h-full w-full object-contain"
                             />
                             <button
                                 type="button"

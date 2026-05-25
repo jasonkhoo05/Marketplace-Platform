@@ -1,17 +1,33 @@
+"use client";
+
 import CartBadge from "@/components/buyer/CartBadge";
 import Link from "next/link";
-import { FiBox, FiSearch, FiUser } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { FiSearch, FiUser } from "react-icons/fi";
 
 export default function BuyerHeader() {
+  const [username, setUsername] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((response) => response.json())
+      .then((data) => {
+        setUsername(data.username || "");
+      })
+      .catch(() => {
+        setUsername("");
+      });
+  }, []);
+
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="flex h-16 items-center justify-between px-6">
         <Link href="/buyer/products" className="flex w-60 items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-700 text-white">
-            <FiBox size={18} />
+          <div className="grad" style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 15, color: "white" }}>
+            N
           </div>
-
-          <span className="text-lg font-bold text-slate-900">NexMart</span>
+          <span className="grad-text text-lg font-bold leading-none">NexMart</span>
         </Link>
 
         <div className="flex w-[420px] items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2">
@@ -24,11 +40,23 @@ export default function BuyerHeader() {
 
         <div className="flex w-60 items-center justify-end gap-5">
           <Link
-            href="/buyer/profile"
+            href="/profile"
             className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-teal-700"
           >
-            <FiUser size={18} />
-            Profile
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={username || "Profile"}
+                className="h-8 w-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                <FiUser size={16} />
+              </div>
+            )}
+            <span className="max-w-[90px] truncate">
+              {username || "Profile"}
+            </span>
           </Link>
 
           <CartBadge />
