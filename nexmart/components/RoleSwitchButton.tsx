@@ -1,7 +1,8 @@
+// components/RoleSwitchButton.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { FiRepeat } from "react-icons/fi";
 
 type RoleSwitchButtonProps = {
@@ -16,7 +17,15 @@ export default function RoleSwitchButton({
   label,
 }: RoleSwitchButtonProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isSwitching, setIsSwitching] = useState(false);
+
+  // Reset the loading state whenever the route or target role changes.
+  // This prevents the button from staying stuck as "Switching..."
+  // after buyer -> seller -> buyer navigation.
+  useEffect(() => {
+    setIsSwitching(false);
+  }, [pathname, targetRole]);
 
   async function handleSwitch() {
     if (isSwitching) return;
@@ -30,12 +39,16 @@ export default function RoleSwitchButton({
         body: JSON.stringify({ last_active_role: targetRole }),
       });
 
+      const data = await response.json().catch(() => ({}));
+
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
         throw new Error(data.error ?? "Failed to switch mode");
       }
 
       router.push(href);
+
+      // Reset immediately as well, in case Next.js keeps this component mounted.
+      setIsSwitching(false);
     } catch (error) {
       console.error(error);
       setIsSwitching(false);
@@ -47,7 +60,7 @@ export default function RoleSwitchButton({
       type="button"
       onClick={handleSwitch}
       disabled={isSwitching}
-      className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-2.5 text-sm font-medium text-teal-800 transition hover:bg-teal-100 disabled:opacity-60"
+      className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-teal-200 bg-teal-50 px-4 py-2.5 text-sm font-medium text-teal-800 transition hover:bg-teal-100 disabled:cursor-not-allowed disabled:opacity-60"
     >
       <FiRepeat size={15} />
       {isSwitching ? "Switching..." : label}
