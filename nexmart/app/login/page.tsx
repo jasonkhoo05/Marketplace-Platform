@@ -55,7 +55,7 @@ export default function LoginPage() {
             } else if (userRole === "seller") {
                 router.push("/seller/dashboard");
             } else if (userRole === "buyer") {
-                router.push("/profile?new=true");
+                router.push("/buyer/products");
             } else {
                 router.push("/");
             }
