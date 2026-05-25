@@ -70,7 +70,8 @@ async function fetchProductReviews(
     .from("product_review")
     .select(PRODUCT_REVIEW_SELECT)
     .eq("prod_id", productId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(200); // TODO: Replace with cursor-based pagination in next milestone
 
   if (error) {
     throw new Error(error.message);

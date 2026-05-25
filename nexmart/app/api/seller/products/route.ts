@@ -30,7 +30,8 @@ export async function GET() {
         `,
       )
       .eq("seller_uuid", user.id)
-      .order("prod_id", { ascending: false });
+      .order("prod_id", { ascending: false })
+      .limit(500); // TODO: Replace with pagination in next milestone
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

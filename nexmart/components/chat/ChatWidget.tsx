@@ -153,7 +153,7 @@ useEffect(() => {
 
             return {
               ...prev,
-              [targetChatId]: [...currentRoomMessages, newMessage],
+              [targetChatId]: [...currentRoomMessages, newMessage].slice(-100), // TODO: Replace with paginated message loading in next milestone
             };
           });
 
@@ -187,7 +187,10 @@ useEffect(() => {
   setupRealtime();
 
   return () => {
-    if (channel) supabaseClient.removeChannel(channel);
+    if (channel) {
+      channel.unsubscribe();
+      supabaseClient.removeChannel(channel);
+    }
   };
 }, [isVisible]);
 

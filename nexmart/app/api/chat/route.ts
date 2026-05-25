@@ -3,10 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import Groq from "groq-sdk";
 
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY 
-    });
-
 
 export async function GET(request: Request) {
   try {
@@ -39,7 +35,7 @@ export async function GET(request: Request) {
       .from("chat")
       .select(`
         *,
-        chat_message(*)
+        chat_message(message_id, message, created_at)
       `)
       .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
 
@@ -107,6 +103,8 @@ export async function POST(req: NextRequest) {
     // =========================================================================
     // SCENARIO A: AI Chat via Groq (greeting or buyer message)
     // =========================================================================
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
     if (body.isGreet || body.ai_reply_to_save || (body.message && !chatId && !sellerId)) {
       const { isGreet, prod_name, prod_price, prod_desc, history, ai_reply_to_save, chat_id: aiChatId } = body;
       if (ai_reply_to_save && aiChatId) {
