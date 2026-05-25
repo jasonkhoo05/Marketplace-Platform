@@ -4,7 +4,8 @@ import type { ProductView } from "@/lib/products";
 import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type Props = {
   product: ProductView;
@@ -22,6 +23,13 @@ export default function ProductPurchasePanel({ product }: Props) {
   const [message, setMessage] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [isInitializingChat, setIsInitializingChat] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null));
+  }, []);
+
+  const isSeller = currentUserId === product.seller_uuid;
 
   const outOfStock = product.stockQuantity === 0;
 
@@ -223,15 +231,17 @@ export default function ProductPurchasePanel({ product }: Props) {
         </button>
       </div>
 
-      <button
-        type="button"
-        onClick={handleChatWithSeller}
-        disabled={isInitializingChat}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
-      >
-        <MessageCircle size={17} />
-        {isInitializingChat ? "Opening Chat..." : "Chat with Seller"}
-      </button>
+      {!isSeller && (
+        <button
+          type="button"
+          onClick={handleChatWithSeller}
+          disabled={isInitializingChat}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 disabled:bg-slate-100 disabled:cursor-not-allowed"
+        >
+          <MessageCircle size={17} />
+          {isInitializingChat ? "Opening Chat..." : "Chat with Seller"}
+        </button>
+      )}
 
       {message && (
         <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
