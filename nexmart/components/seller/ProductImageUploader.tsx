@@ -108,7 +108,7 @@ export default function ProductImageUploader({
     return (
         <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Product Images
+                Product Images <span className="text-red-500">*</span>
             </label>
 
             {/* Upload dropzone — hidden once an image is selected */}

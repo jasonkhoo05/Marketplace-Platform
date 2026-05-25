@@ -160,7 +160,7 @@ export default function ProductForm({
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                         <label htmlFor="productName" className="mb-2 block text-sm font-semibold text-slate-700">
-                            Product Name
+                            Product Name <span className="text-red-500">*</span>
                         </label>
                         <input
                             id="productName"
@@ -175,7 +175,7 @@ export default function ProductForm({
 
                     <div>
                         <label htmlFor="productDescription" className="mb-2 block text-sm font-semibold text-slate-700">
-                            Description
+                            Description <span className="text-red-500">*</span>
                         </label>
                         <textarea
                         id = "productDescription"
@@ -189,7 +189,7 @@ export default function ProductForm({
                     <div className="grid gap-5 md:grid-cols-2">
                         <div>
                             <label htmlFor="price" className="mb-2 block text-sm font-semibold text-slate-700">
-                                Price
+                                Price <span className="text-red-500">*</span>
                             </label>
                             <input
                                 id="price"
@@ -206,7 +206,7 @@ export default function ProductForm({
 
                         <div>
                             <label htmlFor="quantity" className="mb-2 block text-sm font-semibold text-slate-700">
-                                Quantity Available
+                                Quantity Available <span className="text-red-500">*</span>
                             </label>
                             <input
                                 id="quantity"
@@ -225,7 +225,7 @@ export default function ProductForm({
 
                     <div>
                         <label htmlFor="category" className="mb-2 block text-sm font-semibold text-slate-700">
-                            Category
+                            Category <span className="text-red-500">*</span>
                         </label>
                         <select
                             id="category"
