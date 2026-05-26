@@ -185,7 +185,7 @@ export default function SellerOrdersPage() {
 
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <img src={order.productImage} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover bg-slate-100 overflow-hidden" />
+                                                <img src={order.productImage} alt="" className="h-10 w-10 shrink-0 rounded-lg object-contain bg-slate-100 overflow-hidden" />
                                                 <span className="max-w-[150px] truncate">{order.productName}</span>
                                             </div>
                                         </td>
