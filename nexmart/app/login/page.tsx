@@ -1,11 +1,9 @@
 "use client";
 
-import { TbBrandAppgallery } from "react-icons/tb";
 import { useState, useEffect } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-
 import GoogleAuthButton from "@/components/ui/google-auth-button";
 import "./login.css";
 
@@ -117,7 +115,7 @@ export default function LoginPage() {
             <div className="login-container">
                 <div className="leftPanel">
                     <div className="logo">
-                        <TbBrandAppgallery className="logoIcon" />
+                        <div className="grad" style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 15, color: "white" }}>N</div>
                         <span>NexMart</span>
                     </div>
 

@@ -4,7 +4,6 @@ import { TbBrandAppgallery } from "react-icons/tb";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useRouter } from "next/navigation";
-
 import "./signup.css";
 import GoogleAuthButton from "@/components/ui/google-auth-button";
 
@@ -61,12 +60,11 @@ export default function SignupPage() {
     return (
         <div className="signup-container">
 
-            <div className="leftPanel">
-
-                <div className="logo">
-                    <TbBrandAppgallery className="logoIcon" />
-                    <span>NexMart</span>
-                </div>
+                <div className="leftPanel">
+                    <div className="logo">
+                        <div className="grad" style={{ width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 15, color: "white" }}>N</div>
+                        <span>NexMart</span>
+                    </div>
 
                 <div className="content-left">
                     <p className="welcome">STEP INTO NEXMART</p>
