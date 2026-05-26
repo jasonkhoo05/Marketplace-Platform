@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Trash2, User as UserIcon } from "lucide-react";
 import { Address, User, UserDetails } from "../../../types/users";
 
 
-export default function UserDetailPage() {
+function UserDetailContent() {
   const router = useRouter();
   const params = useParams();
   const uuid = params.uuid as string;
@@ -39,7 +39,7 @@ export default function UserDetailPage() {
     if (!confirm("Are you sure you want to delete this user? This cannot be undone.")) return;
     try {
       const res = await fetch(`/api/admin/users/${uuid}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete user.");
+      if (!res.ok) throw new Error("Failed to delete user record.");
       router.push("/admin/moderation/usermanagement");
     } catch (err: any) {
       setErrorMessage(err.message || "Failed to delete user.");
@@ -183,5 +183,14 @@ function DetailRow({ label, value }: { label: string; value: string }) {
       <p className="text-xs text-gray-500">{label}</p>
       <p className="text-sm font-medium text-gray-800 break-words">{value}</p>
     </div>
+  );
+}
+
+
+export default function UserDetailPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-gray-600">Loading user details...</div>}>
+      <UserDetailContent />
+    </Suspense>
   );
 }

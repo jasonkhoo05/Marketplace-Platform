@@ -146,6 +146,51 @@ export async function DELETE(
             );
         }
 
+        //delete product
+        const { data: products, error: productFetchError } = await supabaseAdmin
+        .from("product")
+        .select("prod_id")
+        .eq("seller_uuid", userUuid);
+
+        if (productFetchError) {
+            console.error("Product fetch error:", productFetchError);
+            return NextResponse.json(
+                { error: "Failed to fetch product records." },
+                { status: 500 }
+            );
+        }
+
+        if (products && products.length > 0) {
+            const prodIds = products.map((p) => p.prod_id);
+
+            const { error: prodCatLinkError } = await supabaseAdmin
+                .from("prod_cat_link")
+                .delete()
+                .in("prod_id", prodIds);
+
+            if (prodCatLinkError) {
+                console.error("Prod cat link delete error:", prodCatLinkError);
+                return NextResponse.json(
+                    { error: "Failed to delete product category link records." },
+                    { status: 500 }
+                );
+            }
+        }
+
+        const { error: productError } = await supabaseAdmin
+        .from("product")
+        .delete()
+        .eq("seller_uuid", userUuid);
+
+
+
+        if (productError) {
+            return NextResponse.json(
+                { error: "Failed to delete product record.", productError },
+                { status: 500 }
+            );
+        }
+
         // delete address
         const { error: addressError } = await supabaseAdmin
             .from("address")
