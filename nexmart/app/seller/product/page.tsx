@@ -38,6 +38,8 @@ export default function SellerProductPage() {
                 imageUrls: [product.prod_image],
                 sales: product.prod_sold_qty || 0,
                 createdAt: product.created_at,
+                status: product.prod_status,
+                rejectionReason: product.prod_rejection_reason ?? "",
             }));
 
             setProducts(transformedProducts);
