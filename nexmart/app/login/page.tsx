@@ -48,16 +48,19 @@ export default function LoginPage() {
 
             router.push(data.redirectTo);
 
-            const userRole = data.user?.last_active_role;
+            const newUser = data.user?.is_new_user;
+            if (!newUser) {
+                const userRole = data.user?.last_active_role;
 
-            if (userRole === "admin") {
-                router.push("/admin/moderation");
-            } else if (userRole === "seller") {
-                router.push("/seller/dashboard");
-            } else if (userRole === "buyer") {
-                router.push("/buyer/products");
-            } else {
-                router.push("/");
+                if (userRole === "admin") {
+                    router.push("/admin/moderation");
+                } else if (userRole === "seller") {
+                    router.push("/seller/dashboard");
+                } else if (userRole === "buyer") {
+                    router.push("/buyer/products");
+                } else {
+                    router.push("/");
+                }
             }
 
             // router.push("/buyer/dashboard");
