@@ -26,6 +26,29 @@ export default function ChatWidget() {
     activeChatIdRef.current = selectedConv ? selectedConv.chat_id : null;
   }, [selectedConv]);
 
+  const conversationsRef = useRef<any[]>([]);
+  useEffect(() => {
+    conversationsRef.current = conversations;
+  }, [conversations]);
+
+  const fetchAndAddConversation = async (chatId: number) => {
+    try {
+      const response = await fetch("/api/chat");
+      if (!response.ok) return;
+      const data: chat[] = await response.json();
+      const newConv = data.find((c) => c.chat_id === chatId);
+      if (newConv) {
+        setConversations((prev) => {
+          if (prev.some((c) => c.chat_id === chatId)) return prev;
+          return [newConv, ...prev];
+        });
+        setIsVisible(true);
+      }
+    } catch (err) {
+      console.error("Failed to fetch new conversation:", err);
+    }
+  };
+
 
   // 1. Fetch conversations AND act as your authentication guard
   useEffect(() => {
@@ -142,8 +165,12 @@ useEffect(() => {
         (payload) => {
           console.log("REALTIME PAYLOAD RECEIVED:", payload);
           const newMessage = payload.new as chat_message;
-          const targetChatId = Number(newMessage.chat_id);          
-          
+          const targetChatId = Number(newMessage.chat_id);
+
+          if (!conversationsRef.current.some((c) => c.chat_id === targetChatId)) {
+            fetchAndAddConversation(targetChatId);
+          }
+
           setMessagesMap((prev) => {
             const currentRoomMessages = prev[targetChatId] || [];
             const alreadyExists = currentRoomMessages.some(

@@ -15,12 +15,18 @@ type Props = {
   messagesLoading?: boolean;
 };
 
+function parseIso(iso: string) {
+  // Supabase returns "2026-05-27 10:41:54+00" (space, no colon in offset).
+  // Some engines mis-parse this as local time. Normalize to strict ISO 8601.
+  return new Date(iso.replace(" ", "T").replace(/([+-]\d{2})$/, "$1:00"));
+}
+
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return parseIso(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
 function formatDate(iso: string) {
-  const d = new Date(iso);
+  const d = parseIso(iso);
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
@@ -121,6 +127,9 @@ export default function MessageThread({ conversation, messages, currentUserId, o
                           {/* Mapped against exact Supabase column: message */}
                           {msg.message}
                         </div>
+                        {msg.is_ai && (
+                          <p className="text-[10px] text-slate-400 mt-0.5 ml-1">🤖 AI reply</p>
+                        )}
                         {isLast && (
                           <p className={`mt-0.5 text-[10px] text-slate-400 ${isMine ? "text-right" : "text-left"}`}>
                             {formatTime(msg.created_at)}

@@ -117,15 +117,17 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
       return;
     }
 
+    onSendToSeller?.(message);
+
     setLoading(true);
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          message, 
-          prod_name, 
-          prod_price, 
+        body: JSON.stringify({
+          message,
+          prod_name,
+          prod_price,
           prod_desc,
           history: updatedMessages.map((m) => ({
             role: m.role === "buyer" ? "user" : "assistant",
@@ -136,7 +138,6 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
 
       const data = await res.json();
       setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), role: "seller", content: data.reply, isAi: true, created_at: new Date().toISOString() }]);
-      onSendToSeller?.(message);
 
       if (chat_id) {
         await fetch("/api/chat", {
@@ -152,7 +153,6 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
       }
     } catch {
       setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), role: "seller", content: "Sorry, please wait for the seller reply", isAi: true }]);
-      onSendToSeller?.(message);
     } finally {
       setLoading(false);
     }
@@ -175,9 +175,9 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
                   {msg.content}
                   </div>
                   {msg.isAi && <p className="text-[10px] text-gray-400 mt-1 ml-1">🤖 This is an AI reply, it might not be accurate</p>}
-                  {msg.created_at && ( 
+                  {msg.created_at && (
                   <p className={`text-[10px] text-gray-400 mt-0.5 ${msg.role === "buyer" ? "text-right" : "text-left"}`}>
-                    {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    {new Date(msg.created_at.replace(" ", "T").replace(/([+-]\d{2})$/, "$1:00")).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                   </p>
                 )}
               </div>
