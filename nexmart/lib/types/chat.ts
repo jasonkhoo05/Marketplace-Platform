@@ -8,6 +8,9 @@ export type chat = {
   // Custom Frontend/UI Extensions (joined via API or mapped manually)
   product_name?: string;
   product_image?: string | null;
+  product_price?: number;
+  product_desc?: string;
+  product_stock?: number;
   other_user_name: string;
   other_user_image?: string | null;
   last_message: string;

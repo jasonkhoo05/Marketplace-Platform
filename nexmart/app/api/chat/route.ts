@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
     if (body.isGreet || body.ai_reply_to_save || (body.message && !chatId && !sellerId)) {
-      const { isGreet, prod_name, prod_price, prod_desc, history, ai_reply_to_save, chat_id: aiChatId } = body;
+      const { isGreet, prod_name, prod_price, prod_desc, prod_stock, history, ai_reply_to_save, chat_id: aiChatId } = body;
       if (ai_reply_to_save && aiChatId) {
         await supabase.from("chat_message").insert([{
           chat_id: aiChatId,
@@ -118,12 +118,18 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: true });
       }
 
+      const stockStatus = prod_stock !== undefined && prod_stock !== null
+        ? (Number(prod_stock) > 0 ? `In stock (${prod_stock} units available)` : "Out of stock — do NOT tell the buyer this item is available")
+        : "Stock status unknown";
+
       const systemPrompt = `You are a warm, polite, and professional seller assistant for a Malaysian e-commerce platform.
       You are selling: ${prod_name ?? "a product"}, priced at ${prod_price ?? "an unspecified price"}.
       Product description: ${prod_desc ?? "No description provided."}
+      Stock availability: ${stockStatus}.
+      IMPORTANT: If the buyer asks about stock or availability, you MUST use the stock availability stated above. Never assume or guess.
       IMPORTANT: Always reply in English only, regardless of what language the buyer uses.
       Always be extremely polite, friendly, and patient, no matter how many times the buyer asks the same question.
-      Shipping and delivery context is within Malaysia (e.g. Pos Laju, J&T, DHL eCommerce Malaysia). 
+      Shipping and delivery context is within Malaysia (e.g. Pos Laju, J&T, DHL eCommerce Malaysia).
       Never show frustration. Always end your reply with a warm closing or offer to help further.
       Answer questions about the product only. Keep replies concise and friendly.`;
 

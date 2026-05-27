@@ -14,6 +14,7 @@ interface AiChatProps {
   prod_name?: string;
   prod_price?: string;
   prod_desc?: string;
+  prod_stock?: number;
   username?: string;
   onSendToSeller?: (msg: string) => void;
   dbMessages?: any[];
@@ -31,7 +32,7 @@ const QUICK_REPLIES = [
   "Is this item original from manufacturer?"
 ];
 
-export default function AiChat({ prod_name, prod_price, prod_desc, username, onSendToSeller, dbMessages = [], seller_id, current_user_id, chat_id, messagesLoading }: AiChatProps) {
+export default function AiChat({ prod_name, prod_price, prod_desc, prod_stock, username, onSendToSeller, dbMessages = [], seller_id, current_user_id, chat_id, messagesLoading }: AiChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [dbLoaded, setDbLoaded] = useState(false);
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ isGreet: true, prod_name, prod_price, prod_desc }),
+          body: JSON.stringify({ isGreet: true, prod_name, prod_price, prod_desc, prod_stock }),
         });
         const data = await res.json();
         setMessages([{ id: Date.now().toString(), role: "seller", content: data.reply, isAi: true, created_at: new Date().toISOString() }]);
@@ -129,6 +130,7 @@ export default function AiChat({ prod_name, prod_price, prod_desc, username, onS
           prod_name,
           prod_price,
           prod_desc,
+          prod_stock,
           history: updatedMessages.map((m) => ({
             role: m.role === "buyer" ? "user" : "assistant",
             content: m.content,

@@ -76,8 +76,9 @@ export default function MessageThread({ conversation, messages, currentUserId, o
       <AiChat
         chat_id={conversation.chat_id}
         prod_name={conversation.product_name}
-        prod_price={undefined}
-        prod_desc={undefined}
+        prod_price={conversation.product_price?.toString()}
+        prod_desc={conversation.product_desc}
+        prod_stock={conversation.product_stock}
         seller_id={conversation.seller_id}
         current_user_id={currentUserId}
         onSendToSeller={(msg) => onSendMessage(msg)}

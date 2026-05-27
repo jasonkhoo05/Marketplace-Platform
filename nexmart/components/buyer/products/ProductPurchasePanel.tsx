@@ -87,10 +87,14 @@ export default function ProductPurchasePanel({ product }: Props) {
       // 2. SAFETY GUARD: If backend structure didn't return a chat_id property, reconstruct it from fallbacks
       const structuredPayload = {
         ...chatData,
-        chat_id: chatData.chat_id ?? chatData.id, 
+        chat_id: chatData.chat_id ?? chatData.id,
         buyer_id: chatData.buyer_id,
         seller_id: cleanSellerId,
-        prod_id: product.id
+        prod_id: product.id,
+        prod_name: product.name,
+        prod_price: product.price,
+        prod_desc: product.description,
+        prod_stock: product.stockQuantity,
       };
 
       if (!structuredPayload.chat_id) {
