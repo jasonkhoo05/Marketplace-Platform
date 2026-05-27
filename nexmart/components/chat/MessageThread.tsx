@@ -106,8 +106,8 @@ export default function MessageThread({ conversation, messages, currentUserId, o
               </div>
               <div className="flex flex-col gap-1">
                 {dayMsgs.map((msg, idx) => {
-                  // Mapped against exact Supabase column: sender_id
-                  const isMine = msg.sender_id === currentUserId;
+                  // AI messages appear on the seller's right since AI speaks on their behalf
+                  const isMine = msg.sender_id === currentUserId || (!isBuyer && !!msg.is_ai);
                   // const isLast =
                   //   idx === dayMsgs.length - 1 ||
                   //   dayMsgs[idx + 1].sender_id !== msg.sender_id;
