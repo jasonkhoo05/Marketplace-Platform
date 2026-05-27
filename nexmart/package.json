@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next dev",
-    "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=3072 next dev --turbo",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=2048 next build",
     "start": "next start",
     "lint": "eslint ."
   },
